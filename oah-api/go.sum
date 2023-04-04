@@ -1,0 +1,6 @@
+github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
+github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
+github.com/rs/cors v1.8.3 h1:O+qNyWn7Z+F9M0ILBHgMVPuB1xTOucVd5gtaYyXBpRo=
+github.com/rs/cors v1.8.3/go.mod h1:XyqrcTp5zjWr1wsJ8PIRZssZ8b/WMcMf71DJnit4EMU=
+github.com/rueian/rueidis v0.0.93 h1:cG905akj2+QyHx0x9y4mN0K8vLi6M94QiyoLulXS3l0=
+github.com/rueian/rueidis v0.0.93/go.mod h1:lo6LBci0D986usi5Wxjb4RVNaWENKYbHZSnufGJ9bTE=
