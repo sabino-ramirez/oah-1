@@ -1,8 +1,8 @@
 package server
 
 import (
-	"encoding/json"
-	"fmt"
+	// "encoding/json"
+	// "fmt"
 	"log"
 	"net"
 	"net/http"
@@ -103,28 +103,32 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // }
 
 func (s *Server) routes() {
-	s.router.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
-		fmt.Println("available")
+	fs := http.FileServer(http.Dir("/web"))
 
-		w.Header().Set("Content-Type", "application/json")
-
-		w.WriteHeader(http.StatusCreated)
-
-		resp := make(map[string]string)
-		resp["message"] = "available"
-
-		respJson, err := json.Marshal(resp)
-		if err != nil {
-			log.Println("status json marshal err:", err)
-		}
-
-		if _, err := w.Write(respJson); err != nil {
-			log.Printf("err writing json in scan: %v", err)
-		}
-	})
+	// s.router.Handle("/", fs)
+	// s.router.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
+	// 	fmt.Println("available")
+	//
+	// 	w.Header().Set("Content-Type", "application/json")
+	//
+	// 	w.WriteHeader(http.StatusCreated)
+	//
+	// 	resp := make(map[string]string)
+	// 	resp["message"] = "available"
+	//
+	// 	respJson, err := json.Marshal(resp)
+	// 	if err != nil {
+	// 		log.Println("status json marshal err:", err)
+	// 	}
+	//
+	// 	if _, err := w.Write(respJson); err != nil {
+	// 		log.Printf("err writing json in scan: %v", err)
+	// 	}
+	// })
 
 	s.router.HandleFunc("/reqs", s.handleGetReqs())
-	s.router.HandleFunc("/scan", s.handleScan())
 	s.router.HandleFunc("/search", s.handleSearch())
 	s.router.HandleFunc("/update", s.handleUpdateReq()).Methods("POST")
+	s.router.HandleFunc("/scan", s.handleScan())
+	s.router.PathPrefix("/").Handler(http.StripPrefix("/", fs))
 }

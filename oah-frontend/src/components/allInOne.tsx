@@ -407,9 +407,9 @@ const AllInOne = (props: {
   const handleUpdateClick = async () => {
     await Promise.all(
       updateReqs.map(async (updatedReq) => {
-        const response = await fetch(`http://localhost:8000/update`, {
-          // const response = await fetch(`https://oah-1.herokuapp.com/update`, {
-          // const response = await fetch(`/update`, {
+        // const response = await fetch(`http://localhost:8000/update`, {
+        // const response = await fetch(`https://oah-1.herokuapp.com/update`, {
+        const response = await fetch(`/update`, {
           method: "POST",
           headers: {
             // "Content-Type": "application/json",

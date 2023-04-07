@@ -61,9 +61,9 @@ const Search = () => {
     try {
       const response = await fetch(
         // `http://localhost:8000/search/${input.firstName}`,
-        `http://localhost:8000/search?${getSearchQueryString()}`,
+        // `http://localhost:8000/search?${getSearchQueryString()}`,
         // `https://oah-1.herokuapp.com/search?${getSearchQueryString()}`,
-        // `/search?${getSearchQueryString()}`,
+        `/search?${getSearchQueryString()}`,
         {
           method: "GET",
           headers: {
