@@ -9,6 +9,8 @@ import {
 } from "@silevis/reactgrid";
 import { WantedReq, UpdateReqFormat } from "../types";
 import "@silevis/reactgrid/styles.css";
+import { Box, Button, ButtonGroup, Stack } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
 
 const headerRow: Row = {
   rowId: "header",
@@ -446,36 +448,79 @@ const AllInOne = (props: {
   // do style in div? idk
   return (
     <>
-      <div
-        style={{
-          width: "85%",
-          height: "75%",
-          position: "absolute",
-          top: "0",
-          bottom: "0",
-          left: "0",
-          right: "0",
-          margin: "auto",
-          overflow: "scroll",
-        }}
-      >
-        <ReactGrid
-          rows={rows}
-          columns={columns}
-          onColumnResized={handleColumnResize}
-          onCellsChanged={handleChanges}
-          stickyTopRows={1}
-          stickyLeftColumns={1}
-          enableFillHandle
-          enableRangeSelection
-        />
-      </div>
-      <div style={{ paddingRight: "5px" }}>
-        <button onClick={handleUpdateClick}>update</button>
-        <button onClick={handleNewSearchClick}>new search</button>
-      </div>
+      <Stack paddingTop={"3%"} alignItems={"center"} justifyContent={"center"}>
+        <Box
+          sx={{
+            width: "85vw",
+            height: "78vh",
+            overflow: "scroll",
+            // position: "absolute",
+            margin: "auto",
+          }}
+        >
+          <ReactGrid
+            rows={rows}
+            columns={columns}
+            onColumnResized={handleColumnResize}
+            onCellsChanged={handleChanges}
+            stickyTopRows={1}
+            stickyLeftColumns={1}
+            enableFillHandle
+            enableRangeSelection
+          />
+        </Box>
+        <ButtonGroup orientation="vertical" size="small">
+          {updateReqs.length > 0 ? (
+            <Button
+              variant="contained"
+              size="small"
+              endIcon={<SendIcon />}
+              sx={{ marginBottom: "8px", marginTop: "4px" }}
+              onClick={handleUpdateClick}
+            >
+              Update
+            </Button>
+          ) : null}
+          <Button
+            variant="contained"
+            size="small"
+            sx={{ marginTop: "4px" }}
+            onClick={handleNewSearchClick}
+          >
+            New Search
+          </Button>
+        </ButtonGroup>
+      </Stack>
     </>
   );
 };
 
 export default AllInOne;
+// <div
+//   style={{
+//     width: "85%",
+//     height: "75%",
+//     position: "absolute",
+//     top: "0",
+//     bottom: "0",
+//     left: "0",
+//     right: "0",
+//     margin: "auto",
+//     overflow: "scroll",
+//   }}
+// >
+//   <ReactGrid
+//     rows={rows}
+//     columns={columns}
+//     onColumnResized={handleColumnResize}
+//     onCellsChanged={handleChanges}
+//     stickyTopRows={1}
+//     stickyLeftColumns={1}
+//     enableFillHandle
+//     enableRangeSelection
+//   />
+// </div>
+// <div style={{ paddingRight: "5px" }}>
+//   <button onClick={handleUpdateClick}>update</button>
+//   <button onClick={handleNewSearchClick}>new search</button>
+// </div>

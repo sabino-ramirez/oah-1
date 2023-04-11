@@ -1,8 +1,19 @@
 import React, { useState } from "react";
 import { WantedReq, TypeToSearch } from "../types";
 import AllInOne from "./allInOne";
+import {
+  Box,
+  Container,
+  Button,
+  IconButton,
+  InputAdornment,
+  Stack,
+  TextField,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const Search = () => {
+  const [showPassword, setShowPassword] = useState(false);
   // useId is react hook to generate unique id
   // const identifier = useId();
   // const firstName = useId();
@@ -31,6 +42,10 @@ const Search = () => {
   // these are typescript objects representing an ovation req
   // to be sent to main component for processing
   const [stateReqs, setStateReqs] = useState<WantedReq[]>([]);
+
+  const handleShowPassword = () => {
+    setShowPassword((show) => !show);
+  };
 
   const getSearchQueryString = (): string => {
     let validFields = [];
@@ -172,74 +187,98 @@ const Search = () => {
 
   return (
     <React.Fragment>
-      <div
-        style={{ paddingLeft: "45%", paddingRight: "40%", paddingTop: "3%" }}
-      >
+      <Container maxWidth={"lg"}>
         {isLoggedIn ? (
-          <div>
-            {!hasSearched ? (
-              <div className="input-group">
-                <input
+          <Box maxWidth="lg">
+            {hasSearched ? (
+              <AllInOne
+                parentReturnReqs={stateReqs}
+                parentSetReturnReqs={setStateReqs}
+                parentHasSearchedState={setHasSearched}
+                apiKey={apiKey}
+              />
+            ) : (
+              <Stack
+                spacing={1}
+                paddingTop={"9%"}
+                alignItems={"center"}
+                justifyContent={"center"}
+              >
+                <TextField
                   type="search"
+                  size="small"
+                  label="identifier.."
                   // name={identifier}
                   name="identifier"
                   onInput={handleInput}
-                  placeholder="identifier.."
                 />
-                <input
+                <TextField
                   type="search"
+                  size="small"
+                  label="first name.."
                   // name={firstName}
                   name="firstName"
                   onInput={handleInput}
-                  placeholder="first name..."
                 />
-                <input
+                <TextField
                   type="search"
+                  size="small"
+                  label="last name.."
                   // name={lastName}
                   name="lastName"
                   onInput={handleInput}
-                  placeholder="last name..."
                 />
-                <input
+                <TextField
                   type="search"
+                  size="small"
+                  label="yyyy-mm-dd.."
                   // name={lastName}
                   name="dob"
                   onInput={handleInput}
-                  placeholder="yyyy-mm-dd..."
                 />
-                <input
+                <TextField
                   type="search"
+                  size="small"
+                  label="provider acc. name.."
                   // name={lastName}
                   name="provAcc"
                   onInput={handleInput}
-                  placeholder="provider Account name..."
                 />
-                <button onClick={handleSearchClick}>search</button>
-              </div>
-            ) : null}
-
-            <div>
-              {hasSearched ? (
-                <AllInOne
-                  parentReturnReqs={stateReqs}
-                  parentSetReturnReqs={setStateReqs}
-                  parentHasSearchedState={setHasSearched}
-                  apiKey={apiKey}
-                />
-              ) : null}
-            </div>
-          </div>
+                <Button variant="contained" onClick={handleSearchClick}>
+                  Search
+                </Button>
+              </Stack>
+            )}
+          </Box>
         ) : (
-          <div>
-            <input
-              type="password"
-              placeholder="enter api key.."
+          <Stack
+            paddingTop={"9%"}
+            alignItems={"center"}
+            justifyContent={"center"}
+          >
+            <TextField
+              type={showPassword ? "text" : "password"}
+              label="enter api key.."
+              variant="outlined"
+              size="small"
+              margin="dense"
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleShowPassword} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               onInput={handleAPIKeyEntry}
             />
-            <button onClick={() => setIsLoggedIn(true)}>submit</button>
-          </div>
+            <Button variant="contained" onClick={() => setIsLoggedIn(true)}>
+              submit
+            </Button>
+          </Stack>
         )}
-      </div>
+      </Container>
     </React.Fragment>
   );
 };
