@@ -43,12 +43,12 @@ type BetterIndividualReq struct {
 			Ethnicity     string `json:"ethnicity,omitempty"`
 		} `json:"patient,omitempty"`
 		BillingInformation struct {
-			BillTo string `json:"billTo,omitempty"`
-			// InsuranceInformations []struct {
-			// 	IDNumber              string `json:"idNumber,omitempty"`
-			// 	InsuranceProviderName string `json:"insuranceProviderName,omitempty"`
-			// 	InsuranceType         string `json:"insuranceType,omitempty"`
-			// } `json:"insuranceInformations,omitempty"`
+			BillTo                string `json:"billTo,omitempty"`
+			InsuranceInformations []struct {
+				IDNumber              string `json:"idNumber,omitempty"`
+				InsuranceType         string `json:"insuranceType,omitempty"`
+				InsuranceProviderName string `json:"insuranceProviderName,omitempty"`
+			} `json:"insuranceInformations,omitempty"`
 		} `json:"billingInformation,omitempty"`
 	} `json:"requisition,omitempty"`
 }

@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	// "io"
+	// "os"
 
 	"log"
 	"net/http"
@@ -104,7 +106,7 @@ func UpdateReq(
 	}
 
 	// show response from ovation endpoint
-	// io.Copy(os.Stdout, res.Body)
+	// io.Copy(os.Stdout, response.Body)
 
 	defer response.Body.Close()
 

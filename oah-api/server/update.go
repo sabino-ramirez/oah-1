@@ -13,10 +13,10 @@ import (
 func (s *Server) handleUpdateReq() http.HandlerFunc {
 	log.Println("pleaseHandleUpdateReq invoked")
 
-	var payload models.BetterIndividualReq
-	var final models.BetterIndividualReq
-
 	return func(w http.ResponseWriter, r *http.Request) {
+		var payload models.BetterIndividualReq
+		var final models.BetterIndividualReq
+
 		ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
 
 		// io.Copy(os.Stdout, r.Body)

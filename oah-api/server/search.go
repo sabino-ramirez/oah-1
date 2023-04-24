@@ -117,6 +117,8 @@ func (s *Server) handleSearch() http.HandlerFunc {
 			}
 
 			tempList.Requisitions = append(tempList.Requisitions, tempReq)
+
+			tempReq = models.BetterIndividualReq{}
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -126,6 +128,5 @@ func (s *Server) handleSearch() http.HandlerFunc {
 		}
 
 		tempList = models.BetterIndividualReqs{}
-		tempReq = models.BetterIndividualReq{}
 	}
 }

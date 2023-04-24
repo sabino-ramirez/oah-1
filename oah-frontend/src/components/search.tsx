@@ -130,23 +130,29 @@ const Search = () => {
             // requisition.billingInformation.
             billTo: `${req.requisition.billingInformation.billTo}`,
             // requisition.billingInformation.insuranceInformations [{}]
-            // primInsurName: `${
+            primInsurId: `${
+              req.requisition.billingInformation.insuranceInformations
+                ? req.requisition.billingInformation.insuranceInformations[0]
+                    .idNumber
+                : null
+            }`,
+            // primInsurType: `${
             //   req.requisition.billingInformation.insuranceInformations
             //     ? req.requisition.billingInformation.insuranceInformations[0]
-            //         .insuranceProviderName
+            //         .insuranceType
             //     : null
             // }`,
-            // primInsurId: `${
-            //   req.requisition.billingInformation.insuranceInformations
-            //     ? req.requisition.billingInformation.insuranceInformations[0]
-            //         .idNumber
-            //     : null
-            // }`,
+            primInsurName: `${
+              req.requisition.billingInformation.insuranceInformations
+                ? req.requisition.billingInformation.insuranceInformations[0]
+                    .insuranceProviderName
+                : null
+            }`,
           },
         ]);
       });
 
-      console.log(JSON.stringify(result.Requisitions, null, 2));
+      // console.log(JSON.stringify(result.Requisitions, null, 2));
     } catch (err: any) {
       console.log("WOAH ERROR D:", err.message);
     } finally {

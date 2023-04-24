@@ -10,7 +10,8 @@ import {
 import { WantedReq, UpdateReqFormat } from "../types";
 import "@silevis/reactgrid/styles.css";
 import { Box, Button, ButtonGroup, Stack } from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
+import UpdateDialogue from "./updateDialogue";
+import MySnackbar from "./snackbar";
 
 const headerRow: Row = {
   rowId: "header",
@@ -95,14 +96,14 @@ const headerRow: Row = {
       type: "header",
       text: "Bill To",
     },
-    // {
-    //   type: "header",
-    //   text: "prim insur name",
-    // },
-    // {
-    //   type: "header",
-    //   text: "prim insur id",
-    // },
+    {
+      type: "header",
+      text: "Primary Ins ID",
+    },
+    {
+      type: "header",
+      text: "Primary Ins Name",
+    },
   ],
 };
 
@@ -127,8 +128,8 @@ const getColumns = (): Column[] => [
   { columnId: "race", width: 110 },
   { columnId: "ethnicity", width: 110 },
   { columnId: "billTo", width: 120 },
-  // { columnId: "primInsurName", width: 180 },
-  // { columnId: "primInsurId", width: 100 },
+  { columnId: "primInsurId", width: 100 },
+  { columnId: "primInsurName", width: 180 },
 ];
 
 const getRows = (reqs: WantedReq[]): Row[] => [
@@ -240,8 +241,16 @@ const getRows = (reqs: WantedReq[]): Row[] => [
         text: req.billTo ? req.billTo : "nothing",
         style: { paddingLeft: "2px" },
       },
-      // { type: "text", text: req.primInsurName ? req.primInsurName : "nothing" },
-      // { type: "text", text: req.primInsurId ? req.primInsurId : "nothing" },
+      {
+        type: "text",
+        text: req.primInsurId ? req.primInsurId : "nothing",
+        style: { paddingLeft: "2px" },
+      },
+      {
+        type: "text",
+        text: req.primInsurName ? req.primInsurName : "nothing",
+        style: { paddingLeft: "2px" },
+      },
     ],
     height: 70,
   })),
@@ -295,19 +304,18 @@ const organizeReqUpdates = (
         id: reqs[changeRow].provAccId,
         name: reqs[changeRow].provAccName,
       };
-    }
-    // else if (changeColumn.includes("primInsur")) {
-    //   fieldName = "billingInformation";
-    //   structure = {
-    //     insuranceInformations: [
-    //       {
-    //         insuranceProviderName: reqs[changeRow].primInsurName,
-    //         idNumber: reqs[changeRow].primInsurId,
-    //       },
-    //     ],
-    //   };
-    // }
-    else if (changeColumn.includes("billTo")) {
+    } else if (changeColumn.includes("primInsur")) {
+      fieldName = "billingInformation";
+      structure = {
+        insuranceInformations: [
+          {
+            idNumber: reqs[changeRow].primInsurId,
+            insuranceType: "Primary",
+            insuranceProviderName: reqs[changeRow].primInsurName,
+          },
+        ],
+      };
+    } else if (changeColumn.includes("billTo")) {
       fieldName = "billingInformation";
       structure = {
         billTo: reqs[changeRow].billTo,
@@ -386,6 +394,9 @@ const AllInOne = (props: {
 
   const [columns, setColumns] = useState<Column[]>(getColumns());
 
+  // for snackbar
+  const [snackBarOpen, setSnackbarOpen] = useState(false);
+
   const rows = getRows(reqs);
   // const columns = getColumns();
 
@@ -407,6 +418,10 @@ const AllInOne = (props: {
   };
 
   const handleUpdateClick = async () => {
+    updateReqs.forEach((updatedReq) => {
+      console.log(JSON.stringify(updatedReq));
+    });
+
     await Promise.all(
       updateReqs.map(async (updatedReq) => {
         // const response = await fetch(`http://localhost:8000/update`, {
@@ -429,12 +444,9 @@ const AllInOne = (props: {
       })
     );
 
-    // updateReqs.forEach((updatedReq) => {
-    //   console.log(JSON.stringify(updatedReq));
-    // });
-
     // reset updates after user sends updates to /update
     setUpdateReqs([]);
+    setSnackbarOpen(true);
   };
 
   const handleNewSearchClick = () => {
@@ -471,16 +483,20 @@ const AllInOne = (props: {
         </Box>
         <ButtonGroup orientation="vertical" size="small">
           {updateReqs.length > 0 ? (
-            <Button
-              variant="contained"
-              size="small"
-              endIcon={<SendIcon />}
-              sx={{ marginBottom: "8px", marginTop: "4px" }}
-              onClick={handleUpdateClick}
-            >
-              Update
-            </Button>
-          ) : null}
+            <UpdateDialogue
+              updateAmount={updateReqs.length}
+              parentClickHandler={handleUpdateClick}
+            />
+          ) : // <Button
+          //   variant="contained"
+          //   size="small"
+          //   endIcon={<SendIcon />}
+          //   sx={{ marginBottom: "8px", marginTop: "4px" }}
+          //   onClick={handleUpdateClick}
+          // >
+          //   Update
+          // </Button>
+          null}
           <Button
             variant="contained"
             size="small"
@@ -490,37 +506,13 @@ const AllInOne = (props: {
             New Search
           </Button>
         </ButtonGroup>
+        <MySnackbar
+          parentIsOpen={snackBarOpen}
+          parentSetIsOpen={setSnackbarOpen}
+        />
       </Stack>
     </>
   );
 };
 
 export default AllInOne;
-// <div
-//   style={{
-//     width: "85%",
-//     height: "75%",
-//     position: "absolute",
-//     top: "0",
-//     bottom: "0",
-//     left: "0",
-//     right: "0",
-//     margin: "auto",
-//     overflow: "scroll",
-//   }}
-// >
-//   <ReactGrid
-//     rows={rows}
-//     columns={columns}
-//     onColumnResized={handleColumnResize}
-//     onCellsChanged={handleChanges}
-//     stickyTopRows={1}
-//     stickyLeftColumns={1}
-//     enableFillHandle
-//     enableRangeSelection
-//   />
-// </div>
-// <div style={{ paddingRight: "5px" }}>
-//   <button onClick={handleUpdateClick}>update</button>
-//   <button onClick={handleNewSearchClick}>new search</button>
-// </div>

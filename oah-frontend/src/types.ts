@@ -48,8 +48,9 @@ export interface WantedReq {
   // requisition.billingInformation
   billTo?: string;
   // requisition.billingInformation.insuranceInformations [{}]
-  // primInsurName?: string;
-  // primInsurId?: string;
+  primInsurId?: string;
+  primInsurType?: string;
+  primInsurName?: string;
 }
 
 export interface TypeToSearch {
