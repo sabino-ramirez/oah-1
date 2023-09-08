@@ -11,6 +11,9 @@ interface requisition extends Record<string, any> {
   id: number;
   identifier: string;
   projectTemplateId: number;
+  // customAttribues: {
+  //   labNotes: string
+  // }
   // providerAccount?: {
   //   id: number;
   //   name: string;
@@ -25,7 +28,8 @@ export interface WantedReq {
   // requisition
   id: string;
   identifier: string;
-  labNotes: string;
+  // labNotes: string;
+  lab_notes: string;
   projectTemplateId: string;
   reqTemplate?: string;
   sampCollDate?: string;

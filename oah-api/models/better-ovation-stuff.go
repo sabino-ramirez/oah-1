@@ -7,7 +7,8 @@ type BetterIndividualReq struct {
 		ID               int    `json:"id,omitempty"`
 		Identifier       string `json:"identifier"`
 		CustomAttributes struct {
-			LabNotes string `json:"labNotes,omitempty"`
+			// LabNotes string `json:"labNotes,omitempty"`
+			LabNotes string `json:"lab_notes,omitempty"`
 		} `json:"customAttributes,omitempty"`
 		SampleCollectionDate string `json:"sampleCollectionDate,omitempty"`
 		ProjectName          string `json:"projectName,omitempty"`

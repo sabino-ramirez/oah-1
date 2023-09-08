@@ -126,6 +126,7 @@ func (s *Server) routes() {
 	// 	}
 	// })
 
+	s.router.HandleFunc("/auth", s.handleAuthorizeToken())
 	s.router.HandleFunc("/reqs", s.handleGetReqs())
 	s.router.HandleFunc("/search", s.handleSearch())
 	s.router.HandleFunc("/update", s.handleUpdateReq()).Methods("POST")

@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+
 	"log"
 	"time"
 
@@ -30,16 +32,46 @@ func getIndividualReq(url string, apiClient *models.PleaseClient, target interfa
 		return err
 	}
 
+	defer response.Body.Close()
+
+	if response.StatusCode == http.StatusOK {
+		bodyBytes, err := io.ReadAll(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err := json.Unmarshal(bodyBytes, target); err != nil {
+			if jsonErr, ok := err.(*json.SyntaxError); ok {
+				log.Println("Occurred at offset:", jsonErr.Offset)
+				// … something to show the data in buff around that offset …
+			}
+			return err
+		}
+	}
+
 	// body, _ := ioutil.ReadAll(response.Body)
 	// response body showing correct json
 	// log.Printf("%v", string(body))
 
-	if err := json.NewDecoder(response.Body).Decode(target); err != nil {
-		log.Printf("decoding error for %v: ", url)
-		return err
-	}
+	// if err := json.NewDecoder(response.Body).Decode(target); err != nil {
+	// 	log.Println("decoding error for: ", url)
+	// 	if serr, ok := err.(*json.SyntaxError); ok {
+	// 		log.Println("Occurred at offset:", serr.Offset)
+	// 		// … something to show the data in buff around that offset …
+	// 	}
+	// 	// log.Printf("%q", response.Body)
+	// 	return err
+	// }
 
-	defer response.Body.Close()
+	// heynow, _ := ioutil.ReadAll(response.Body)
+	// if err := json.Unmarshal(heynow, target); err != nil {
+	// 	if jsonErr, ok := err.(*json.SyntaxError); ok {
+	// 		probPart := heynow[jsonErr.Offset-1 : jsonErr.Offset+1]
+	// 		err = fmt.Errorf("%w -> error near: '%s' (offset %d)", err, probPart, jsonErr.Offset)
+	// 		log.Println(err)
+	// 	}
+	// }
+
 	return nil
 }
 
@@ -90,15 +122,25 @@ func scanForUpdates(
 
 		if rueidis.IsRedisNil(err) {
 			// log.Printf("dont have this one. getting %v..", projReq.ID)
-			url := fmt.Sprintf(
-				"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions/%v",
+			// url := fmt.Sprintf(
+			// 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions/%v",
+			// 	currentTemplate.Id,
+			// 	projReq.Identifier,
+			// )
+
+			prodSubUrl := fmt.Sprintf(
+				"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions/%v",
 				currentTemplate.Id,
 				projReq.Identifier,
 			)
 
 			// log.Println(tempReq.Requisition)
-			if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
-				log.Printf("get individ req err: %v", err)
+			// if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
+			// 	log.Printf("get individ req err: %v", err)
+			// }
+
+			if err := getIndividualReq(prodSubUrl, apiClient, &tempReq); err != nil {
+				log.Printf("get individ req err: %#v", err)
 			}
 
 			tempReqJson, err := json.Marshal(tempReq.Requisition)
@@ -128,13 +170,23 @@ func scanForUpdates(
 					lastRedisUpdateTimeObj,
 				)
 
-				url := fmt.Sprintf(
-					"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions/%v",
+				// url := fmt.Sprintf(
+				// 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions/%v",
+				// 	currentTemplate.Id,
+				// 	projReq.Identifier,
+				// )
+
+				prodSubUrl := fmt.Sprintf(
+					"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions/%v",
 					currentTemplate.Id,
 					projReq.Identifier,
 				)
 
-				if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
+				// if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
+				// 	log.Printf("get individ req err: %v", err)
+				// }
+
+				if err := getIndividualReq(prodSubUrl, apiClient, &tempReq); err != nil {
 					log.Printf("get individ req err: %v", err)
 				}
 
@@ -142,6 +194,8 @@ func scanForUpdates(
 				if err != nil {
 					log.Println("marshalling error:", err)
 				}
+
+				// log.Println(string(tempReqJson))
 
 				if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
 					log.Printf("set key in scan err: %v", err)

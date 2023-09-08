@@ -2,6 +2,8 @@ package server
 
 import (
 	"encoding/json"
+	// "io"
+	// "os"
 
 	"log"
 	"net/http"
@@ -17,7 +19,8 @@ func (s *Server) handleUpdateReq() http.HandlerFunc {
 		var payload models.BetterIndividualReq
 		var final models.BetterIndividualReq
 
-		ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
+		// ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
+		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"))
 
 		// io.Copy(os.Stdout, r.Body)
 
@@ -32,7 +35,13 @@ func (s *Server) handleUpdateReq() http.HandlerFunc {
 		// }
 		// log.Printf("payloadJson: %v", string(payloadJson))
 
-		status, err := services.UpdateReq(ovationAPI, payload, &final)
+		// Happens here. the payload is correct and ovation updates lab notes
+		// correctly. BUT the response comes back as "labNotes" and not "lab_notes"
+		// so the models.BetterIndividualReq struct will ignore the field from the response and
+		// send a null value to the front end even though it updated properly
+		// have to find a way to send "lab_notes" and accept "labNotes" ridiculous.
+		// status, err := services.UpdateReq(ovationAPI, payload, &final)
+		status, err := services.UpdateReq(ovationProdSubAPI, payload, &final)
 		if err != nil {
 			log.Printf("update req error: %v", err)
 			log.Printf("status: %v", status)
@@ -45,6 +54,10 @@ func (s *Server) handleUpdateReq() http.HandlerFunc {
 
 		// log.Println("finalUpdateJson", string(finalUpdateJson))
 
+		// we update the req in redis with the response from ovation
+		// but the struct for reqs has "lab_notes" which is the correct key to update reqs.
+		// However, the req struct ignores the update req response from ovation because
+		// ovation returns a key as "labNotes".
 		if err := setNewRedisKey(s.cache, final.Requisition.ID, finalUpdateJson); err != nil {
 			log.Printf("setting new key in /updated error: %v", err)
 		}

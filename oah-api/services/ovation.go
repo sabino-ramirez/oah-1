@@ -14,14 +14,18 @@ import (
 )
 
 func GetProjectTemplates(client *models.PleaseClient, target interface{}) (int, error) {
-	// url := fmt.Sprintf("https://lab-services.ovation.io/api/v3/project_templates/%d/requisitions?startDate=01-01-2022&endDate=01-04-2022", client.ProjectTemplateId)
-	url := fmt.Sprintf(
-		"https://lab-services-sandbox.ovation.io/api/v3/project_templates?organizationId=%d",
+	// url := fmt.Sprintf(
+	// 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates?organizationId=%d",
+	// 	client.OrganizationId,
+	// )
+
+	prodSubUrl := fmt.Sprintf(
+		"https://lab-services.ovation.io/api/v3/project_templates?organizationId=%d",
 		client.OrganizationId,
 	)
-	// url := fmt.Sprintf("https://lab-services.ovation.io/api/v3/project_templates?organizationId=%d", client.OrganizationId)
 
-	req, err := http.NewRequest("GET", url, nil)
+	// req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", prodSubUrl, nil)
 	if err != nil {
 		log.Println("new req error:", err)
 	}
@@ -49,12 +53,18 @@ func GetProjectReqs(
 	projectTemplateId any,
 	target interface{},
 ) (int, error) {
-	url := fmt.Sprintf(
-		"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions",
+	// url := fmt.Sprintf(
+	// 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions",
+	// 	projectTemplateId,
+	// )
+
+	prodSubUrl := fmt.Sprintf(
+		"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions",
 		projectTemplateId,
 	)
 
-	req, err := http.NewRequest("GET", url, nil)
+	// req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", prodSubUrl, nil)
 	if err != nil {
 		log.Println("please getProjReqs request error:", err)
 	}
@@ -80,8 +90,14 @@ func UpdateReq(
 	target interface{},
 ) (int, error) {
 	// log.Printf("%v, %v\n", updatedReq.Requisition.ProjectTemplateID, updatedReq.Requisition.Identifier)
-	url := fmt.Sprintf(
-		"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%d/requisitions/%s",
+	// url := fmt.Sprintf(
+	// 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%d/requisitions/%s",
+	// 	updatedReq.Requisition.ProjectTemplateID,
+	// 	updatedReq.Requisition.Identifier,
+	// )
+
+	prodSubUrl := fmt.Sprintf(
+		"https://lab-services.ovation.io/api/v3/project_templates/%d/requisitions/%s",
 		updatedReq.Requisition.ProjectTemplateID,
 		updatedReq.Requisition.Identifier,
 	)
@@ -92,7 +108,7 @@ func UpdateReq(
 	}
 	log.Printf("updatedReqJson: \n%v", string(updatedReqJson))
 
-	request, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(updatedReqJson))
+	request, err := http.NewRequest(http.MethodPut, prodSubUrl, bytes.NewBuffer(updatedReqJson))
 	if err != nil {
 		log.Println("new request error:", err)
 	}

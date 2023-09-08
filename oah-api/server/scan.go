@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"runtime"
 
 	"log"
 	"net/http"
@@ -16,9 +17,11 @@ func (s *Server) handleScan() http.HandlerFunc {
 	var templates models.ProjectTemps
 
 	return func(_ http.ResponseWriter, r *http.Request) {
-		ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
+		// ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
+		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"))
 
-		_, err := services.GetProjectTemplates(ovationAPI, &templates)
+		// _, err := services.GetProjectTemplates(ovationAPI, &templates)
+		_, err := services.GetProjectTemplates(ovationProdSubAPI, &templates)
 		if err != nil {
 			fmt.Println("error getting proj templates", err)
 		}
@@ -31,10 +34,11 @@ func (s *Server) handleScan() http.HandlerFunc {
 		for ix := range templates.Project_templates {
 			maxJobs <- struct{}{}
 			go func(projTemp models.ProjectTemp) {
-				scanForUpdates(s.cache, projTemp, ovationAPI)
+				// scanForUpdates(s.cache, projTemp, ovationAPI)
+				scanForUpdates(s.cache, projTemp, ovationProdSubAPI)
 				<-maxJobs
 			}(templates.Project_templates[ix])
 		}
-		// log.Println(runtime.NumGoroutine())
+		log.Println(runtime.NumGoroutine())
 	}
 }

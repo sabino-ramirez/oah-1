@@ -6,10 +6,15 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
   props,
   ref
 ) {
-  return <MuiAlert  elevation={4} ref={ref} variant="filled" {...props} />;
+  return <MuiAlert elevation={4} ref={ref} variant="filled" {...props} />;
 });
 
-const MySnackbar = (props: { parentIsOpen: any; parentSetIsOpen: any }) => {
+const MySnackbar = (props: {
+  parentIsOpen: any;
+  parentSetIsOpen: any;
+  message: string;
+  severity: any;
+}) => {
   const handleClose = (
     event?: React.SyntheticEvent | Event,
     reason?: string
@@ -20,15 +25,19 @@ const MySnackbar = (props: { parentIsOpen: any; parentSetIsOpen: any }) => {
 
     props.parentSetIsOpen(false);
   };
- 
+
   return (
     <Snackbar
       open={props.parentIsOpen}
       autoHideDuration={2500}
       onClose={handleClose}
     >
-      <Alert severity="success" sx={{ width: "80%" }} onClose={handleClose}>
-        Update Successful!
+      <Alert
+        severity={props.severity}
+        sx={{ width: "80%" }}
+        onClose={handleClose}
+      >
+        {props.message}
       </Alert>
     </Snackbar>
   );

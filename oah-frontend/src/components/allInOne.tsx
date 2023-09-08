@@ -110,7 +110,8 @@ const headerRow: Row = {
 const getColumns = (): Column[] => [
   // { columnId: "id", width: 100 },
   { columnId: "identifier", width: 128 },
-  { columnId: "labNotes", width: 200, resizable: true },
+  // { columnId: "labNotes", width: 200, resizable: true },
+  { columnId: "lab_notes", width: 200, resizable: true },
   { columnId: "projectTemplateId", width: 80 },
   { columnId: "reqTemplate", width: 200, resizable: true },
   { columnId: "samepleCollDate", width: 100 },
@@ -150,7 +151,8 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       },
       {
         type: "text",
-        text: req.labNotes ? req.labNotes : "nothing",
+        // text: req.labNotes ? req.labNotes : "nothing",
+        text: req.lab_notes ? req.lab_notes : "nothing",
         renderer(text) {
           return <div>{text}</div>;
         },
@@ -320,10 +322,14 @@ const organizeReqUpdates = (
       structure = {
         billTo: reqs[changeRow].billTo,
       };
-    } else if (changeColumn.includes("labNotes")) {
+      // } else if (changeColumn.includes("labNotes")) {
+    } else if (changeColumn.includes("lab_notes")) {
       fieldName = "customAttributes";
+      // structure = {
+      //   labNotes: reqs[changeRow].labNotes,
+      // };
       structure = {
-        labNotes: reqs[changeRow].labNotes,
+        lab_notes: reqs[changeRow].lab_notes,
       };
     } else {
       fieldName = "patient";
@@ -488,15 +494,15 @@ const AllInOne = (props: {
               parentClickHandler={handleUpdateClick}
             />
           ) : // <Button
-          //   variant="contained"
-          //   size="small"
-          //   endIcon={<SendIcon />}
-          //   sx={{ marginBottom: "8px", marginTop: "4px" }}
-          //   onClick={handleUpdateClick}
-          // >
-          //   Update
-          // </Button>
-          null}
+            //   variant="contained"
+            //   size="small"
+            //   endIcon={<SendIcon />}
+            //   sx={{ marginBottom: "8px", marginTop: "4px" }}
+            //   onClick={handleUpdateClick}
+            // >
+            //   Update
+            // </Button>
+            null}
           <Button
             variant="contained"
             size="small"
@@ -509,6 +515,8 @@ const AllInOne = (props: {
         <MySnackbar
           parentIsOpen={snackBarOpen}
           parentSetIsOpen={setSnackbarOpen}
+          message={"Update Successful!"}
+          severity="success"
         />
       </Stack>
     </>

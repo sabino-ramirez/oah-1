@@ -11,6 +11,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import MySnackbar from "./snackbar";
 
 const Search = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -34,6 +35,9 @@ const Search = () => {
 
   // when false show search bar etc
   const [hasSearched, setHasSearched] = useState(false);
+
+  // for snackbar
+  const [snackBarOpen, setSnackbarOpen] = useState(false);
 
   // has user been cleared
   const [apiKey, setApiKey] = useState<string>();
@@ -103,11 +107,14 @@ const Search = () => {
             // requisition
             id: `${req.requisition.id}`,
             identifier: `${req.requisition.identifier}`,
-            labNotes: `${
-              req.requisition.customAttributes.labNotes
-                ? req.requisition.customAttributes.labNotes
+            // labNotes: `${req.requisition.customAttributes.labNotes
+            //     ? req.requisition.customAttributes.labNotes
+            //     : null
+            //   }`,
+            lab_notes: `${req.requisition.customAttributes.lab_notes
+                ? req.requisition.customAttributes.lab_notes
                 : null
-            }`,
+              }`,
             projectTemplateId: `${req.requisition.projectTemplateId}`,
             reqTemplate: `${req.requisition.template}`,
             sampCollDate: `${req.requisition.sampleCollectionDate}`,
@@ -130,24 +137,22 @@ const Search = () => {
             // requisition.billingInformation.
             billTo: `${req.requisition.billingInformation.billTo}`,
             // requisition.billingInformation.insuranceInformations [{}]
-            primInsurId: `${
-              req.requisition.billingInformation.insuranceInformations
+            primInsurId: `${req.requisition.billingInformation.insuranceInformations
                 ? req.requisition.billingInformation.insuranceInformations[0]
-                    .idNumber
+                  .idNumber
                 : null
-            }`,
+              }`,
             // primInsurType: `${
             //   req.requisition.billingInformation.insuranceInformations
             //     ? req.requisition.billingInformation.insuranceInformations[0]
             //         .insuranceType
             //     : null
             // }`,
-            primInsurName: `${
-              req.requisition.billingInformation.insuranceInformations
+            primInsurName: `${req.requisition.billingInformation.insuranceInformations
                 ? req.requisition.billingInformation.insuranceInformations[0]
-                    .insuranceProviderName
+                  .insuranceProviderName
                 : null
-            }`,
+              }`,
           },
         ]);
       });
@@ -169,6 +174,33 @@ const Search = () => {
       provAcc: "",
       resultsList: [],
     });
+  };
+
+  const handleSubmitClick = async () => {
+    try {
+      const response = await fetch(`/auth`, {
+        method: "GET",
+        headers: {
+          babyboi: `Bearer ${apiKey}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.code == 200) {
+        setIsLoggedIn(true);
+      } else {
+        console.log("status code: ", result.code);
+        setSnackbarOpen(true);
+      }
+    } catch (err: any) {
+      console.log("error submitting", err.message);
+    } finally {
+      console.log("finally clause");
+    }
   };
 
   const handleInput = (event: any) => {
@@ -279,11 +311,17 @@ const Search = () => {
               }}
               onInput={handleAPIKeyEntry}
             />
-            <Button variant="contained" onClick={() => setIsLoggedIn(true)}>
+            <Button variant="contained" onClick={handleSubmitClick}>
               submit
             </Button>
           </Stack>
         )}
+        <MySnackbar
+          parentIsOpen={snackBarOpen}
+          parentSetIsOpen={setSnackbarOpen}
+          message="Invalid Token"
+          severity="warning"
+        />
       </Container>
     </React.Fragment>
   );
