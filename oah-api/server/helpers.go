@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 
 	"log"
 	"time"
@@ -34,43 +33,42 @@ func getIndividualReq(url string, apiClient *models.PleaseClient, target interfa
 
 	defer response.Body.Close()
 
-	if response.StatusCode == http.StatusOK {
-		bodyBytes, err := io.ReadAll(response.Body)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if err := json.Unmarshal(bodyBytes, target); err != nil {
-			if jsonErr, ok := err.(*json.SyntaxError); ok {
-				log.Println("Occurred at offset:", jsonErr.Offset)
-				// … something to show the data in buff around that offset …
-			}
-			return err
-		}
-	}
-
-	// body, _ := ioutil.ReadAll(response.Body)
-	// response body showing correct json
-	// log.Printf("%v", string(body))
-
-	// if err := json.NewDecoder(response.Body).Decode(target); err != nil {
-	// 	log.Println("decoding error for: ", url)
-	// 	if serr, ok := err.(*json.SyntaxError); ok {
-	// 		log.Println("Occurred at offset:", serr.Offset)
-	// 		// … something to show the data in buff around that offset …
-	// 	}
-	// 	// log.Printf("%q", response.Body)
+	// // use this to see the response body that is causing a problem
+	// // ie 'Retry Later' causing json.SyntaxError
+	// var msg string
+	// b, err := io.ReadAll(response.Body)
+	// if err != nil {
+	// 	log.Println("Error reading body")
 	// 	return err
 	// }
-
-	// heynow, _ := ioutil.ReadAll(response.Body)
-	// if err := json.Unmarshal(heynow, target); err != nil {
-	// 	if jsonErr, ok := err.(*json.SyntaxError); ok {
-	// 		probPart := heynow[jsonErr.Offset-1 : jsonErr.Offset+1]
-	// 		err = fmt.Errorf("%w -> error near: '%s' (offset %d)", err, probPart, jsonErr.Offset)
-	// 		log.Println(err)
+	//
+	// if response.StatusCode == http.StatusOK {
+	// 	if err := json.Unmarshal(b, target); err != nil {
+	// 		switch t := err.(type) {
+	// 		case *json.SyntaxError:
+	// 			jsn := string(b)
+	// 			// jsn += "<--(Invalid Character)"
+	// 			msg = fmt.Sprintf("Invalid character at offset %v\n %s", t.Offset, jsn)
+	// 		case *json.UnmarshalTypeError:
+	// 			jsn := string(b[0:t.Offset])
+	// 			jsn += "<--(Invalid Type)"
+	// 			msg = fmt.Sprintf("Invalid value at offset %v\n %s", t.Offset, jsn)
+	// 		default:
+	// 			msg = err.Error()
+	// 		}
+	//
+	// 		log.Println(msg)
+	// 		return err
 	// 	}
+	// } else {
+	// 	log.Printf("statusCode: %v\nurl: %v\n", response.StatusCode, url)
+	// 	log.Println(string(b))
 	// }
+
+	if err := json.NewDecoder(response.Body).Decode(target); err != nil {
+		log.Println("decoding error for: ", url)
+		return err
+	}
 
 	return nil
 }
@@ -134,11 +132,7 @@ func scanForUpdates(
 				projReq.Identifier,
 			)
 
-			// log.Println(tempReq.Requisition)
 			// if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
-			// 	log.Printf("get individ req err: %v", err)
-			// }
-
 			if err := getIndividualReq(prodSubUrl, apiClient, &tempReq); err != nil {
 				log.Printf("get individ req err: %#v", err)
 			}
@@ -200,6 +194,8 @@ func scanForUpdates(
 				if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
 					log.Printf("set key in scan err: %v", err)
 				}
+
+				log.Println("updated in redis")
 			}
 		}
 		projReqs = models.ProjectReqs{}

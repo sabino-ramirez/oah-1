@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"runtime"
 
 	"log"
 	"net/http"
@@ -14,7 +15,7 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 	log.Println("pleaseHandleGetProjectReqs invoked")
 
 	var templates models.ProjectTemps
-	var specificTemplates models.ProjectTemps
+	// var specificTemplates models.ProjectTemps
 
 	return func(_ http.ResponseWriter, r *http.Request) {
 		// ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
@@ -26,74 +27,74 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 			fmt.Println(err)
 		}
 
-		specificTemplates.Project_templates = append(
-			specificTemplates.Project_templates,
-			models.ProjectTemp{
-				Id:           1255,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation Respiratory Pathogen Panel (RPP)",
-			},
-			models.ProjectTemp{
-				Id:           1317,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Test Form",
-			},
-			models.ProjectTemp{
-				Id:           1443,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation Respiratory Infectious Diseases (Reflex)",
-			},
-			models.ProjectTemp{
-				Id:           1496,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation Wound",
-			},
-			models.ProjectTemp{
-				Id:           1517,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation UTI",
-			},
-			models.ProjectTemp{
-				Id:           1573,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation Covid-19 (Non-Reflex)",
-			},
-			models.ProjectTemp{
-				Id:           1589,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation Women's Health",
-			},
-			models.ProjectTemp{
-				Id:           1666,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation Pre-Barcoded CV-19",
-			},
-			models.ProjectTemp{
-				Id:           2111,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation FrontRunner",
-			},
-			models.ProjectTemp{
-				Id:           2399,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation Monkeypox",
-			},
-			models.ProjectTemp{
-				Id:           2705,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation  FluVID + RSV",
-			},
-			models.ProjectTemp{
-				Id:           2778,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation STI",
-			},
-			models.ProjectTemp{
-				Id:           2791,
-				ProjectName:  "Validation Infectious Disease",
-				TemplateName: "Validation GI",
-			},
-		)
+		// specificTemplates.Project_templates = append(
+		// 	specificTemplates.Project_templates,
+		// 	models.ProjectTemp{
+		// 		Id:           1255,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation Respiratory Pathogen Panel (RPP)",
+		// 	},
+		// 	models.ProjectTemp{
+		// 		Id:           1317,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Test Form",
+		// 	},
+		// 	// models.ProjectTemp{
+		// 	// 	Id:           1443,
+		// 	// 	ProjectName:  "Validation Infectious Disease",
+		// 	// 	TemplateName: "Validation Respiratory Infectious Diseases (Reflex)",
+		// 	// },
+		// 	models.ProjectTemp{
+		// 		Id:           1496,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation Wound",
+		// 	},
+		// 	models.ProjectTemp{
+		// 		Id:           1517,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation UTI",
+		// 	},
+		// 	models.ProjectTemp{
+		// 		Id:           1573,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation Covid-19 (Non-Reflex)",
+		// 	},
+		// 	models.ProjectTemp{
+		// 		Id:           1589,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation Women's Health",
+		// 	},
+		// 	models.ProjectTemp{
+		// 		Id:           1666,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation Pre-Barcoded CV-19",
+		// 	},
+		// 	models.ProjectTemp{
+		// 		Id:           2111,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation FrontRunner",
+		// 	},
+		// 	models.ProjectTemp{
+		// 		Id:           2399,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation Monkeypox",
+		// 	},
+		// 	models.ProjectTemp{
+		// 		Id:           2705,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation  FluVID + RSV",
+		// 	},
+		// 	models.ProjectTemp{
+		// 		Id:           2778,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation STI",
+		// 	},
+		// 	models.ProjectTemp{
+		// 		Id:           2791,
+		// 		ProjectName:  "Validation Infectious Disease",
+		// 		TemplateName: "Validation GI",
+		// 	},
+		// )
 
 		ftCreateCmd2 := s.cache.B().
 			FtCreate().
@@ -111,29 +112,31 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 			log.Println("ft create error:", err)
 		}
 
-		maxJobs := make(chan struct{}, len(specificTemplates.Project_templates))
-		for ix := range specificTemplates.Project_templates {
-			maxJobs <- struct{}{}
-			go func(projTemp models.ProjectTemp) {
-				// scanForUpdates(s.cache, projTemp, ovationAPI)
-				scanForUpdates(s.cache, projTemp, ovationProdSubAPI)
-				<-maxJobs
-			}(specificTemplates.Project_templates[ix])
-		}
-
-		// log.Println(len(templates.Project_templates))
-		// for _, temp := range templates.Project_templates {
+		// log.Println(len(specificTemplates.Project_templates))
+		// for _, temp := range specificTemplates.Project_templates {
 		// 	log.Println(temp.Id)
 		// }
 
-		// maxJobs := make(chan struct{}, len(templates.Project_templates))
-		// for ix := range templates.Project_templates {
+		// maxJobs := make(chan struct{}, len(specificTemplates.Project_templates))
+		// for ix := range specificTemplates.Project_templates {
 		// 	maxJobs <- struct{}{}
 		// 	go func(projTemp models.ProjectTemp) {
 		// 		// scanForUpdates(s.cache, projTemp, ovationAPI)
 		// 		scanForUpdates(s.cache, projTemp, ovationProdSubAPI)
 		// 		<-maxJobs
-		// 	}(templates.Project_templates[ix])
+		// 	}(specificTemplates.Project_templates[ix])
 		// }
+
+		maxJobs := make(chan struct{}, len(templates.Project_templates))
+		for ix := range templates.Project_templates {
+			maxJobs <- struct{}{}
+			go func(projTemp models.ProjectTemp) {
+				// scanForUpdates(s.cache, projTemp, ovationAPI)
+				scanForUpdates(s.cache, projTemp, ovationProdSubAPI)
+				<-maxJobs
+			}(templates.Project_templates[ix])
+		}
+
+		log.Println(runtime.NumGoroutine())
 	}
 }

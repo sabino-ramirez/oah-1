@@ -108,6 +108,7 @@ func UpdateReq(
 	}
 	log.Printf("updatedReqJson: \n%v", string(updatedReqJson))
 
+	// request, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(updatedReqJson))
 	request, err := http.NewRequest(http.MethodPut, prodSubUrl, bytes.NewBuffer(updatedReqJson))
 	if err != nil {
 		log.Println("new request error:", err)

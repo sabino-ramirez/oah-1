@@ -39,6 +39,7 @@ func (s *Server) handleScan() http.HandlerFunc {
 				<-maxJobs
 			}(templates.Project_templates[ix])
 		}
-		log.Println(runtime.NumGoroutine())
+
+		log.Println("routines: ", runtime.NumGoroutine())
 	}
 }
