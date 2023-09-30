@@ -130,6 +130,6 @@ func (s *Server) routes() {
 	s.router.HandleFunc("/reqs", s.handleGetReqs())
 	s.router.HandleFunc("/search", s.handleSearch())
 	s.router.HandleFunc("/update", s.handleUpdateReq()).Methods("POST")
-	s.router.HandleFunc("/scan", s.handleScan())
+	// s.router.HandleFunc("/scan", s.handleScan())
 	s.router.PathPrefix("/").Handler(http.StripPrefix("/", fs))
 }

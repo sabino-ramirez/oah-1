@@ -27,12 +27,13 @@ func GetProjectTemplates(client *models.PleaseClient, target interface{}) (int, 
 	// req, err := http.NewRequest("GET", url, nil)
 	req, err := http.NewRequest("GET", prodSubUrl, nil)
 	if err != nil {
-		log.Println("new req error:", err)
+		log.Println("new request error:", err)
 	}
 
 	req.Header.Add("Authorization", client.Bearer)
 
-	res, err := client.Http.Do(req)
+	// res, err := client.Http.Do(req)
+	res, err := client.Do(req)
 	if err != nil {
 		log.Println("response error:", err)
 	}
@@ -52,6 +53,7 @@ func GetProjectReqs(
 	client *models.PleaseClient,
 	projectTemplateId any,
 	target interface{},
+	pageNumber int,
 ) (int, error) {
 	// url := fmt.Sprintf(
 	// 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions",
@@ -59,8 +61,9 @@ func GetProjectReqs(
 	// )
 
 	prodSubUrl := fmt.Sprintf(
-		"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions",
+		"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions?page=%v",
 		projectTemplateId,
+		pageNumber,
 	)
 
 	// req, err := http.NewRequest("GET", url, nil)
@@ -71,9 +74,14 @@ func GetProjectReqs(
 
 	req.Header.Add("Authorization", client.Bearer)
 
-	res, err := client.Http.Do(req)
+	// res, err := client.Http.Do(req)
+	res, err := client.Do(req)
 	if err != nil {
 		log.Println("response error:", err)
+		// log.Println(res.Header.Get("Retry-After"))
+	}
+	if res.StatusCode == 429 {
+		log.Println(res.Header.Get("Retry-After"))
 	}
 
 	// io.Copy(os.Stdout, res.Body)

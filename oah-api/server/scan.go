@@ -3,12 +3,14 @@ package server
 import (
 	"fmt"
 	"runtime"
+	"time"
 
 	"log"
 	"net/http"
 
 	"github.com/sabino-ramirez/oah-api/models"
 	"github.com/sabino-ramirez/oah-api/services"
+	"golang.org/x/time/rate"
 )
 
 func (s *Server) handleScan() http.HandlerFunc {
@@ -16,9 +18,11 @@ func (s *Server) handleScan() http.HandlerFunc {
 
 	var templates models.ProjectTemps
 
+	rl := rate.NewLimiter(rate.Every(10*time.Second), 50)
+
 	return func(_ http.ResponseWriter, r *http.Request) {
 		// ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
-		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"))
+		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"), rl)
 
 		// _, err := services.GetProjectTemplates(ovationAPI, &templates)
 		_, err := services.GetProjectTemplates(ovationProdSubAPI, &templates)

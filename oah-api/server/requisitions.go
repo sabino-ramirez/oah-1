@@ -3,12 +3,14 @@ package server
 import (
 	"fmt"
 	"runtime"
+	// "time"
 
 	"log"
 	"net/http"
 
 	"github.com/sabino-ramirez/oah-api/models"
 	"github.com/sabino-ramirez/oah-api/services"
+	"golang.org/x/time/rate"
 )
 
 func (s *Server) handleGetReqs() http.HandlerFunc {
@@ -18,8 +20,10 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 	// var specificTemplates models.ProjectTemps
 
 	return func(_ http.ResponseWriter, r *http.Request) {
+		// rl := rate.NewLimiter(rate.Every(10*time.Second), 1)
+		rl := rate.NewLimiter(4, 1) // x calls per y second
 		// ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
-		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"))
+		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"), rl)
 
 		// _, err := services.GetProjectTemplates(ovationAPI, &templates)
 		_, err := services.GetProjectTemplates(ovationProdSubAPI, &templates)
@@ -128,15 +132,19 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 		// }
 
 		maxJobs := make(chan struct{}, len(templates.Project_templates))
-		for ix := range templates.Project_templates {
-			maxJobs <- struct{}{}
-			go func(projTemp models.ProjectTemp) {
-				// scanForUpdates(s.cache, projTemp, ovationAPI)
-				scanForUpdates(s.cache, projTemp, ovationProdSubAPI)
-				<-maxJobs
-			}(templates.Project_templates[ix])
-		}
-
-		log.Println(runtime.NumGoroutine())
+		// comment next 2 lines and their closures for 1 time loop
+		go func() {
+			for {
+				for ix := range templates.Project_templates {
+					maxJobs <- struct{}{}
+					go func(projTemp models.ProjectTemp) {
+						// scanForUpdates(s.cache, projTemp, ovationAPI)
+						scanForUpdates(s.cache, projTemp, ovationProdSubAPI)
+						<-maxJobs
+					}(templates.Project_templates[ix])
+				}
+				log.Println(runtime.NumGoroutine())
+			}
+		}()
 	}
 }
