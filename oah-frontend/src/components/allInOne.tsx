@@ -493,16 +493,7 @@ const AllInOne = (props: {
               updateAmount={updateReqs.length}
               parentClickHandler={handleUpdateClick}
             />
-          ) : // <Button
-            //   variant="contained"
-            //   size="small"
-            //   endIcon={<SendIcon />}
-            //   sx={{ marginBottom: "8px", marginTop: "4px" }}
-            //   onClick={handleUpdateClick}
-            // >
-            //   Update
-            // </Button>
-            null}
+          ) : null}
           <Button
             variant="contained"
             size="small"
