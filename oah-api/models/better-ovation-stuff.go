@@ -1,6 +1,15 @@
 package models
 
-// import "time"
+type ErrorResponse struct {
+	Errors map[string]interface{} `json:"errors"`
+}
+
+// type ErrorResponse struct {
+// 	Errors struct {
+// 		// X map[string]interface{} `json:"-"`
+// 		X map[string]*json.RawMessage `json:"-"`
+// 	} `json:"errors"`
+// }
 
 type BetterIndividualReq struct {
 	Requisition struct {
@@ -52,6 +61,7 @@ type BetterIndividualReq struct {
 			} `json:"insuranceInformations,omitempty"`
 		} `json:"billingInformation,omitempty"`
 	} `json:"requisition,omitempty"`
+	MarkAsSigned bool `json:"markAsSigned,omitempty"`
 }
 
 type BetterIndividualReqs struct {

@@ -132,19 +132,19 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 		// }
 
 		maxJobs := make(chan struct{}, len(templates.Project_templates))
-		// comment next 2 lines and their closures for 1 time loop
-		go func() {
-			for {
-				for ix := range templates.Project_templates {
-					maxJobs <- struct{}{}
-					go func(projTemp models.ProjectTemp) {
-						// scanForUpdates(s.cache, projTemp, ovationAPI)
-						scanForUpdates(s.cache, projTemp, ovationProdSubAPI)
-						<-maxJobs
-					}(templates.Project_templates[ix])
-				}
-				log.Println(runtime.NumGoroutine())
-			}
-		}()
+		// comment next 2 lines for 1 time loop
+		// go func() {
+		// 	for {
+		for ix := range templates.Project_templates {
+			maxJobs <- struct{}{}
+			go func(projTemp models.ProjectTemp) {
+				// scanForUpdates(s.cache, projTemp, ovationAPI)
+				scanForUpdates(s.cache, projTemp, ovationProdSubAPI)
+				<-maxJobs
+			}(templates.Project_templates[ix])
+		}
+		log.Println(runtime.NumGoroutine())
+		// 	}
+		// }()
 	}
 }

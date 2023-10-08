@@ -12,7 +12,7 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(function Alert(
 const MySnackbar = (props: {
   parentIsOpen: any;
   parentSetIsOpen: any;
-  message: string;
+  message: string[];
   severity: any;
 }) => {
   const handleClose = (
@@ -29,7 +29,7 @@ const MySnackbar = (props: {
   return (
     <Snackbar
       open={props.parentIsOpen}
-      autoHideDuration={2500}
+      autoHideDuration={5000}
       onClose={handleClose}
     >
       <Alert
@@ -37,7 +37,14 @@ const MySnackbar = (props: {
         sx={{ width: "80%" }}
         onClose={handleClose}
       >
-        {props.message}
+        {props.message.map((e: string) => {
+          return (
+            <span>
+              {e}
+              <br />
+            </span>
+          );
+        })}
       </Alert>
     </Snackbar>
   );

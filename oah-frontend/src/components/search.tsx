@@ -111,10 +111,11 @@ const Search = () => {
             //     ? req.requisition.customAttributes.labNotes
             //     : null
             //   }`,
-            lab_notes: `${req.requisition.customAttributes.lab_notes
+            lab_notes: `${
+              req.requisition.customAttributes.lab_notes
                 ? req.requisition.customAttributes.lab_notes
                 : null
-              }`,
+            }`,
             projectTemplateId: `${req.requisition.projectTemplateId}`,
             reqTemplate: `${req.requisition.template}`,
             sampCollDate: `${req.requisition.sampleCollectionDate}`,
@@ -137,22 +138,24 @@ const Search = () => {
             // requisition.billingInformation.
             billTo: `${req.requisition.billingInformation.billTo}`,
             // requisition.billingInformation.insuranceInformations [{}]
-            primInsurId: `${req.requisition.billingInformation.insuranceInformations
+            primInsurId: `${
+              req.requisition.billingInformation.insuranceInformations
                 ? req.requisition.billingInformation.insuranceInformations[0]
-                  .idNumber
+                    .idNumber
                 : null
-              }`,
+            }`,
             // primInsurType: `${
             //   req.requisition.billingInformation.insuranceInformations
             //     ? req.requisition.billingInformation.insuranceInformations[0]
             //         .insuranceType
             //     : null
             // }`,
-            primInsurName: `${req.requisition.billingInformation.insuranceInformations
+            primInsurName: `${
+              req.requisition.billingInformation.insuranceInformations
                 ? req.requisition.billingInformation.insuranceInformations[0]
-                  .insuranceProviderName
+                    .insuranceProviderName
                 : null
-              }`,
+            }`,
           },
         ]);
       });
@@ -319,7 +322,7 @@ const Search = () => {
         <MySnackbar
           parentIsOpen={snackBarOpen}
           parentSetIsOpen={setSnackbarOpen}
-          message="Invalid Token"
+          message={["Invalid Token"]}
           severity="warning"
         />
       </Container>

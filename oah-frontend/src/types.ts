@@ -22,6 +22,7 @@ interface requisition extends Record<string, any> {
 
 export interface UpdateReqFormat {
   requisition: requisition;
+  markAsSigned: boolean;
 }
 
 export interface WantedReq {
@@ -71,6 +72,7 @@ export interface WrappingCell extends Cell {
   text: string;
 }
 
+export interface ErrorJson {}
 // types of billTo
 // Bill Insurance, Patient Pay, Facility Pay
 

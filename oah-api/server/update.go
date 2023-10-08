@@ -46,10 +46,27 @@ func (s *Server) handleUpdateReq() http.HandlerFunc {
 		// send a null value to the front end even though it updated properly
 		// have to find a way to send "lab_notes" and accept "labNotes" ridiculous.
 		// status, err := services.UpdateReq(ovationAPI, payload, &final)
-		status, err := services.UpdateReq(ovationProdSubAPI, payload, &final)
+		statusCode, errorMap, err := services.UpdateReq(ovationProdSubAPI, payload, &final)
 		if err != nil {
 			log.Printf("update req error: %v", err)
-			log.Printf("status: %v", status)
+		} else if statusCode != 200 {
+			log.Println("update response code:", statusCode)
+			log.Println(errorMap)
+
+			w.WriteHeader(statusCode)
+
+			errorMap["identifier"] = payload.Requisition.Identifier
+
+			errorMsgJson, err := json.Marshal(errorMap)
+			if err != nil {
+				log.Println("error marshalling error msg:", err)
+			}
+
+			if _, err := w.Write(errorMsgJson); err != nil {
+				log.Println("error writing json in /update:", err)
+			}
+
+			return
 		}
 
 		finalUpdateJson, err := json.Marshal(final.Requisition)

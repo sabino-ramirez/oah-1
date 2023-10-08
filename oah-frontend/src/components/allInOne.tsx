@@ -181,11 +181,13 @@ const getRows = (reqs: WantedReq[]): Row[] => [
         type: "text",
         text: req.provAccId ? req.provAccId : "nothin",
         style: { paddingLeft: "2px" },
+        nonEditable: true,
       },
       {
         type: "text",
         text: req.provAccName ? req.provAccName : "nothing",
         style: { paddingLeft: "0px" },
+        nonEditable: true,
       },
       // { type: "text", text: req.sampId ? req.sampId : "nothing" },
       {
@@ -306,9 +308,13 @@ const organizeReqUpdates = (
         id: reqs[changeRow].provAccId,
         name: reqs[changeRow].provAccName,
       };
-    } else if (changeColumn.includes("primInsur")) {
+    } else if (
+      changeColumn.includes("primInsur") ||
+      changeColumn.includes("billTo")
+    ) {
       fieldName = "billingInformation";
       structure = {
+        billTo: reqs[changeRow].billTo,
         insuranceInformations: [
           {
             idNumber: reqs[changeRow].primInsurId,
@@ -317,13 +323,15 @@ const organizeReqUpdates = (
           },
         ],
       };
-    } else if (changeColumn.includes("billTo")) {
-      fieldName = "billingInformation";
-      structure = {
-        billTo: reqs[changeRow].billTo,
-      };
-      // } else if (changeColumn.includes("labNotes")) {
-    } else if (changeColumn.includes("lab_notes")) {
+    }
+    // else if (changeColumn.includes("billTo")) {
+    //   fieldName = "billingInformation";
+    //   structure = {
+    //     billTo: reqs[changeRow].billTo,
+    //   };
+    //   // } else if (changeColumn.includes("labNotes")) {
+    // }
+    else if (changeColumn.includes("lab_notes")) {
       fieldName = "customAttributes";
       // structure = {
       //   labNotes: reqs[changeRow].labNotes,
@@ -380,6 +388,7 @@ const organizeReqUpdates = (
           projectTemplateId: parseInt(reqs[currChangeRow].projectTemplateId),
           [fieldName]: structure,
         },
+        markAsSigned: true,
       };
       prevUpdates.push(balogni);
     }
@@ -402,6 +411,8 @@ const AllInOne = (props: {
 
   // for snackbar
   const [snackBarOpen, setSnackbarOpen] = useState(false);
+  const [snackBarSeverity, setSnackBarSeverity] = useState("");
+  const [snackBarMessage, setSnackBarMessage] = useState<string[]>([]);
 
   const rows = getRows(reqs);
   // const columns = getColumns();
@@ -428,11 +439,10 @@ const AllInOne = (props: {
       console.log(JSON.stringify(updatedReq));
     });
 
+    // with promise.all, the whole array fails after at least one failure
     await Promise.all(
       updateReqs.map(async (updatedReq) => {
-        // const response = await fetch(`http://localhost:8000/update`, {
-        // const response = await fetch(`https://oah-1.herokuapp.com/update`, {
-        const response = await fetch(`/update`, {
+        const res = await fetch(`/update`, {
           method: "POST",
           headers: {
             // "Content-Type": "application/json",
@@ -441,14 +451,52 @@ const AllInOne = (props: {
           body: JSON.stringify(updatedReq),
         });
 
-        if (!response.ok) {
-          throw new Error(`Error! status: ${response.status}`);
-        }
+        // const j = res;
+        const j = await res.json();
+        // const obj = JSON.parse(j);
 
-        const result = await response.json();
-        console.log(result);
+        return { status: res.status, json: j };
+        // return await res.json();
       })
-    );
+    ).then((results) => {
+      results.forEach((r) => {
+        console.log(r);
+        const msgs = [];
+        if (r.status !== 200) {
+          let msg = "";
+          for (const [key, val] of Object.entries(r.json)) {
+            // msg += `${key}: ${val}\n`;
+            msg = `${key}: ${val}`;
+            msgs.push(msg);
+          }
+
+          setSnackBarSeverity("error");
+          setSnackBarMessage(msgs);
+          return;
+        } else {
+          setSnackBarSeverity("success");
+          setSnackBarMessage(["Update Successful!"]);
+        }
+      });
+    });
+
+    // // with Promise.allSettled, all promises return, regardless their
+    // // status
+    // const promiseResults = await Promise.allSettled(
+    //   updateReqs.map(async (updatedReq) => {
+    //     const res = await fetch(`/update`, {
+    //       method: "POST",
+    //       headers: {
+    //         // "Content-Type": "application/json",
+    //         babyboi: props.apiKey,
+    //       },
+    //       body: JSON.stringify(updatedReq),
+    //     });
+    //
+    //     return res;
+    //     // return await res.json();
+    //   })
+    // );
 
     // reset updates after user sends updates to /update
     setUpdateReqs([]);
@@ -506,8 +554,10 @@ const AllInOne = (props: {
         <MySnackbar
           parentIsOpen={snackBarOpen}
           parentSetIsOpen={setSnackbarOpen}
-          message={"Update Successful!"}
-          severity="success"
+          message={snackBarMessage}
+          severity={snackBarSeverity}
+          // message={"Update Successful!"}
+          // severity="success"
         />
       </Stack>
     </>
