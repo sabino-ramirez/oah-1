@@ -106,6 +106,7 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 			OnJson().Prefix(1).Prefix("req:").Schema().
 			FieldName("$.patient.identifier").As("identifier").Tag().Separator(";").
 			FieldName("$.patient.firstName").As("firstName").Tag().Separator(";").
+			FieldName("$.patient.middleName").As("middleName").Tag().Separator(";").
 			FieldName("$.patient.lastName").As("lastName").Tag().Separator(";").
 			FieldName("$.patient.dateOfBirth").As("dob").Tag().Separator(";").
 			FieldName("$.providerAccount.name").As("provAcc").Tag().Separator(";").

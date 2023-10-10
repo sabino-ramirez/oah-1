@@ -64,6 +64,14 @@ func (s *Server) handleSearch() http.HandlerFunc {
 				}
 			}
 
+			if r.Form.Has("middleName") {
+				middleName := r.Form["middleName"][0]
+				// log.Println("last", lastName)
+				if _, err := fmt.Fprintf(&b, " @middleName:{%v*}", escaper(middleName)); err != nil {
+					log.Println("string builder error for middleName", err)
+				}
+			}
+
 			if r.Form.Has("dob") {
 				dob := r.Form["dob"][0]
 				// log.Println("last", lastName)

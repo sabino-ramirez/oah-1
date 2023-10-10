@@ -43,6 +43,7 @@ type BetterIndividualReq struct {
 			Identifier    string `json:"identifier,omitempty"`
 			LastName      string `json:"lastName,omitempty"`
 			FirstName     string `json:"firstName,omitempty"`
+			MiddleName    string `json:"middleName,omitempty"`
 			StreetAddress string `json:"streetAddress,omitempty"`
 			City          string `json:"city,omitempty"`
 			State         string `json:"state,omitempty"`
@@ -56,6 +57,8 @@ type BetterIndividualReq struct {
 			BillTo                string `json:"billTo,omitempty"`
 			InsuranceInformations []struct {
 				IDNumber              string `json:"idNumber,omitempty"`
+				GroupNumber           string `json:"groupNumber,omitempty"`
+				RelationshipToInsured string `json:"relationshipToInsured,omitempty"`
 				InsuranceType         string `json:"insuranceType,omitempty"`
 				InsuranceProviderName string `json:"insuranceProviderName,omitempty"`
 			} `json:"insuranceInformations,omitempty"`

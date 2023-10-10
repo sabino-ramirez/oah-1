@@ -26,10 +26,6 @@ const headerRow: Row = {
     },
     {
       type: "header",
-      text: "Lab Notes",
-    },
-    {
-      type: "header",
       text: "Proj ID",
     },
     {
@@ -48,6 +44,10 @@ const headerRow: Row = {
       type: "header",
       text: "Provider Name",
     },
+    {
+      type: "header",
+      text: "Lab Notes",
+    },
     // {
     //   type: "header",
     //   text: "samp id",
@@ -58,7 +58,47 @@ const headerRow: Row = {
     },
     {
       type: "header",
+      text: "Middle Name",
+    },
+    {
+      type: "header",
       text: "Last Name",
+    },
+    {
+      type: "header",
+      text: "DOB",
+    },
+    {
+      type: "header",
+      text: "G",
+    },
+    {
+      type: "header",
+      text: "Bill To",
+    },
+    {
+      type: "header",
+      text: "Primary Ins Name",
+    },
+    {
+      type: "header",
+      text: "Primary Ins ID",
+    },
+    {
+      type: "header",
+      text: "Group Number",
+    },
+    {
+      type: "header",
+      text: "Relat. To Insured",
+    },
+    {
+      type: "header",
+      text: "Race",
+    },
+    {
+      type: "header",
+      text: "Ethnicity",
     },
     {
       type: "header",
@@ -76,61 +116,35 @@ const headerRow: Row = {
       type: "header",
       text: "Zip",
     },
-    {
-      type: "header",
-      text: "DOB",
-    },
-    {
-      type: "header",
-      text: "G",
-    },
-    {
-      type: "header",
-      text: "Race",
-    },
-    {
-      type: "header",
-      text: "Ethnicity",
-    },
-    {
-      type: "header",
-      text: "Bill To",
-    },
-    {
-      type: "header",
-      text: "Primary Ins ID",
-    },
-    {
-      type: "header",
-      text: "Primary Ins Name",
-    },
   ],
 };
 
 const getColumns = (): Column[] => [
   // { columnId: "id", width: 100 },
   { columnId: "identifier", width: 128 },
-  // { columnId: "labNotes", width: 200, resizable: true },
-  { columnId: "lab_notes", width: 200, resizable: true },
   { columnId: "projectTemplateId", width: 80 },
   { columnId: "reqTemplate", width: 200, resizable: true },
   { columnId: "samepleCollDate", width: 100 },
   { columnId: "provAccId", width: 80 },
   { columnId: "provAccName", width: 300, resizable: true },
-  // { columnId: "sampId", width: 100 },
+  // { columnId: "labNotes", width: 200, resizable: true },
+  { columnId: "lab_notes", width: 200, resizable: true },
   { columnId: "firstName", width: 100, resizable: true },
+  { columnId: "middleName", width: 100, resizable: true },
   { columnId: "lastName", width: 100, resizable: true },
+  { columnId: "dob", width: 120 },
+  { columnId: "gender", width: 30 },
+  { columnId: "primBillTo", width: 120 },
+  { columnId: "primInsurName", width: 180 },
+  { columnId: "primInsurId", width: 100 },
+  { columnId: "primGroupNum", width: 120 },
+  { columnId: "primeRTI", width: 120 },
+  { columnId: "race", width: 110 },
+  { columnId: "ethnicity", width: 110 },
   { columnId: "streetAddress", width: 200, resizable: true },
   { columnId: "city", width: 100, resizable: true },
   { columnId: "state", width: 115 },
   { columnId: "zipCode", width: 75 },
-  { columnId: "dob", width: 120 },
-  { columnId: "gender", width: 30 },
-  { columnId: "race", width: 110 },
-  { columnId: "ethnicity", width: 110 },
-  { columnId: "billTo", width: 120 },
-  { columnId: "primInsurId", width: 100 },
-  { columnId: "primInsurName", width: 180 },
 ];
 
 const getRows = (reqs: WantedReq[]): Row[] => [
@@ -148,16 +162,6 @@ const getRows = (reqs: WantedReq[]): Row[] => [
         text: req.identifier,
         style: { paddingLeft: "2px" },
         nonEditable: true,
-      },
-      {
-        type: "text",
-        // text: req.labNotes ? req.labNotes : "nothing",
-        text: req.lab_notes ? req.lab_notes : "nothing",
-        renderer(text) {
-          return <div>{text}</div>;
-        },
-        style: { overflow: "auto", paddingLeft: "0px" },
-        rowspan: 1,
       },
       {
         type: "text",
@@ -189,6 +193,16 @@ const getRows = (reqs: WantedReq[]): Row[] => [
         style: { paddingLeft: "0px" },
         nonEditable: true,
       },
+      {
+        type: "text",
+        // text: req.labNotes ? req.labNotes : "nothing",
+        text: req.lab_notes ? req.lab_notes : "nothing",
+        renderer(text) {
+          return <div>{text}</div>;
+        },
+        style: { overflow: "auto", paddingLeft: "0px" },
+        rowspan: 1,
+      },
       // { type: "text", text: req.sampId ? req.sampId : "nothing" },
       {
         type: "text",
@@ -197,8 +211,58 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       },
       {
         type: "text",
+        text: req.middleName ? req.middleName : "nothing",
+        style: { overflow: "auto", paddingLeft: "2px" },
+      },
+      {
+        type: "text",
         text: req.lastName ? req.lastName : "nothing",
         style: { overflow: "auto", paddingLeft: "2px" },
+      },
+      {
+        type: "text",
+        text: req.dob ? req.dob : "nothing",
+        style: { paddingLeft: "2px" },
+      },
+      {
+        type: "text",
+        text: req.gender ? req.gender : "nothing",
+        style: { paddingLeft: "2px" },
+      },
+      {
+        type: "text",
+        text: req.primBillTo ? req.primBillTo : "nothing",
+        style: { paddingLeft: "2px" },
+      },
+      {
+        type: "text",
+        text: req.primInsurName ? req.primInsurName : "nothing",
+        style: { paddingLeft: "2px" },
+      },
+      {
+        type: "text",
+        text: req.primInsurId ? req.primInsurId : "nothing",
+        style: { paddingLeft: "2px" },
+      },
+      {
+        type: "text",
+        text: req.primGroupNum ? req.primGroupNum : "nothing",
+        style: { paddingLeft: "2px" },
+      },
+      {
+        type: "text",
+        text: req.primRTI ? req.primRTI : "nothing",
+        style: { paddingLeft: "2px" },
+      },
+      {
+        type: "text",
+        text: req.race ? req.race : "nothing",
+        style: { paddingLeft: "2px" },
+      },
+      {
+        type: "text",
+        text: req.ethnicity ? req.ethnicity : "ntohing",
+        style: { paddingLeft: "2px" },
       },
       {
         type: "text",
@@ -218,41 +282,6 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       {
         type: "text",
         text: req.zipCode ? req.zipCode : "nothing",
-        style: { paddingLeft: "2px" },
-      },
-      {
-        type: "text",
-        text: req.dob ? req.dob : "nothing",
-        style: { paddingLeft: "2px" },
-      },
-      {
-        type: "text",
-        text: req.gender ? req.gender : "nothing",
-        style: { paddingLeft: "2px" },
-      },
-      {
-        type: "text",
-        text: req.race ? req.race : "nothing",
-        style: { paddingLeft: "2px" },
-      },
-      {
-        type: "text",
-        text: req.ethnicity ? req.ethnicity : "ntohing",
-        style: { paddingLeft: "2px" },
-      },
-      {
-        type: "text",
-        text: req.billTo ? req.billTo : "nothing",
-        style: { paddingLeft: "2px" },
-      },
-      {
-        type: "text",
-        text: req.primInsurId ? req.primInsurId : "nothing",
-        style: { paddingLeft: "2px" },
-      },
-      {
-        type: "text",
-        text: req.primInsurName ? req.primInsurName : "nothing",
         style: { paddingLeft: "2px" },
       },
     ],
@@ -308,16 +337,15 @@ const organizeReqUpdates = (
         id: reqs[changeRow].provAccId,
         name: reqs[changeRow].provAccName,
       };
-    } else if (
-      changeColumn.includes("primInsur") ||
-      changeColumn.includes("billTo")
-    ) {
+    } else if (changeColumn.includes("prim")) {
       fieldName = "billingInformation";
       structure = {
-        billTo: reqs[changeRow].billTo,
+        billTo: reqs[changeRow].primBillTo,
         insuranceInformations: [
           {
             idNumber: reqs[changeRow].primInsurId,
+            groupNumber: reqs[changeRow].primGroupNum,
+            relationshipToInsured: reqs[changeRow].primRTI,
             insuranceType: "Primary",
             insuranceProviderName: reqs[changeRow].primInsurName,
           },
@@ -344,6 +372,7 @@ const organizeReqUpdates = (
       structure = {
         firstName: reqs[changeRow].firstName,
         lastName: reqs[changeRow].lastName,
+        middleName: reqs[changeRow].middleName,
         streetAddress: reqs[changeRow].streetAddress,
         city: reqs[changeRow].city,
         state: reqs[changeRow].state,

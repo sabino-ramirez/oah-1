@@ -42,6 +42,7 @@ export interface WantedReq {
   // requisition.patient
   firstName?: string;
   lastName?: string;
+  middleName?: string;
   streetAddress?: string;
   city?: string;
   state?: string;
@@ -51,7 +52,9 @@ export interface WantedReq {
   race?: string;
   ethnicity?: string;
   // requisition.billingInformation
-  billTo?: string;
+  primBillTo?: string;
+  primGroupNum?: string;
+  primRTI?: string;
   // requisition.billingInformation.insuranceInformations [{}]
   primInsurId?: string;
   primInsurType?: string;
@@ -61,6 +64,7 @@ export interface WantedReq {
 export interface TypeToSearch {
   identifier: string;
   firstName: string;
+  middleName: string;
   lastName: string;
   dob: string;
   provAcc: string;

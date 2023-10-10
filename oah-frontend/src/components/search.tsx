@@ -25,6 +25,7 @@ const Search = () => {
   const [input, setinput] = useState<TypeToSearch>({
     identifier: "",
     firstName: "",
+    middleName: "",
     lastName: "",
     dob: "",
     provAcc: "",
@@ -126,6 +127,7 @@ const Search = () => {
             // sampId: `${req.requisition.samples[0].id}`,
             // requisition.patient
             firstName: `${req.requisition.patient.firstName}`,
+            middleName: `${req.requisition.patient.middleName}`,
             lastName: `${req.requisition.patient.lastName}`,
             streetAddress: `${req.requisition.patient.streetAddress}`,
             city: `${req.requisition.patient.city}`,
@@ -136,7 +138,19 @@ const Search = () => {
             race: `${req.requisition.patient.race}`,
             ethnicity: `${req.requisition.patient.ethnicity}`,
             // requisition.billingInformation.
-            billTo: `${req.requisition.billingInformation.billTo}`,
+            primBillTo: `${req.requisition.billingInformation.billTo}`,
+            primGroupNum: `${
+              req.requisition.billingInformation.insuranceInformations
+                ? req.requisition.billingInformation.insuranceInformations[0]
+                    .groupNumber
+                : null
+            }`,
+            primRTI: `${
+              req.requisition.billingInformation.insuranceInformations
+                ? req.requisition.billingInformation.insuranceInformations[0]
+                    .relationshipToInsured
+                : null
+            }`,
             // requisition.billingInformation.insuranceInformations [{}]
             primInsurId: `${
               req.requisition.billingInformation.insuranceInformations
@@ -172,6 +186,7 @@ const Search = () => {
     setinput({
       identifier: "",
       firstName: "",
+      middleName: "",
       lastName: "",
       dob: "",
       provAcc: "",
@@ -259,6 +274,14 @@ const Search = () => {
                   label="first name.."
                   // name={firstName}
                   name="firstName"
+                  onInput={handleInput}
+                />
+                <TextField
+                  type="search"
+                  size="small"
+                  label="middle name.."
+                  // name={firstName}
+                  name="middleName"
                   onInput={handleInput}
                 />
                 <TextField
