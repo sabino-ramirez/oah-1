@@ -138,7 +138,7 @@ const getColumns = (): Column[] => [
   { columnId: "primInsurName", width: 180 },
   { columnId: "primInsurId", width: 100 },
   { columnId: "primGroupNum", width: 120 },
-  { columnId: "primeRTI", width: 120 },
+  { columnId: "primRTI", width: 120 },
   { columnId: "race", width: 110 },
   { columnId: "ethnicity", width: 110 },
   { columnId: "streetAddress", width: 200, resizable: true },
@@ -338,6 +338,20 @@ const organizeReqUpdates = (
         name: reqs[changeRow].provAccName,
       };
     } else if (changeColumn.includes("prim")) {
+      fieldName = "billingInformation";
+      structure = {
+        billTo: reqs[changeRow].primBillTo,
+        insuranceInformations: [
+          {
+            idNumber: reqs[changeRow].primInsurId,
+            groupNumber: reqs[changeRow].primGroupNum,
+            // relationshipToInsured: reqs[changeRow].primRTI,
+            insuranceType: "Primary",
+            insuranceProviderName: reqs[changeRow].primInsurName,
+          },
+        ],
+      };
+    } else if (changeColumn.includes("RTI")) {
       fieldName = "billingInformation";
       structure = {
         billTo: reqs[changeRow].primBillTo,
