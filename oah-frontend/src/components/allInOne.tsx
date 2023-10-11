@@ -171,117 +171,133 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       },
       {
         type: "text",
-        text: req.reqTemplate ? req.reqTemplate : "nothing",
+        text: req.reqTemplate ? req.reqTemplate : "",
         style: { overflow: "auto", paddingLeft: "2px" },
         nonEditable: true,
       },
       {
         type: "text",
-        text: req.sampCollDate ? req.sampCollDate : "nothing",
+        text: req.sampCollDate ? req.sampCollDate : "",
         style: { paddingLeft: "1px" },
         nonEditable: true,
       },
       {
         type: "text",
-        text: req.provAccId ? req.provAccId : "nothin",
+        text: req.provAccId ? req.provAccId : "",
         style: { paddingLeft: "2px" },
         nonEditable: true,
       },
       {
         type: "text",
-        text: req.provAccName ? req.provAccName : "nothing",
+        text: req.provAccName ? req.provAccName : "",
         style: { paddingLeft: "0px" },
         nonEditable: true,
       },
       {
         type: "text",
-        // text: req.labNotes ? req.labNotes : "nothing",
-        text: req.lab_notes ? req.lab_notes : "nothing",
+        // text: req.labNotes ? req.labNotes : "",
+        text: req.lab_notes ? req.lab_notes : "",
         renderer(text) {
           return <div>{text}</div>;
         },
         style: { overflow: "auto", paddingLeft: "0px" },
         rowspan: 1,
       },
-      // { type: "text", text: req.sampId ? req.sampId : "nothing" },
+      // { type: "text", text: req.sampId ? req.sampId : "" },
       {
         type: "text",
-        text: req.firstName ? req.firstName : "nothing",
+        text: req.firstName ? req.firstName : "",
         style: { overflow: "auto", paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.middleName ? req.middleName : "nothing",
+        text: req.middleName ? req.middleName : "",
         style: { overflow: "auto", paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.lastName ? req.lastName : "nothing",
+        text: req.lastName ? req.lastName : "",
         style: { overflow: "auto", paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.dob ? req.dob : "nothing",
+        text: req.dob ? req.dob : "",
         style: { paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.gender ? req.gender : "nothing",
+        text: req.gender ? req.gender : "",
         style: { paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.primBillTo ? req.primBillTo : "nothing",
+        text: req.primBillTo
+          ? req.primBillTo !== ""
+            ? req.primBillTo
+            : ""
+          : "",
         style: { paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.primInsurName ? req.primInsurName : "nothing",
+        text: req.primInsurName
+          ? req.primInsurName !== ""
+            ? req.primInsurName
+            : ""
+          : "",
         style: { paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.primInsurId ? req.primInsurId : "nothing",
+        text: req.primInsurId
+          ? req.primInsurId !== ""
+            ? req.primInsurId
+            : ""
+          : "",
         style: { paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.primGroupNum ? req.primGroupNum : "nothing",
+        text: req.primGroupNum
+          ? req.primGroupNum !== ""
+            ? req.primGroupNum
+            : ""
+          : "",
         style: { paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.primRTI ? req.primRTI : "nothing",
+        text: req.primRTI ? (req.primRTI !== "" ? req.primRTI : "") : "",
         style: { paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.race ? req.race : "nothing",
+        text: req.race ? req.race : "",
         style: { paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.ethnicity ? req.ethnicity : "ntohing",
+        text: req.ethnicity ? req.ethnicity : "",
         style: { paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.streetAddress ? req.streetAddress : "nothing",
+        text: req.streetAddress ? req.streetAddress : "",
         style: { overflow: "auto", paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.city ? req.city : "nothing",
+        text: req.city ? req.city : "",
         style: { overflow: "auto", paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.state ? req.state : "nothing",
+        text: req.state ? req.state : "",
         style: { paddingLeft: "2px" },
       },
       {
         type: "text",
-        text: req.zipCode ? req.zipCode : "nothing",
+        text: req.zipCode ? req.zipCode : "",
         style: { paddingLeft: "2px" },
       },
     ],
@@ -339,32 +355,45 @@ const organizeReqUpdates = (
       };
     } else if (changeColumn.includes("prim")) {
       fieldName = "billingInformation";
+
+      // if (changeColumn.includes("RTI")) {
       structure = {
-        billTo: reqs[changeRow].primBillTo,
+        billTo:
+          reqs[changeRow].primBillTo !== "" ? reqs[changeRow].primBillTo : "",
         insuranceInformations: [
           {
-            idNumber: reqs[changeRow].primInsurId,
-            groupNumber: reqs[changeRow].primGroupNum,
-            // relationshipToInsured: reqs[changeRow].primRTI,
+            idNumber:
+              reqs[changeRow].primInsurId !== ""
+                ? reqs[changeRow].primInsurId
+                : "",
+            groupNumber:
+              reqs[changeRow].primGroupNum !== ""
+                ? reqs[changeRow].primGroupNum
+                : "",
+            relationshipToInsured:
+              reqs[changeRow].primRTI !== "" ? reqs[changeRow].primRTI : "",
             insuranceType: "Primary",
-            insuranceProviderName: reqs[changeRow].primInsurName,
+            insuranceProviderName:
+              reqs[changeRow].primInsurName !== ""
+                ? reqs[changeRow].primInsurName
+                : "",
           },
         ],
       };
-    } else if (changeColumn.includes("RTI")) {
-      fieldName = "billingInformation";
-      structure = {
-        billTo: reqs[changeRow].primBillTo,
-        insuranceInformations: [
-          {
-            idNumber: reqs[changeRow].primInsurId,
-            groupNumber: reqs[changeRow].primGroupNum,
-            relationshipToInsured: reqs[changeRow].primRTI,
-            insuranceType: "Primary",
-            insuranceProviderName: reqs[changeRow].primInsurName,
-          },
-        ],
-      };
+      // } else {
+      //   structure = {
+      //     billTo: reqs[changeRow].primBillTo,
+      //     insuranceInformations: [
+      //       {
+      //         idNumber: reqs[changeRow].primInsurId,
+      //         groupNumber: reqs[changeRow].primGroupNum,
+      //         // relationshipToInsured: reqs[changeRow].primRTI,
+      //         insuranceType: "Primary",
+      //         insuranceProviderName: reqs[changeRow].primInsurName,
+      //       },
+      //     ],
+      //   };
+      // }
     }
     // else if (changeColumn.includes("billTo")) {
     //   fieldName = "billingInformation";
