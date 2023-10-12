@@ -22,6 +22,10 @@ const headerRow: Row = {
     // },
     {
       type: "header",
+      text: "Coll. Date",
+    },
+    {
+      type: "header",
       text: "Identifier",
     },
     {
@@ -31,10 +35,6 @@ const headerRow: Row = {
     {
       type: "header",
       text: "Req Template",
-    },
-    {
-      type: "header",
-      text: "Coll. Date",
     },
     {
       type: "header",
@@ -121,10 +121,10 @@ const headerRow: Row = {
 
 const getColumns = (): Column[] => [
   // { columnId: "id", width: 100 },
+  { columnId: "samepleCollDate", width: 100 },
   { columnId: "identifier", width: 128 },
   { columnId: "projectTemplateId", width: 80 },
   { columnId: "reqTemplate", width: 200, resizable: true },
-  { columnId: "samepleCollDate", width: 100 },
   { columnId: "provAccId", width: 80 },
   { columnId: "provAccName", width: 300, resizable: true },
   // { columnId: "labNotes", width: 200, resizable: true },
@@ -159,6 +159,12 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       // },
       {
         type: "text",
+        text: req.sampCollDate ? req.sampCollDate : "",
+        style: { paddingLeft: "1px" },
+        nonEditable: true,
+      },
+      {
+        type: "text",
         text: req.identifier,
         style: { paddingLeft: "2px" },
         nonEditable: true,
@@ -173,12 +179,6 @@ const getRows = (reqs: WantedReq[]): Row[] => [
         type: "text",
         text: req.reqTemplate ? req.reqTemplate : "",
         style: { overflow: "auto", paddingLeft: "2px" },
-        nonEditable: true,
-      },
-      {
-        type: "text",
-        text: req.sampCollDate ? req.sampCollDate : "",
-        style: { paddingLeft: "1px" },
         nonEditable: true,
       },
       {
