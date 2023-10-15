@@ -7,11 +7,10 @@ import {
   CellChange,
   TextCell,
 } from "@silevis/reactgrid";
-import { WantedReq, UpdateReqFormat } from "../types";
 import "@silevis/reactgrid/styles.css";
-import { Box, Button, ButtonGroup, Stack } from "@mui/material";
-import UpdateDialogue from "./updateDialogue";
-import MySnackbar from "./snackbar";
+import { WantedReq, UpdateReqFormat } from "../types";
+import { Button, Flex, VStack, useToast } from "@chakra-ui/react";
+import UpdateModel from "./updateModal";
 
 const headerRow: Row = {
   rowId: "header",
@@ -76,10 +75,7 @@ const headerRow: Row = {
       type: "header",
       text: "Bill To",
     },
-    {
-      type: "header",
-      text: "Primary Ins Name",
-    },
+    { type: "header", text: "Primary Ins Name" },
     {
       type: "header",
       text: "Primary Ins ID",
@@ -380,29 +376,7 @@ const organizeReqUpdates = (
           },
         ],
       };
-      // } else {
-      //   structure = {
-      //     billTo: reqs[changeRow].primBillTo,
-      //     insuranceInformations: [
-      //       {
-      //         idNumber: reqs[changeRow].primInsurId,
-      //         groupNumber: reqs[changeRow].primGroupNum,
-      //         // relationshipToInsured: reqs[changeRow].primRTI,
-      //         insuranceType: "Primary",
-      //         insuranceProviderName: reqs[changeRow].primInsurName,
-      //       },
-      //     ],
-      //   };
-      // }
-    }
-    // else if (changeColumn.includes("billTo")) {
-    //   fieldName = "billingInformation";
-    //   structure = {
-    //     billTo: reqs[changeRow].billTo,
-    //   };
-    //   // } else if (changeColumn.includes("labNotes")) {
-    // }
-    else if (changeColumn.includes("lab_notes")) {
+    } else if (changeColumn.includes("lab_notes")) {
       fieldName = "customAttributes";
       // structure = {
       //   labNotes: reqs[changeRow].labNotes,
@@ -445,7 +419,7 @@ const organizeReqUpdates = (
       parseInt(reqs[currChangeRow].id)
     );
 
-    if (hasBeenUpdatedResult) {
+    if (hasBeenUpdatedResult === true) {
       console.log("updating another field on same req");
       // add appropriate key/value pair to existing updatedReq
       // console.log(prevUpdates[rowNumOfPrevUpdate]);
@@ -481,10 +455,7 @@ const AllInOne = (props: {
 
   const [columns, setColumns] = useState<Column[]>(getColumns());
 
-  // for snackbar
-  const [snackBarOpen, setSnackbarOpen] = useState(false);
-  const [snackBarSeverity, setSnackBarSeverity] = useState("");
-  const [snackBarMessage, setSnackBarMessage] = useState<string[]>([]);
+  const toast = useToast();
 
   const rows = getRows(reqs);
   // const columns = getColumns();
@@ -507,12 +478,13 @@ const AllInOne = (props: {
   };
 
   const handleUpdateClick = async () => {
-    updateReqs.forEach((updatedReq) => {
-      console.log(JSON.stringify(updatedReq));
-    });
+    // updateReqs.forEach((updatedReq) => {
+    //   console.log(JSON.stringify(updatedReq));
+    // });
 
-    // with promise.all, the whole array fails after at least one failure
-    await Promise.all(
+    // with Promise.allSettled, return promise always resolves with array
+    // of individual promises with status "fulfilled" or "rejected"
+    const promiseResults = await Promise.allSettled(
       updateReqs.map(async (updatedReq) => {
         const res = await fetch(`/update`, {
           method: "POST",
@@ -523,59 +495,66 @@ const AllInOne = (props: {
           body: JSON.stringify(updatedReq),
         });
 
-        // const j = res;
-        const j = await res.json();
-        // const obj = JSON.parse(j);
-
-        return { status: res.status, json: j };
-        // return await res.json();
-      })
-    ).then((results) => {
-      results.forEach((r) => {
-        console.log(r);
-        const msgs = [];
-        if (r.status !== 200) {
-          let msg = "";
-          for (const [key, val] of Object.entries(r.json)) {
-            // msg += `${key}: ${val}\n`;
-            msg = `${key}: ${val}`;
-            msgs.push(msg);
-          }
-
-          setSnackBarSeverity("error");
-          setSnackBarMessage(msgs);
-          return;
-        } else {
-          setSnackBarSeverity("success");
-          setSnackBarMessage(["Update Successful!"]);
+        if (res.status !== 200) {
+          const errJson = await res.json();
+          return Promise.reject(errJson);
         }
-      });
+
+        return Promise.resolve(res.json());
+      })
+    );
+
+    // const rejectionReasons: {}[] = [];
+    const rejectionReasons: { identifier: string; [key: string]: any }[] = [];
+
+    promiseResults.forEach((result) => {
+      if (result.status === "rejected") {
+        rejectionReasons.push(result.reason);
+      }
     });
 
-    // // with Promise.allSettled, all promises return, regardless their
-    // // status
-    // const promiseResults = await Promise.allSettled(
-    //   updateReqs.map(async (updatedReq) => {
-    //     const res = await fetch(`/update`, {
-    //       method: "POST",
-    //       headers: {
-    //         // "Content-Type": "application/json",
-    //         babyboi: props.apiKey,
-    //       },
-    //       body: JSON.stringify(updatedReq),
-    //     });
-    //
-    //     return res;
-    //     // return await res.json();
-    //   })
-    // );
+    if (Array.isArray(rejectionReasons) && rejectionReasons.length) {
+      toast({
+        status: "error",
+        title:
+          rejectionReasons.length > 1
+            ? "some errors occured"
+            : "an error occured",
+        description: rejectionReasons.map((rr) => {
+          return (
+            <span key={rr.identifier}>
+              {rr.identifier}:{" "}
+              {Object.keys(rr)
+                .slice(1)
+                .map((key, ix) => {
+                  return (ix ? ", " : "") + key;
+                })}
+              <br />
+            </span>
+          );
+        }),
+        position: "bottom-left",
+        duration: 5000,
+        isClosable: true,
+      });
+      // console.log(rejectionReasons);
+    } else {
+      toast({
+        status: "success",
+        title: "update successful!",
+        position: "bottom-left",
+        duration: 1500,
+        isClosable: true,
+      });
+    }
 
     // reset updates after user sends updates to /update
     setUpdateReqs([]);
-    setSnackbarOpen(true);
   };
 
   const handleNewSearchClick = () => {
+    toast.closeAll();
+
     // set hasSearched to false to show the search bar after user selects new search
     props.parentHasSearchedState(false);
 
@@ -583,55 +562,40 @@ const AllInOne = (props: {
     props.parentSetReturnReqs([]);
   };
 
-  // do style in div? idk
   return (
     <>
-      <Stack paddingTop={"3%"} alignItems={"center"} justifyContent={"center"}>
-        <Box
-          sx={{
-            width: "85vw",
-            height: "78vh",
-            overflow: "scroll",
-            // position: "absolute",
-            margin: "auto",
-          }}
-        >
-          <ReactGrid
-            rows={rows}
-            columns={columns}
-            onColumnResized={handleColumnResize}
-            onCellsChanged={handleChanges}
-            stickyTopRows={1}
-            stickyLeftColumns={1}
-            enableFillHandle
-            enableRangeSelection
-          />
-        </Box>
-        <ButtonGroup orientation="vertical" size="small">
-          {updateReqs.length > 0 ? (
-            <UpdateDialogue
-              updateAmount={updateReqs.length}
-              parentClickHandler={handleUpdateClick}
-            />
-          ) : null}
-          <Button
-            variant="contained"
-            size="small"
-            sx={{ marginTop: "4px" }}
-            onClick={handleNewSearchClick}
-          >
-            New Search
-          </Button>
-        </ButtonGroup>
-        <MySnackbar
-          parentIsOpen={snackBarOpen}
-          parentSetIsOpen={setSnackbarOpen}
-          message={snackBarMessage}
-          severity={snackBarSeverity}
-          // message={"Update Successful!"}
-          // severity="success"
+      <Flex overflow={"scroll"} minH={"70vh"} maxW={"85vw"}>
+        <ReactGrid
+          rows={rows}
+          columns={columns}
+          onColumnResized={handleColumnResize}
+          onCellsChanged={handleChanges}
+          stickyTopRows={1}
+          stickyLeftColumns={1}
+          enableFillHandle
+          enableRangeSelection
         />
-      </Stack>
+      </Flex>
+      <VStack>
+        {updateReqs.length > 0 ? (
+          <UpdateModel
+            updateAmount={updateReqs.length}
+            parentClickHandler={handleUpdateClick}
+          />
+        ) : (
+          <Button
+            size={"sm"}
+            variant={"solid"}
+            isActive={false}
+            isDisabled={true}
+          >
+            update
+          </Button>
+        )}
+        <Button variant="solid" size="sm" onClick={handleNewSearchClick}>
+          new search
+        </Button>
+      </VStack>
     </>
   );
 };
