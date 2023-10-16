@@ -2,23 +2,21 @@ import React, { useState } from "react";
 import { WantedReq, TypeToSearch } from "../types";
 import AllInOne from "./allInOne";
 import {
-  Box,
-  Container,
   Button,
+  Container,
   IconButton,
-  InputAdornment,
-  Stack,
-  TextField,
-} from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import MySnackbar from "./snackbar";
+  Input,
+  InputGroup,
+  InputRightElement,
+  useToast,
+  VStack,
+  Text,
+  Flex,
+} from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 const Search = () => {
   const [showPassword, setShowPassword] = useState(false);
-  // useId is react hook to generate unique id
-  // const identifier = useId();
-  // const firstName = useId();
-  // const lastName = useId();
 
   // holds value of input field
   // const [input, setinput] = useState(props?.value ?? "");
@@ -37,8 +35,7 @@ const Search = () => {
   // when false show search bar etc
   const [hasSearched, setHasSearched] = useState(false);
 
-  // for snackbar
-  const [snackBarOpen, setSnackbarOpen] = useState(false);
+  const toast = useToast();
 
   // has user been cleared
   const [apiKey, setApiKey] = useState<string>();
@@ -76,8 +73,8 @@ const Search = () => {
   const handleSearchClick = async () => {
     // console.log(input);
     // console.log(getSearchQueryString());
+    // console.log(stateReqs.length);
 
-    console.log(stateReqs.length);
     try {
       const response = await fetch(
         // `http://localhost:8000/search/${input.firstName}`,
@@ -201,7 +198,8 @@ const Search = () => {
       console.log("finally clause");
     }
 
-    // after fetch, set search state to true to trigger showing main component with grid and all
+    // after fetch, set search state to true to trigger showing
+    // main component with grid and all
     setHasSearched(true);
     setinput({
       identifier: "",
@@ -228,11 +226,17 @@ const Search = () => {
       }
 
       const result = await response.json();
-      if (result.code == 200) {
+      if (result.code === 200) {
         setIsLoggedIn(true);
       } else {
         console.log("status code: ", result.code);
-        setSnackbarOpen(true);
+        toast({
+          title: "Invalide Token",
+          status: "warning",
+          position: "bottom-left",
+          duration: 3000,
+          isClosable: true,
+        });
       }
     } catch (err: any) {
       console.log("error submitting", err.message);
@@ -263,9 +267,20 @@ const Search = () => {
 
   return (
     <React.Fragment>
-      <Container maxWidth={"lg"}>
+      <VStack>
+        <Flex minH={"6vh"} maxW={"container.sm"} alignItems={"flex-end"}>
+          <Text
+            // bgGradient="linear(to-l, #7928CA, #FF0080)"
+            bgGradient="linear(to-t, gray.100, blue.400)"
+            bgClip="text"
+            fontSize="md"
+            fontWeight="extrabold"
+          >
+            oah
+          </Text>
+        </Flex>
         {isLoggedIn ? (
-          <Box maxWidth="lg">
+          <Container maxW={"container.md"} maxH={"80vh"} centerContent>
             {hasSearched ? (
               <AllInOne
                 parentReturnReqs={stateReqs}
@@ -274,101 +289,82 @@ const Search = () => {
                 apiKey={apiKey}
               />
             ) : (
-              <Stack
-                spacing={1}
-                paddingTop={"9%"}
-                alignItems={"center"}
-                justifyContent={"center"}
-              >
-                <TextField
-                  type="search"
-                  size="small"
-                  label="identifier.."
-                  // name={identifier}
+              <VStack spacing={2}>
+                <Input
+                  size="md"
+                  variant="outline"
                   name="identifier"
-                  onInput={handleInput}
+                  placeholder="identifier.."
+                  onChange={handleInput}
                 />
-                <TextField
-                  type="search"
-                  size="small"
-                  label="first name.."
-                  // name={firstName}
+                <Input
+                  size="md"
+                  variant="outline"
                   name="firstName"
+                  placeholder="first name.."
                   onInput={handleInput}
                 />
-                <TextField
-                  type="search"
-                  size="small"
-                  label="middle name.."
-                  // name={firstName}
+                <Input
+                  size="md"
+                  variant="outline"
                   name="middleName"
+                  placeholder="middle name.."
                   onInput={handleInput}
                 />
-                <TextField
-                  type="search"
-                  size="small"
-                  label="last name.."
-                  // name={lastName}
+                <Input
+                  size="md"
+                  variant="outline"
                   name="lastName"
+                  placeholder="last name.."
                   onInput={handleInput}
                 />
-                <TextField
-                  type="search"
-                  size="small"
-                  label="yyyy-mm-dd.."
-                  // name={lastName}
+                <Input
+                  size="md"
+                  variant="outline"
                   name="dob"
+                  placeholder="yyyy-mm-dd.."
                   onInput={handleInput}
                 />
-                <TextField
-                  type="search"
-                  size="small"
-                  label="provider acc. name.."
-                  // name={lastName}
+                <Input
+                  size="md"
+                  variant="outline"
                   name="provAcc"
+                  placeholder="provider acc. name.."
                   onInput={handleInput}
                 />
-                <Button variant="contained" onClick={handleSearchClick}>
-                  Search
+                <Button variant="solid" onClick={handleSearchClick}>
+                  search
                 </Button>
-              </Stack>
+              </VStack>
             )}
-          </Box>
+          </Container>
         ) : (
-          <Stack
-            paddingTop={"9%"}
-            alignItems={"center"}
-            justifyContent={"center"}
-          >
-            <TextField
-              type={showPassword ? "text" : "password"}
-              label="enter api key.."
-              variant="outlined"
-              size="small"
-              margin="dense"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleShowPassword} edge="end">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              onInput={handleAPIKeyEntry}
-            />
-            <Button variant="contained" onClick={handleSubmitClick}>
-              submit
-            </Button>
-          </Stack>
+          <Container maxW={"30vw"}>
+            <VStack>
+              <InputGroup size="md">
+                <Input
+                  pr="4.5rem"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="enter api key.."
+                  onInput={handleAPIKeyEntry}
+                />
+                <InputRightElement width="4.5rem">
+                  <IconButton
+                    aria-label="show password"
+                    icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                    h="1.75rem"
+                    size="sm"
+                    onClick={handleShowPassword}
+                  />
+                </InputRightElement>
+              </InputGroup>
+              <Button variant="solid" onClick={handleSubmitClick}>
+                submit
+              </Button>
+            </VStack>
+          </Container>
         )}
-        <MySnackbar
-          parentIsOpen={snackBarOpen}
-          parentSetIsOpen={setSnackbarOpen}
-          message={["Invalid Token"]}
-          severity="warning"
-        />
-      </Container>
+      </VStack>
     </React.Fragment>
   );
 };
