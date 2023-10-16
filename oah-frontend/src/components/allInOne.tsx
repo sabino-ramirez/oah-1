@@ -501,6 +501,7 @@ const AllInOne = (props: {
     setCellChangesIndex(cellChangesIndex - 1);
     return updated;
   };
+
   const handleUndoChanges = () => {
     if (cellChangesIndex > 0) {
       setReqs((prevReqs) =>
@@ -538,6 +539,7 @@ const AllInOne = (props: {
       );
     }
   };
+
   const handleUpdateClick = async () => {
     // updateReqs.forEach((updatedReq) => {
     //   console.log(JSON.stringify(updatedReq));
@@ -567,10 +569,13 @@ const AllInOne = (props: {
 
     // const rejectionReasons: {}[] = [];
     const rejectionReasons: { identifier: string; [key: string]: any }[] = [];
+    const serverUpdatedReqs: any[] = [];
 
     promiseResults.forEach((result) => {
       if (result.status === "rejected") {
         rejectionReasons.push(result.reason);
+      } else {
+        serverUpdatedReqs.push(result.value);
       }
     });
 
@@ -611,6 +616,112 @@ const AllInOne = (props: {
 
     // reset updates after user sends updates to /update
     setUpdateReqs([]);
+    // reset cell changes afer update
+    setCellChangesIndex(() => -1);
+    setCellChanges(() => []);
+
+    console.log(serverUpdatedReqs.length);
+    console.log(serverUpdatedReqs);
+
+    // // maybe send serverUpdatedReqs to function like applychanges
+    // // where it filters only successfully changed reqs and replaces the
+    // // values with those of the returned req
+
+    if (Array.isArray(serverUpdatedReqs) && serverUpdatedReqs.length) {
+      setReqs([]);
+      serverUpdatedReqs.forEach((req) => {
+        setReqs((prev) => [
+          ...prev,
+          {
+            // requisition
+            id: `${req.requisition.id}`,
+            identifier: `${req.requisition.identifier}`,
+            // labNotes: `${req.requisition.customAttributes.labNotes
+            //     ? req.requisition.customAttributes.labNotes
+            //     : null
+            //   }`,
+            lab_notes: `${
+              req.requisition.customAttributes.lab_notes
+                ? req.requisition.customAttributes.lab_notes
+                : ""
+            }`,
+            projectTemplateId: `${req.requisition.projectTemplateId}`,
+            reqTemplate: `${req.requisition.template}`,
+            sampCollDate: `${req.requisition.sampleCollectionDate}`,
+            // requisition.providerAccount
+            provAccId: `${req.requisition.providerAccount.id}`,
+            provAccName: `${req.requisition.providerAccount.name}`,
+            //requisition.samples
+            // sampId: `${req.requisition.samples[0].id}`,
+            // requisition.patient
+            firstName: `${req.requisition.patient.firstName}`,
+            middleName: `${
+              req.requisition.patient.middleName
+                ? req.requisition.patient.middleName
+                : ""
+            }`,
+            lastName: `${req.requisition.patient.lastName}`,
+            streetAddress: `${req.requisition.patient.streetAddress}`,
+            city: `${req.requisition.patient.city}`,
+            state: `${req.requisition.patient.state}`,
+            zipCode: `${req.requisition.patient.zipCode}`,
+            dob: `${req.requisition.patient.dateOfBirth}`,
+            gender: `${req.requisition.patient.gender}`,
+            race: `${req.requisition.patient.race}`,
+            ethnicity: `${req.requisition.patient.ethnicity}`,
+            // requisition.billingInformation.
+            primBillTo: `${
+              req.requisition.billingInformation.billTo
+                ? req.requisition.billingInformation.billTo
+                : ""
+            }`,
+            primGroupNum: `${
+              req.requisition.billingInformation.insuranceInformations
+                ? req.requisition.billingInformation.insuranceInformations[0]
+                    .groupNumber
+                  ? req.requisition.billingInformation.insuranceInformations[0]
+                      .groupNumber
+                  : ""
+                : ""
+            }`,
+            primRTI: `${
+              req.requisition.billingInformation.insuranceInformations
+                ? req.requisition.billingInformation.insuranceInformations[0]
+                    .relationshipToInsured
+                  ? req.requisition.billingInformation.insuranceInformations[0]
+                      .relationshipToInsured
+                  : ""
+                : ""
+            }`,
+            // requisition.billingInformation.insuranceInformations [{}]
+            primInsurId: `${
+              req.requisition.billingInformation.insuranceInformations
+                ? req.requisition.billingInformation.insuranceInformations[0]
+                    .idNumber
+                  ? req.requisition.billingInformation.insuranceInformations[0]
+                      .idNumber
+                  : ""
+                : ""
+            }`,
+            // primInsurType: `${
+            //   req.requisition.billingInformation.insuranceInformations
+            //     ? req.requisition.billingInformation.insuranceInformations[0]
+            //         .insuranceType
+            //     : null
+            // }`,
+            primInsurName: `${
+              req.requisition.billingInformation.insuranceInformations
+                ? req.requisition.billingInformation.insuranceInformations[0]
+                    .insuranceProviderName
+                  ? req.requisition.billingInformation.insuranceInformations[0]
+                      .insuranceProviderName
+                  : ""
+                : ""
+            }`,
+          },
+        ]);
+      });
+    }
   };
 
   const handleNewSearchClick = () => {
@@ -658,14 +769,26 @@ const AllInOne = (props: {
           <Button variant="solid" size="sm" onClick={handleNewSearchClick}>
             new search
           </Button>
-        </VStack>
-        <HStack>
-          <Button size={"sm"} onClick={handleUndoChanges}>
-            undo
-          </Button>
-          <Button size={"sm"} onClick={handleRedoChanges}>
-            redo
-          </Button>
+          <HStack>
+            {cellChangesIndex < 0 ? (
+              <Button size={"sm"} isActive={false} isDisabled={true}>
+                undo
+              </Button>
+            ) : (
+              <Button size={"sm"} onClick={handleUndoChanges}>
+                undo
+              </Button>
+            )}
+            {cellChangesIndex >= cellChanges.length - 1 ? (
+              <Button size={"sm"} isActive={false} isDisabled={true}>
+                redo
+              </Button>
+            ) : (
+              <Button size={"sm"} onClick={handleRedoChanges}>
+                redo
+              </Button>
+            )}
+            {/*
           <Button
             size={"sm"}
             onClick={() => {
@@ -674,9 +797,11 @@ const AllInOne = (props: {
               console.log(updateReqs);
             }}
           >
-            show{" "}
+            show
           </Button>
-        </HStack>
+          */}
+          </HStack>
+        </VStack>
       </Flex>
     </>
   );

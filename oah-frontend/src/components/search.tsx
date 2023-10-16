@@ -10,6 +10,8 @@ import {
   InputRightElement,
   useToast,
   VStack,
+  Text,
+  Flex,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
@@ -266,9 +268,17 @@ const Search = () => {
   return (
     <React.Fragment>
       <VStack>
-        <Container minH={"6vh"} maxW={"container.sm"} centerContent>
-          OAH
-        </Container>
+        <Flex minH={"6vh"} maxW={"container.sm"} alignItems={"flex-end"}>
+          <Text
+            // bgGradient="linear(to-l, #7928CA, #FF0080)"
+            bgGradient="linear(to-t, gray.100, blue.400)"
+            bgClip="text"
+            fontSize="md"
+            fontWeight="extrabold"
+          >
+            oah
+          </Text>
+        </Flex>
         {isLoggedIn ? (
           <Container maxW={"container.md"} maxH={"80vh"} centerContent>
             {hasSearched ? (
