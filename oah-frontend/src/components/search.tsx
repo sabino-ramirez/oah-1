@@ -15,10 +15,6 @@ import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 const Search = () => {
   const [showPassword, setShowPassword] = useState(false);
-  // useId is react hook to generate unique id
-  // const identifier = useId();
-  // const firstName = useId();
-  // const lastName = useId();
 
   // holds value of input field
   // const [input, setinput] = useState(props?.value ?? "");
@@ -36,9 +32,6 @@ const Search = () => {
 
   // when false show search bar etc
   const [hasSearched, setHasSearched] = useState(false);
-
-  // for snackbar
-  const [snackBarOpen, setSnackbarOpen] = useState(false);
 
   const toast = useToast();
 
@@ -203,7 +196,8 @@ const Search = () => {
       console.log("finally clause");
     }
 
-    // after fetch, set search state to true to trigger showing main component with grid and all
+    // after fetch, set search state to true to trigger showing
+    // main component with grid and all
     setHasSearched(true);
     setinput({
       identifier: "",
@@ -241,7 +235,6 @@ const Search = () => {
           duration: 3000,
           isClosable: true,
         });
-        // setSnackbarOpen(true);
       }
     } catch (err: any) {
       console.log("error submitting", err.message);

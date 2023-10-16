@@ -9,7 +9,7 @@ import {
 } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import { WantedReq, UpdateReqFormat } from "../types";
-import { Button, Flex, VStack, useToast } from "@chakra-ui/react";
+import { Button, Flex, HStack, VStack, useToast } from "@chakra-ui/react";
 import UpdateModel from "./updateModal";
 
 const headerRow: Row = {
@@ -117,28 +117,28 @@ const headerRow: Row = {
 
 const getColumns = (): Column[] => [
   // { columnId: "id", width: 100 },
-  { columnId: "samepleCollDate", width: 100 },
-  { columnId: "identifier", width: 128 },
-  { columnId: "projectTemplateId", width: 80 },
-  { columnId: "reqTemplate", width: 200, resizable: true },
-  { columnId: "provAccId", width: 80 },
+  { columnId: "samepleCollDate", width: 110 },
+  { columnId: "identifier", width: 200 },
+  { columnId: "projectTemplateId", width: 70, resizable: true },
+  { columnId: "reqTemplate", width: 300, resizable: true },
+  { columnId: "provAccId", width: 90 },
   { columnId: "provAccName", width: 300, resizable: true },
   // { columnId: "labNotes", width: 200, resizable: true },
   { columnId: "lab_notes", width: 200, resizable: true },
-  { columnId: "firstName", width: 100, resizable: true },
-  { columnId: "middleName", width: 100, resizable: true },
-  { columnId: "lastName", width: 100, resizable: true },
+  { columnId: "firstName", width: 110, resizable: true },
+  { columnId: "middleName", width: 110, resizable: true },
+  { columnId: "lastName", width: 110, resizable: true },
   { columnId: "dob", width: 120 },
   { columnId: "gender", width: 30 },
-  { columnId: "primBillTo", width: 120 },
-  { columnId: "primInsurName", width: 180 },
-  { columnId: "primInsurId", width: 100 },
-  { columnId: "primGroupNum", width: 120 },
-  { columnId: "primRTI", width: 120 },
-  { columnId: "race", width: 110 },
-  { columnId: "ethnicity", width: 110 },
-  { columnId: "streetAddress", width: 200, resizable: true },
-  { columnId: "city", width: 100, resizable: true },
+  { columnId: "primBillTo", width: 130 },
+  { columnId: "primInsurName", width: 210, resizable: true },
+  { columnId: "primInsurId", width: 215, resizable: true },
+  { columnId: "primGroupNum", width: 150 },
+  { columnId: "primRTI", width: 130 },
+  { columnId: "race", width: 120 },
+  { columnId: "ethnicity", width: 120 },
+  { columnId: "streetAddress", width: 215, resizable: true },
+  { columnId: "city", width: 150, resizable: true },
   { columnId: "state", width: 115 },
   { columnId: "zipCode", width: 75 },
 ];
@@ -156,31 +156,31 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       {
         type: "text",
         text: req.sampCollDate ? req.sampCollDate : "",
-        style: { paddingLeft: "1px" },
+        style: { paddingLeft: "5px" },
         nonEditable: true,
       },
       {
         type: "text",
         text: req.identifier,
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
         nonEditable: true,
       },
       {
         type: "text",
         text: req.projectTemplateId,
-        style: { overflow: "auto", paddingLeft: "2px" },
+        style: { overflow: "auto", paddingLeft: "10px" },
         nonEditable: true,
       },
       {
         type: "text",
         text: req.reqTemplate ? req.reqTemplate : "",
-        style: { overflow: "auto", paddingLeft: "2px" },
+        style: { overflow: "auto", paddingLeft: "10px" },
         nonEditable: true,
       },
       {
         type: "text",
         text: req.provAccId ? req.provAccId : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
         nonEditable: true,
       },
       {
@@ -196,34 +196,34 @@ const getRows = (reqs: WantedReq[]): Row[] => [
         renderer(text) {
           return <div>{text}</div>;
         },
-        style: { overflow: "auto", paddingLeft: "0px" },
+        style: { overflow: "auto", paddingLeft: "10px" },
         rowspan: 1,
       },
       // { type: "text", text: req.sampId ? req.sampId : "" },
       {
         type: "text",
         text: req.firstName ? req.firstName : "",
-        style: { overflow: "auto", paddingLeft: "2px" },
+        style: { overflow: "auto", paddingLeft: "8px" },
       },
       {
         type: "text",
         text: req.middleName ? req.middleName : "",
-        style: { overflow: "auto", paddingLeft: "2px" },
+        style: { overflow: "auto", paddingLeft: "8px" },
       },
       {
         type: "text",
         text: req.lastName ? req.lastName : "",
-        style: { overflow: "auto", paddingLeft: "2px" },
+        style: { overflow: "auto", paddingLeft: "8px" },
       },
       {
         type: "text",
         text: req.dob ? req.dob : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
       {
         type: "text",
         text: req.gender ? req.gender : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
       {
         type: "text",
@@ -232,7 +232,7 @@ const getRows = (reqs: WantedReq[]): Row[] => [
             ? req.primBillTo
             : ""
           : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
       {
         type: "text",
@@ -241,7 +241,7 @@ const getRows = (reqs: WantedReq[]): Row[] => [
             ? req.primInsurName
             : ""
           : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
       {
         type: "text",
@@ -250,7 +250,7 @@ const getRows = (reqs: WantedReq[]): Row[] => [
             ? req.primInsurId
             : ""
           : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
       {
         type: "text",
@@ -259,57 +259,59 @@ const getRows = (reqs: WantedReq[]): Row[] => [
             ? req.primGroupNum
             : ""
           : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
       {
         type: "text",
         text: req.primRTI ? (req.primRTI !== "" ? req.primRTI : "") : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
       {
         type: "text",
         text: req.race ? req.race : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
       {
         type: "text",
         text: req.ethnicity ? req.ethnicity : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
       {
         type: "text",
         text: req.streetAddress ? req.streetAddress : "",
-        style: { overflow: "auto", paddingLeft: "2px" },
+        style: { overflow: "auto", paddingLeft: "10px" },
       },
       {
         type: "text",
         text: req.city ? req.city : "",
-        style: { overflow: "auto", paddingLeft: "2px" },
+        style: { overflow: "auto", paddingLeft: "10px" },
       },
       {
         type: "text",
         text: req.state ? req.state : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
       {
         type: "text",
         text: req.zipCode ? req.zipCode : "",
-        style: { paddingLeft: "2px" },
+        style: { paddingLeft: "10px" },
       },
     ],
     height: 70,
   })),
 ];
 
-const applyChangesToReqs = (
+const applyNewValue = (
   changes: CellChange<TextCell>[],
-  prevReqs: WantedReq[]
+  prevReqs: WantedReq[],
+  usePrevValue: boolean = false
 ): WantedReq[] => {
   changes.forEach((change) => {
     const reqIndex = change.rowId as number;
     const fieldName = change.columnId as keyof WantedReq;
-    prevReqs[reqIndex][fieldName] = change.newCell.text;
-    // console.log(change);
+    const cell = usePrevValue ? change.previousCell : change.newCell;
+    prevReqs[reqIndex][fieldName] = cell.text;
+    // prevReqs[reqIndex][fieldName] = change.newCell.text;
   });
 
   return [...prevReqs];
@@ -324,15 +326,16 @@ const organizeReqUpdates = (
   // instead of making a separate one to avoid multiple /update calls
   const hasReqBeenUpdated = (reqId: number): [boolean, number] => {
     if (
-      !(prevUpdates.length === 0) &&
+      prevUpdates.length &&
       prevUpdates.some((update) => update.requisition.id === reqId)
     ) {
       return [
         true,
         prevUpdates.findIndex((update) => update.requisition.id === reqId),
       ];
+    } else {
+      return [false, -1];
     }
-    return [false, 0];
   };
 
   // --- check what field was updated and format the appropriate json field
@@ -450,15 +453,18 @@ const AllInOne = (props: {
   apiKey: any;
 }) => {
   const [reqs, setReqs] = useState<WantedReq[]>(props.parentReturnReqs);
-  // const [updateReqs, setUpdateReqs] = useState<string[]>([]);
   const [updateReqs, setUpdateReqs] = useState<UpdateReqFormat[]>([]);
+  const [cellChangesIndex, setCellChangesIndex] = useState(() => -1);
+  const [cellChanges, setCellChanges] = useState<CellChange<TextCell>[][]>(
+    () => []
+  );
 
   const [columns, setColumns] = useState<Column[]>(getColumns());
 
-  const toast = useToast();
-
   const rows = getRows(reqs);
   // const columns = getColumns();
+
+  const toast = useToast();
 
   const handleColumnResize = (ci: Id, width: number) => {
     setColumns((prevColumns) => {
@@ -470,6 +476,16 @@ const AllInOne = (props: {
     });
   };
 
+  const applyChangesToReqs = (
+    changes: CellChange<TextCell>[],
+    prevReqs: WantedReq[]
+  ): WantedReq[] => {
+    const updated = applyNewValue(changes, prevReqs);
+    setCellChanges([...cellChanges.slice(0, cellChangesIndex + 1), changes]);
+    setCellChangesIndex(cellChangesIndex + 1);
+    return updated;
+  };
+
   const handleChanges = (changes: CellChange<any>[]) => {
     setReqs((prevReqs) => applyChangesToReqs(changes, prevReqs));
     setUpdateReqs((prevUpdates) =>
@@ -477,6 +493,51 @@ const AllInOne = (props: {
     );
   };
 
+  const undoChanges = (
+    changes: CellChange<TextCell>[],
+    prevReqs: WantedReq[]
+  ): WantedReq[] => {
+    const updated = applyNewValue(changes, prevReqs, true);
+    setCellChangesIndex(cellChangesIndex - 1);
+    return updated;
+  };
+  const handleUndoChanges = () => {
+    if (cellChangesIndex > 0) {
+      setReqs((prevReqs) =>
+        undoChanges(cellChanges[cellChangesIndex], prevReqs)
+      );
+
+      setUpdateReqs((prevUpdates) =>
+        organizeReqUpdates(reqs, cellChanges[cellChangesIndex], prevUpdates)
+      );
+    } else if (cellChangesIndex === 0) {
+      setReqs((prevReqs) =>
+        undoChanges(cellChanges[cellChangesIndex], prevReqs)
+      );
+      setUpdateReqs([]);
+      // console.log(updateReqs.pop());
+    }
+  };
+
+  const redoChanges = (
+    changes: CellChange<TextCell>[],
+    prevReqs: WantedReq[]
+  ): WantedReq[] => {
+    const updated = applyNewValue(changes, prevReqs);
+    setCellChangesIndex(cellChangesIndex + 1);
+    return updated;
+  };
+
+  const handleRedoChanges = () => {
+    if (cellChangesIndex + 1 <= cellChanges.length - 1) {
+      setReqs((prevReqs) =>
+        redoChanges(cellChanges[cellChangesIndex + 1], prevReqs)
+      );
+      setUpdateReqs((prevUpdates) =>
+        organizeReqUpdates(reqs, cellChanges[cellChangesIndex + 1], prevUpdates)
+      );
+    }
+  };
   const handleUpdateClick = async () => {
     // updateReqs.forEach((updatedReq) => {
     //   console.log(JSON.stringify(updatedReq));
@@ -572,30 +633,51 @@ const AllInOne = (props: {
           onCellsChanged={handleChanges}
           stickyTopRows={1}
           stickyLeftColumns={1}
+          // moveRightOnEnter={true}
           enableFillHandle
           enableRangeSelection
         />
       </Flex>
-      <VStack>
-        {updateReqs.length > 0 ? (
-          <UpdateModel
-            updateAmount={updateReqs.length}
-            parentClickHandler={handleUpdateClick}
-          />
-        ) : (
+      <Flex direction={"column"}>
+        <VStack>
+          {updateReqs.length > 0 ? (
+            <UpdateModel
+              updateAmount={updateReqs.length}
+              parentClickHandler={handleUpdateClick}
+            />
+          ) : (
+            <Button
+              size={"sm"}
+              variant={"solid"}
+              isActive={false}
+              isDisabled={true}
+            >
+              update
+            </Button>
+          )}
+          <Button variant="solid" size="sm" onClick={handleNewSearchClick}>
+            new search
+          </Button>
+        </VStack>
+        <HStack>
+          <Button size={"sm"} onClick={handleUndoChanges}>
+            undo
+          </Button>
+          <Button size={"sm"} onClick={handleRedoChanges}>
+            redo
+          </Button>
           <Button
             size={"sm"}
-            variant={"solid"}
-            isActive={false}
-            isDisabled={true}
+            onClick={() => {
+              console.log(cellChangesIndex);
+              console.log(updateReqs.length);
+              console.log(updateReqs);
+            }}
           >
-            update
+            show{" "}
           </Button>
-        )}
-        <Button variant="solid" size="sm" onClick={handleNewSearchClick}>
-          new search
-        </Button>
-      </VStack>
+        </HStack>
+      </Flex>
     </>
   );
 };
