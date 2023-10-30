@@ -11,21 +11,21 @@ import (
 
 	"github.com/sabino-ramirez/oah-api/models"
 	"github.com/sabino-ramirez/oah-api/services"
-	"golang.org/x/time/rate"
+	// "golang.org/x/time/rate"
 )
 
 func (s *Server) handleUpdateReq() http.HandlerFunc {
 	log.Println("pleaseHandleUpdateReq invoked")
 
-	// rl := rate.NewLimiter(rate.Every(10*time.Second), 50)
-	rl := rate.NewLimiter(10, 1)
+	// // rl := rate.NewLimiter(rate.Every(10*time.Second), 50)
+	// rl := rate.NewLimiter(10, 1)
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var payload models.BetterIndividualReq
 		var final models.BetterIndividualReq
 
 		// ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
-		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"), rl)
+		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"))
 
 		// io.Copy(os.Stdout, r.Body)
 
@@ -80,7 +80,10 @@ func (s *Server) handleUpdateReq() http.HandlerFunc {
 		// but the struct for reqs has "lab_notes" which is the correct key to update reqs.
 		// However, the req struct ignores the update req response from ovation because
 		// ovation returns a key as "labNotes".
-		if err := setNewRedisKey(s.cache, final.Requisition.ID, finalUpdateJson); err != nil {
+		// if err := setNewRedisKey(s.cache, final.Requisition.ID, finalUpdateJson); err != nil {
+		// 	log.Printf("setting new key in /updated error: %v", err)
+		// }
+		if err := addRowToRedis(s.cache, final.Requisition.Identifier, finalUpdateJson); err != nil {
 			log.Printf("setting new key in /updated error: %v", err)
 		}
 

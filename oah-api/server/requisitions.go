@@ -10,7 +10,7 @@ import (
 
 	"github.com/sabino-ramirez/oah-api/models"
 	"github.com/sabino-ramirez/oah-api/services"
-	"golang.org/x/time/rate"
+	// "golang.org/x/time/rate"
 )
 
 func (s *Server) handleGetReqs() http.HandlerFunc {
@@ -21,9 +21,9 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 
 	return func(_ http.ResponseWriter, r *http.Request) {
 		// rl := rate.NewLimiter(rate.Every(10*time.Second), 1)
-		rl := rate.NewLimiter(3, 1) // x calls per y second
+		// rl := rate.NewLimiter(3, 1) // x calls per y second
 		// ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
-		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"), rl)
+		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"))
 
 		// _, err := services.GetProjectTemplates(ovationAPI, &templates)
 		_, err := services.GetProjectTemplates(ovationProdSubAPI, &templates)

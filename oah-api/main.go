@@ -7,13 +7,16 @@ import (
 	"log"
 	"net/http"
 	"os"
+
 	// "strings"
 
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"github.com/sabino-ramirez/oah-api/server"
 )
 
 func main() {
+	_ = godotenv.Load()
 	// for _, e := range os.Environ() {
 	// 	pair := strings.SplitN(e, "=", 2)
 	// 	fmt.Printf("%s\n", pair[0])
@@ -28,6 +31,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "%s\n", err)
 	}
 
+	// files, _ := os.ReadDir("./lab note reqs")
+	// for _, file := range files {
+	// 	log.Printf("%v", file)
+	// }
 }
 
 func run() error {

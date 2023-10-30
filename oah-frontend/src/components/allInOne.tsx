@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as _ from "lodash";
 import {
   ReactGrid,
   Column,
@@ -9,16 +10,22 @@ import {
 } from "@silevis/reactgrid";
 import "@silevis/reactgrid/styles.css";
 import { WantedReq, UpdateReqFormat } from "../types";
-import { Button, Flex, HStack, VStack, useToast } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  HStack,
+  Text,
+  VStack,
+  useToast,
+} from "@chakra-ui/react";
 import UpdateModel from "./updateModal";
 
+// set the first row (title/header row)
 const headerRow: Row = {
   rowId: "header",
   cells: [
-    // {
-    //   type: "header",
-    //   text: "id",
-    // },
     {
       type: "header",
       text: "Coll. Date",
@@ -26,10 +33,6 @@ const headerRow: Row = {
     {
       type: "header",
       text: "Identifier",
-    },
-    {
-      type: "header",
-      text: "Proj ID",
     },
     {
       type: "header",
@@ -47,10 +50,6 @@ const headerRow: Row = {
       type: "header",
       text: "Lab Notes",
     },
-    // {
-    //   type: "header",
-    //   text: "samp id",
-    // },
     {
       type: "header",
       text: "First Name",
@@ -69,7 +68,7 @@ const headerRow: Row = {
     },
     {
       type: "header",
-      text: "G",
+      text: "Sex",
     },
     {
       type: "header",
@@ -115,21 +114,19 @@ const headerRow: Row = {
   ],
 };
 
+// set id's and styles to columns
 const getColumns = (): Column[] => [
-  // { columnId: "id", width: 100 },
-  { columnId: "samepleCollDate", width: 110 },
-  { columnId: "identifier", width: 200 },
-  { columnId: "projectTemplateId", width: 70, resizable: true },
+  { columnId: "samepleCollDate", width: 100 },
+  { columnId: "identifier", width: 180 },
   { columnId: "reqTemplate", width: 300, resizable: true },
-  { columnId: "provAccId", width: 90 },
+  { columnId: "provAccId", width: 120 },
   { columnId: "provAccName", width: 300, resizable: true },
-  // { columnId: "labNotes", width: 200, resizable: true },
   { columnId: "lab_notes", width: 200, resizable: true },
   { columnId: "firstName", width: 110, resizable: true },
   { columnId: "middleName", width: 110, resizable: true },
   { columnId: "lastName", width: 110, resizable: true },
   { columnId: "dob", width: 120 },
-  { columnId: "gender", width: 30 },
+  { columnId: "sex", width: 50 },
   { columnId: "primBillTo", width: 130 },
   { columnId: "primInsurName", width: 210, resizable: true },
   { columnId: "primInsurId", width: 215, resizable: true },
@@ -143,20 +140,40 @@ const getColumns = (): Column[] => [
   { columnId: "zipCode", width: 75 },
 ];
 
+// returns array of <Row>s that are usable by ReactGrid
 const getRows = (reqs: WantedReq[]): Row[] => [
   headerRow,
   ...reqs.map<Row>((req: WantedReq, idx: number) => ({
     rowId: idx,
     cells: [
-      // {
-      //   type: "text",
-      //   text: req.id ? req.id : "nothing",
-      //   style: { overflow: "auto", paddingLeft: "2px" },
-      // },
       {
-        type: "text",
-        text: req.sampCollDate ? req.sampCollDate : "",
-        style: { paddingLeft: "5px" },
+        type: "date",
+        date: req.sampCollDate,
+        style: {
+          paddingLeft: "15px",
+          border: {
+            left: {
+              color: req.failed ? "red" : "",
+              style: req.failed ? "dashed" : "solid",
+              width: req.failed ? "3px" : "1px",
+            },
+            right: {
+              color: req.failed ? "red" : "",
+              style: req.failed ? "dashed" : "solid",
+              width: req.failed ? "3px" : "1px",
+            },
+            top: {
+              color: req.failed ? "red" : "",
+              style: req.failed ? "dashed" : "solid",
+              width: req.failed ? "3px" : "1px",
+            },
+            bottom: {
+              color: req.failed ? "red" : "",
+              style: req.failed ? "dashed" : "solid",
+              width: req.failed ? "3px" : "1px",
+            },
+          },
+        },
         nonEditable: true,
       },
       {
@@ -167,142 +184,127 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       },
       {
         type: "text",
-        text: req.projectTemplateId,
-        style: { overflow: "auto", paddingLeft: "10px" },
+        text: req.reqTemplate,
+        style: {
+          overflow: "auto",
+          paddingLeft: "10px",
+          paddingRight: "8px",
+        },
         nonEditable: true,
       },
       {
         type: "text",
-        text: req.reqTemplate ? req.reqTemplate : "",
-        style: { overflow: "auto", paddingLeft: "10px" },
-        nonEditable: true,
-      },
-      {
-        type: "text",
-        text: req.provAccId ? req.provAccId : "",
+        text: req.provAccId,
         style: { paddingLeft: "10px" },
         nonEditable: true,
       },
       {
         type: "text",
-        text: req.provAccName ? req.provAccName : "",
-        style: { paddingLeft: "0px" },
+        text: req.provAccName,
+        style: {
+          overflow: "auto",
+          paddingLeft: "10px",
+          paddingRight: "8px",
+        },
         nonEditable: true,
       },
       {
         type: "text",
-        // text: req.labNotes ? req.labNotes : "",
-        text: req.lab_notes ? req.lab_notes : "",
+        text: req.lab_notes,
         renderer(text) {
           return <div>{text}</div>;
         },
         style: { overflow: "auto", paddingLeft: "10px" },
         rowspan: 1,
       },
-      // { type: "text", text: req.sampId ? req.sampId : "" },
       {
         type: "text",
-        text: req.firstName ? req.firstName : "",
+        text: req.firstName,
         style: { overflow: "auto", paddingLeft: "8px" },
       },
       {
         type: "text",
-        text: req.middleName ? req.middleName : "",
+        text: req.middleName,
         style: { overflow: "auto", paddingLeft: "8px" },
       },
       {
         type: "text",
-        text: req.lastName ? req.lastName : "",
+        text: req.lastName,
         style: { overflow: "auto", paddingLeft: "8px" },
       },
       {
         type: "text",
-        text: req.dob ? req.dob : "",
+        text: req.dob,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.gender ? req.gender : "",
+        text: req.sex,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.primBillTo
-          ? req.primBillTo !== ""
-            ? req.primBillTo
-            : ""
-          : "",
+        text: req.primBillTo,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.primInsurName
-          ? req.primInsurName !== ""
-            ? req.primInsurName
-            : ""
-          : "",
+        text: req.primInsurName,
+        style: { paddingLeft: "10px", paddingRight: "8px" },
+      },
+      {
+        type: "text",
+        text: req.primInsurId,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.primInsurId
-          ? req.primInsurId !== ""
-            ? req.primInsurId
-            : ""
-          : "",
+        text: req.primGroupNum,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.primGroupNum
-          ? req.primGroupNum !== ""
-            ? req.primGroupNum
-            : ""
-          : "",
+        text: req.primRTI,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.primRTI ? (req.primRTI !== "" ? req.primRTI : "") : "",
+        text: req.race,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.race ? req.race : "",
+        text: req.ethnicity,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.ethnicity ? req.ethnicity : "",
-        style: { paddingLeft: "10px" },
-      },
-      {
-        type: "text",
-        text: req.streetAddress ? req.streetAddress : "",
+        text: req.streetAddress,
         style: { overflow: "auto", paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.city ? req.city : "",
+        text: req.city,
         style: { overflow: "auto", paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.state ? req.state : "",
+        text: req.state,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.zipCode ? req.zipCode : "",
+        text: req.zipCode,
         style: { paddingLeft: "10px" },
       },
     ],
-    height: 70,
+    height: 50,
   })),
 ];
 
+// helper func returns [reqs + changes to reqs]
 const applyNewValue = (
-  changes: CellChange<TextCell>[],
+  changes: CellChange<TextCell | any>[],
   prevReqs: WantedReq[],
   usePrevValue: boolean = false
 ): WantedReq[] => {
@@ -311,141 +313,12 @@ const applyNewValue = (
     const fieldName = change.columnId as keyof WantedReq;
     const cell = usePrevValue ? change.previousCell : change.newCell;
     prevReqs[reqIndex][fieldName] = cell.text;
-    // prevReqs[reqIndex][fieldName] = change.newCell.text;
   });
 
   return [...prevReqs];
 };
 
-const organizeReqUpdates = (
-  reqs: WantedReq[],
-  changes: CellChange<TextCell>[],
-  prevUpdates: UpdateReqFormat[]
-): any => {
-  // --- if the same req has multiple fields updated, add to that json obj
-  // instead of making a separate one to avoid multiple /update calls
-  const hasReqBeenUpdated = (reqId: number): [boolean, number] => {
-    if (
-      prevUpdates.length &&
-      prevUpdates.some((update) => update.requisition.id === reqId)
-    ) {
-      return [
-        true,
-        prevUpdates.findIndex((update) => update.requisition.id === reqId),
-      ];
-    } else {
-      return [false, -1];
-    }
-  };
-
-  // --- check what field was updated and format the appropriate json field
-  // to be accepted by /update on the backend
-  const fieldNameAndStructure = (
-    changeRow: number,
-    changeColumn: string
-  ): [string, Object] => {
-    let fieldName = "";
-    let structure = {};
-    if (changeColumn.includes("prov")) {
-      fieldName = "providerAccount";
-      structure = {
-        id: reqs[changeRow].provAccId,
-        name: reqs[changeRow].provAccName,
-      };
-    } else if (changeColumn.includes("prim")) {
-      fieldName = "billingInformation";
-
-      // if (changeColumn.includes("RTI")) {
-      structure = {
-        billTo:
-          reqs[changeRow].primBillTo !== "" ? reqs[changeRow].primBillTo : "",
-        insuranceInformations: [
-          {
-            idNumber:
-              reqs[changeRow].primInsurId !== ""
-                ? reqs[changeRow].primInsurId
-                : "",
-            groupNumber:
-              reqs[changeRow].primGroupNum !== ""
-                ? reqs[changeRow].primGroupNum
-                : "",
-            relationshipToInsured:
-              reqs[changeRow].primRTI !== "" ? reqs[changeRow].primRTI : "",
-            insuranceType: "Primary",
-            insuranceProviderName:
-              reqs[changeRow].primInsurName !== ""
-                ? reqs[changeRow].primInsurName
-                : "",
-          },
-        ],
-      };
-    } else if (changeColumn.includes("lab_notes")) {
-      fieldName = "customAttributes";
-      // structure = {
-      //   labNotes: reqs[changeRow].labNotes,
-      // };
-      structure = {
-        lab_notes: reqs[changeRow].lab_notes,
-      };
-    } else {
-      fieldName = "patient";
-      structure = {
-        firstName: reqs[changeRow].firstName,
-        lastName: reqs[changeRow].lastName,
-        middleName: reqs[changeRow].middleName,
-        streetAddress: reqs[changeRow].streetAddress,
-        city: reqs[changeRow].city,
-        state: reqs[changeRow].state,
-        zipCode: reqs[changeRow].zipCode,
-        dateOfBirth: reqs[changeRow].dob,
-        gender: reqs[changeRow].gender,
-        race: reqs[changeRow].race,
-        ethnicity: reqs[changeRow].ethnicity,
-      };
-    }
-    return [fieldName, structure];
-  };
-
-  changes.forEach((change) => {
-    // --- there should never be more updates than there are reqs
-    let balogni: UpdateReqFormat;
-    const [fieldName, structure] = fieldNameAndStructure(
-      change.rowId as number,
-      change.columnId as keyof WantedReq
-    );
-
-    // if req has already been modified, add to it
-    // if it is the first, create a new object for it
-    // const currChangeRowId = parseInt(reqs[change.rowId as number].id);
-    const currChangeRow = change.rowId as number;
-    const [hasBeenUpdatedResult, rowNumOfPrevUpdate] = hasReqBeenUpdated(
-      parseInt(reqs[currChangeRow].id)
-    );
-
-    if (hasBeenUpdatedResult === true) {
-      console.log("updating another field on same req");
-      // add appropriate key/value pair to existing updatedReq
-      // console.log(prevUpdates[rowNumOfPrevUpdate]);
-      prevUpdates[rowNumOfPrevUpdate].requisition[fieldName] = structure;
-    } else {
-      console.log("updating req for first time");
-      // const rowNum = change.rowId as number;
-      balogni = {
-        requisition: {
-          id: parseInt(reqs[currChangeRow].id),
-          identifier: reqs[currChangeRow].identifier,
-          projectTemplateId: parseInt(reqs[currChangeRow].projectTemplateId),
-          [fieldName]: structure,
-        },
-        markAsSigned: true,
-      };
-      prevUpdates.push(balogni);
-    }
-  });
-
-  return [...prevUpdates];
-};
-
+// actual component
 const AllInOne = (props: {
   parentReturnReqs: WantedReq[];
   parentSetReturnReqs: any;
@@ -453,17 +326,15 @@ const AllInOne = (props: {
   apiKey: any;
 }) => {
   const [reqs, setReqs] = useState<WantedReq[]>(props.parentReturnReqs);
+  const [rejectedReqs, setRejectedReqs] = useState<WantedReq[]>([]);
+  // const [allowShowRejected, setAllowShowRejected] = useState<boolean>(false);
   const [updateReqs, setUpdateReqs] = useState<UpdateReqFormat[]>([]);
   const [cellChangesIndex, setCellChangesIndex] = useState(() => -1);
   const [cellChanges, setCellChanges] = useState<CellChange<TextCell>[][]>(
     () => []
   );
-
   const [columns, setColumns] = useState<Column[]>(getColumns());
-
   const rows = getRows(reqs);
-  // const columns = getColumns();
-
   const toast = useToast();
 
   const handleColumnResize = (ci: Id, width: number) => {
@@ -476,6 +347,140 @@ const AllInOne = (props: {
     });
   };
 
+  // works with changes to keep updatedReq objects up to date
+  const organizeReqUpdates = (
+    reqs: WantedReq[],
+    changes: CellChange<TextCell>[],
+    prevUpdates: UpdateReqFormat[]
+  ): any => {
+    // function for checking if this row has been previously modified
+    const hasReqBeenUpdated = (reqIdentifier: string): [boolean, number] => {
+      if (
+        prevUpdates.length &&
+        prevUpdates.some(
+          (update) => update.requisition.identifier === reqIdentifier
+        )
+      ) {
+        return [
+          true,
+          prevUpdates.findIndex(
+            (update) => update.requisition.identifier === reqIdentifier
+          ),
+        ];
+      } else {
+        return [false, -1];
+      }
+    };
+
+    // formats appropriate json data based on updated fields
+    const fieldNameAndStructure = (
+      changeRow: number,
+      changeColumn: any
+    ): [string, Object] => {
+      let fieldName = "";
+      let structure = {};
+      if (changeColumn.includes("prov")) {
+        fieldName = "providerAccount";
+        structure = {
+          id: reqs[changeRow].provAccId,
+          name: reqs[changeRow].provAccName,
+        };
+      } else if (changeColumn.includes("prim")) {
+        fieldName = "billingInformation";
+        structure = {
+          billTo:
+            reqs[changeRow].primBillTo !== "" ? reqs[changeRow].primBillTo : "",
+          insuranceInformations: [
+            {
+              idNumber:
+                reqs[changeRow].primInsurId !== ""
+                  ? reqs[changeRow].primInsurId
+                  : "",
+              groupNumber:
+                reqs[changeRow].primGroupNum !== ""
+                  ? reqs[changeRow].primGroupNum
+                  : "",
+              relationshipToInsured:
+                reqs[changeRow].primRTI !== "" ? reqs[changeRow].primRTI : "",
+              insuranceType: "Primary",
+              insuranceProviderName:
+                reqs[changeRow].primInsurName !== ""
+                  ? reqs[changeRow].primInsurName
+                  : "",
+            },
+          ],
+        };
+      } else if (changeColumn.includes("lab_notes")) {
+        fieldName = "customAttributes";
+        structure = {
+          lab_notes: reqs[changeRow].lab_notes,
+        };
+      } else {
+        fieldName = "patient";
+        structure = {
+          firstName: reqs[changeRow].firstName,
+          lastName: reqs[changeRow].lastName,
+          middleName: reqs[changeRow].middleName,
+          streetAddress: reqs[changeRow].streetAddress,
+          city: reqs[changeRow].city,
+          state: reqs[changeRow].state,
+          zipCode: reqs[changeRow].zipCode,
+          dateOfBirth: reqs[changeRow].dob,
+          gender: reqs[changeRow].sex,
+          race: reqs[changeRow].race,
+          ethnicity: reqs[changeRow].ethnicity,
+        };
+      }
+      return [fieldName, structure];
+    };
+
+    // actually start processing the changes
+    changes.forEach((change) => {
+      let balogni: UpdateReqFormat;
+      const [fieldName, structure] = fieldNameAndStructure(
+        change.rowId as number,
+        change.columnId as keyof WantedReq
+      );
+
+      const currChangeRow = change.rowId as number;
+      const [hasBeenUpdatedResult, rowNumOfPrevUpdate] = hasReqBeenUpdated(
+        reqs[currChangeRow].identifier
+      );
+
+      /*
+       * if the same req is updated multiple times, add to the json obj
+       * instead of making new one to avoid unnecessary /update calls.
+       * there should never be more updates than there are reqs
+       * */
+      if (hasBeenUpdatedResult === true) {
+        console.log("updating another field on same req");
+        // add appropriate key/value pair to existing updatedReq obj
+        prevUpdates[rowNumOfPrevUpdate].requisition[fieldName] = structure;
+      } else {
+        // if it is the first update, create a new object for it
+        console.log("updating req for first time");
+        balogni = {
+          requisition: {
+            identifier: reqs[currChangeRow].identifier,
+            [fieldName]: structure,
+          },
+          markAsSigned: true,
+        };
+
+        // add new object to updated reqs state
+        prevUpdates.push(balogni);
+      }
+    });
+
+    // return [previousUpdates + modified/added updates]
+    return [...prevUpdates];
+  };
+
+  /*
+   * first layer 'changes' helper takes changes and reqs, and
+   * calls base helper to apply changes.
+   * abstraction necessary for undo/redo functionality.
+   * */
   const applyChangesToReqs = (
     changes: CellChange<TextCell>[],
     prevReqs: WantedReq[]
@@ -486,6 +491,8 @@ const AllInOne = (props: {
     return updated;
   };
 
+  // 'changes' click-handler sends grid changes to grid helpers
+  // and also to update req helper
   const handleChanges = (changes: CellChange<any>[]) => {
     setReqs((prevReqs) => applyChangesToReqs(changes, prevReqs));
     setUpdateReqs((prevUpdates) =>
@@ -493,6 +500,7 @@ const AllInOne = (props: {
     );
   };
 
+  // base helper for undoing changes
   const undoChanges = (
     changes: CellChange<TextCell>[],
     prevReqs: WantedReq[]
@@ -502,6 +510,7 @@ const AllInOne = (props: {
     return updated;
   };
 
+  // undo click-handler triggers undo helper
   const handleUndoChanges = () => {
     if (cellChangesIndex > 0) {
       setReqs((prevReqs) =>
@@ -516,10 +525,10 @@ const AllInOne = (props: {
         undoChanges(cellChanges[cellChangesIndex], prevReqs)
       );
       setUpdateReqs([]);
-      // console.log(updateReqs.pop());
     }
   };
 
+  // base redo helper
   const redoChanges = (
     changes: CellChange<TextCell>[],
     prevReqs: WantedReq[]
@@ -529,6 +538,7 @@ const AllInOne = (props: {
     return updated;
   };
 
+  // redo click-handler triggers base helper
   const handleRedoChanges = () => {
     if (cellChangesIndex + 1 <= cellChanges.length - 1) {
       setReqs((prevReqs) =>
@@ -540,15 +550,26 @@ const AllInOne = (props: {
     }
   };
 
-  const handleUpdateClick = async () => {
-    // updateReqs.forEach((updatedReq) => {
-    //   console.log(JSON.stringify(updatedReq));
-    // });
+  // update click-handler gets called when user is ready to send updates
+  const handleUpdateClick = async (uniqueUpdateRows: number[]) => {
+    /*
+     * fixes incorrect update amount bug.
+     * extract only the reqs whos indentifiers are in one of the
+     * rows in `uniqueUpdateRows` array.
+     * See <UpdateModal> for info on `uniqueUpdateRows`
+     * */
+    const uniqueUpdates = updateReqs.filter((uu) => {
+      return uniqueUpdateRows.some(
+        (urow) => reqs[urow].identifier === uu.requisition.identifier
+      );
+    });
+    // console.log(uniqueUpdates);
 
     // with Promise.allSettled, return promise always resolves with array
     // of individual promises with status "fulfilled" or "rejected"
     const promiseResults = await Promise.allSettled(
-      updateReqs.map(async (updatedReq) => {
+      // use `uniqueUpdates` instead of `updateReqs` state
+      uniqueUpdates.map(async (updatedReq) => {
         const res = await fetch(`/update`, {
           method: "POST",
           headers: {
@@ -567,10 +588,11 @@ const AllInOne = (props: {
       })
     );
 
-    // const rejectionReasons: {}[] = [];
+    // make arrays for rejected and fulfilled promises info
     const rejectionReasons: { identifier: string; [key: string]: any }[] = [];
-    const serverUpdatedReqs: any[] = [];
+    const serverUpdatedReqs: any[] = []; // holds raw json objs from server
 
+    // store each result in the appropriate array
     promiseResults.forEach((result) => {
       if (result.status === "rejected") {
         rejectionReasons.push(result.reason);
@@ -579,6 +601,9 @@ const AllInOne = (props: {
       }
     });
 
+    // which toast style to show.
+    // & logic based on amount of succeeded and/or rejected reqs.
+    const maxErrors = 4;
     if (Array.isArray(rejectionReasons) && rejectionReasons.length) {
       toast({
         status: "error",
@@ -586,153 +611,283 @@ const AllInOne = (props: {
           rejectionReasons.length > 1
             ? "some errors occured"
             : "an error occured",
-        description: rejectionReasons.map((rr) => {
+        // only show first {maxErrors} in toast
+        description: rejectionReasons.slice(0, maxErrors).map((rr) => {
           return (
             <span key={rr.identifier}>
               {rr.identifier}:{" "}
-              {Object.keys(rr)
-                .slice(1)
-                .map((key, ix) => {
-                  return (ix ? ", " : "") + key;
-                })}
+              {Object.keys(_.omit(rr, "identifier")).map((key, ix) => {
+                return (ix ? ", " : "") + key;
+              })}
+              <br />
               <br />
             </span>
           );
         }),
         position: "bottom-left",
-        duration: 5000,
+        duration: null,
         isClosable: true,
       });
-      // console.log(rejectionReasons);
+
+      // if has rejections AND has successes, this will run
+      if (Array.isArray(serverUpdatedReqs) && serverUpdatedReqs.length) {
+        // setAllowShowRejected(true);
+        /*
+         * successes mixed with rejections will re-order the grid.
+         * reset the changes and the changes index to treat the new
+         * page as a fresh grid with no changes (updates are still active).
+         * */
+        setCellChangesIndex(() => -1);
+        setCellChanges(() => []);
+
+        // convert server response json reqs to grid-usable format
+        const svrUpdatesToWantedReqs = serverUpdatedReqs.map((req) => ({
+          identifier: `${req.identifier}`,
+          lab_notes: `${req.lab_notes}`,
+          reqTemplate: `${req.template}`,
+          sampCollDate: new Date(req.sampleCollectionDate),
+          provAccId: `${req.providerID}`,
+          provAccName: `${req.providerName}`,
+          firstName: `${req.patientFirstName}`,
+          middleName: `${req.patientMiddleName}`,
+          lastName: `${req.patientLastName}`,
+          streetAddress: `${req.patientStreetAddress}`,
+          city: `${req.patientCity}`,
+          state: `${req.patientState}`,
+          zipCode: `${req.patientZipCode}`,
+          dob: `${req.patientDateOfBirth}`,
+          sex: `${req.patientSex}`,
+          race: `${req.patientRace}`,
+          ethnicity: `${req.patientEthnicity}`,
+          primBillTo: `${req.billTo}`,
+          primGroupNum: `${req.primInsGroupNumber}`,
+          primRTI: `${req.primInsRelationshipToInsured}`,
+          primInsurId: `${req.primInsIDNumber}`,
+          primInsurName: `${req.primInsInsuranceProviderName}`,
+        }));
+
+        /*
+         * return reqs whose identifier's are found in rejectedReasons array
+         * to get rejected reqs in correct format.
+         * Add the `failed: boolean` field to render as red
+         * */
+        const rjReqs = reqs
+          .filter((req) => {
+            return rejectionReasons.some(
+              (reason) => reason.identifier === req.identifier
+            );
+          })
+          .map((rr) => ({
+            ...rr,
+            failed: true,
+          }));
+
+        /*
+         * Update `updateReqs` state to only keep the reqs that failed.
+         * If a req udpate succeeded, no need to keep the updateReq for it.
+         * This keeps update info live even on new grids.
+         * */
+        setUpdateReqs(
+          updateReqs.filter((ur) => {
+            return rejectionReasons.some(
+              (reason) => reason.identifier === ur.requisition.identifier
+            );
+          })
+        );
+
+        // reset the grid with a mixture of successful and rejected reqs
+        setReqs([]);
+        setReqs([...svrUpdatesToWantedReqs, ...rjReqs]);
+      }
     } else {
+      // if there are only successful updates, this will run
       toast({
         status: "success",
         title: "update successful!",
         position: "bottom-left",
-        duration: 1500,
+        duration: 3000,
         isClosable: true,
       });
-    }
 
-    // reset updates after user sends updates to /update
-    setUpdateReqs([]);
-    // reset cell changes afer update
-    setCellChangesIndex(() => -1);
-    setCellChanges(() => []);
+      // reset everything
+      setCellChangesIndex(() => -1);
+      setCellChanges(() => []);
+      setUpdateReqs([]);
 
-    console.log(serverUpdatedReqs.length);
-    console.log(serverUpdatedReqs);
-
-    // // maybe send serverUpdatedReqs to function like applychanges
-    // // where it filters only successfully changed reqs and replaces the
-    // // values with those of the returned req
-
-    if (Array.isArray(serverUpdatedReqs) && serverUpdatedReqs.length) {
+      // reset grid with successfully updated reqs
       setReqs([]);
       serverUpdatedReqs.forEach((req) => {
         setReqs((prev) => [
           ...prev,
           {
-            // requisition
-            id: `${req.requisition.id}`,
-            identifier: `${req.requisition.identifier}`,
-            // labNotes: `${req.requisition.customAttributes.labNotes
-            //     ? req.requisition.customAttributes.labNotes
-            //     : null
-            //   }`,
-            lab_notes: `${
-              req.requisition.customAttributes.lab_notes
-                ? req.requisition.customAttributes.lab_notes
-                : ""
-            }`,
-            projectTemplateId: `${req.requisition.projectTemplateId}`,
-            reqTemplate: `${req.requisition.template}`,
-            sampCollDate: `${req.requisition.sampleCollectionDate}`,
-            // requisition.providerAccount
-            provAccId: `${req.requisition.providerAccount.id}`,
-            provAccName: `${req.requisition.providerAccount.name}`,
-            //requisition.samples
-            // sampId: `${req.requisition.samples[0].id}`,
-            // requisition.patient
-            firstName: `${req.requisition.patient.firstName}`,
-            middleName: `${
-              req.requisition.patient.middleName
-                ? req.requisition.patient.middleName
-                : ""
-            }`,
-            lastName: `${req.requisition.patient.lastName}`,
-            streetAddress: `${req.requisition.patient.streetAddress}`,
-            city: `${req.requisition.patient.city}`,
-            state: `${req.requisition.patient.state}`,
-            zipCode: `${req.requisition.patient.zipCode}`,
-            dob: `${req.requisition.patient.dateOfBirth}`,
-            gender: `${req.requisition.patient.gender}`,
-            race: `${req.requisition.patient.race}`,
-            ethnicity: `${req.requisition.patient.ethnicity}`,
-            // requisition.billingInformation.
-            primBillTo: `${
-              req.requisition.billingInformation.billTo
-                ? req.requisition.billingInformation.billTo
-                : ""
-            }`,
-            primGroupNum: `${
-              req.requisition.billingInformation.insuranceInformations
-                ? req.requisition.billingInformation.insuranceInformations[0]
-                    .groupNumber
-                  ? req.requisition.billingInformation.insuranceInformations[0]
-                      .groupNumber
-                  : ""
-                : ""
-            }`,
-            primRTI: `${
-              req.requisition.billingInformation.insuranceInformations
-                ? req.requisition.billingInformation.insuranceInformations[0]
-                    .relationshipToInsured
-                  ? req.requisition.billingInformation.insuranceInformations[0]
-                      .relationshipToInsured
-                  : ""
-                : ""
-            }`,
-            // requisition.billingInformation.insuranceInformations [{}]
-            primInsurId: `${
-              req.requisition.billingInformation.insuranceInformations
-                ? req.requisition.billingInformation.insuranceInformations[0]
-                    .idNumber
-                  ? req.requisition.billingInformation.insuranceInformations[0]
-                      .idNumber
-                  : ""
-                : ""
-            }`,
-            // primInsurType: `${
-            //   req.requisition.billingInformation.insuranceInformations
-            //     ? req.requisition.billingInformation.insuranceInformations[0]
-            //         .insuranceType
-            //     : null
-            // }`,
-            primInsurName: `${
-              req.requisition.billingInformation.insuranceInformations
-                ? req.requisition.billingInformation.insuranceInformations[0]
-                    .insuranceProviderName
-                  ? req.requisition.billingInformation.insuranceInformations[0]
-                      .insuranceProviderName
-                  : ""
-                : ""
-            }`,
+            identifier: `${req.identifier}`,
+            lab_notes: `${req.lab_notes}`,
+            reqTemplate: `${req.template}`,
+            sampCollDate: new Date(req.sampleCollectionDate),
+            provAccId: `${req.providerID}`,
+            provAccName: `${req.providerName}`,
+            firstName: `${req.patientFirstName}`,
+            middleName: `${req.patientMiddleName}`,
+            lastName: `${req.patientLastName}`,
+            streetAddress: `${req.patientStreetAddress}`,
+            city: `${req.patientCity}`,
+            state: `${req.patientState}`,
+            zipCode: `${req.patientZipCode}`,
+            dob: `${req.patientDateOfBirth}`,
+            sex: `${req.patientSex}`,
+            race: `${req.patientRace}`,
+            ethnicity: `${req.patientEthnicity}`,
+            primBillTo: `${req.billTo}`,
+            primGroupNum: `${req.primInsGroupNumber}`,
+            primRTI: `${req.primInsRelationshipToInsured}`,
+            primInsurId: `${req.primInsIDNumber}`,
+            primInsurName: `${req.primInsInsuranceProviderName}`,
           },
         ]);
       });
     }
+
+    // if update result has successes...
+    // if (Array.isArray(serverUpdatedReqs) && serverUpdatedReqs.length) {
+    //   // // reset updates after successful update to /update
+    //   // setUpdateReqs([]);
+    //
+    //   // if update result has successes AND failures, this block will run
+    //   if (Array.isArray(rejectionReasons) && rejectionReasons.length) {
+    //     setAllowShowRejected(true);
+    //
+    //     // // reset reqs to state before ANY changes
+    //     // for (let ix = cellChangesIndex; ix >= 0; ix--) {
+    //     //   /*
+    //     //     use base 'changes' helper directly, but don't handle
+    //     //     changes array or changesIndex state here.
+    //     //     state won't work thanks to how react treats batch updates
+    //     //   */
+    //     //   setReqs((prevReqs) => {
+    //     //     const updated = applyNewValue(cellChanges[ix], prevReqs, true);
+    //     //     // setCellChangesIndex(cellChangesIndex - 1);
+    //     //     return updated;
+    //     //   });
+    //     // }
+    //
+    //     /*
+    //       fill rejectedReqs state using identifiers found in
+    //       rejectionReasons array from update results.
+    //
+    //       add failed: true to show red in results
+    //
+    //       thanks to above for-loop, these rows will show info from
+    //       BEFORE any updates were made to them.
+    //     */
+    //     setRejectedReqs(
+    //       reqs
+    //         .filter((req) => {
+    //           return rejectionReasons.some(
+    //             (reason) => reason.identifier === req.identifier
+    //           );
+    //         })
+    //         .map((rr) => ({
+    //           ...rr,
+    //           failed: true,
+    //         }))
+    //     );
+    //   }
+    //
+    //   // reset cell changes and changesIndex after handling possible
+    //   // rejected reqs first
+    //   setCellChangesIndex(() => -1);
+    //   setCellChanges(() => []);
+    //
+    //   /*
+    //     reset grid reqs to show successfully updated info provided
+    //     by ovation and stored in serverUpdatedReqs from update result
+    //   */
+    //   const svrUpdatesToWantedReqs: WantedReq[] = serverUpdatedReqs.map(
+    //     (req) => ({
+    //       identifier: `${req.identifier}`,
+    //       lab_notes: `${req.lab_notes}`,
+    //       reqTemplate: `${req.template}`,
+    //       sampCollDate: new Date(req.sampleCollectionDate),
+    //       provAccId: `${req.providerID}`,
+    //       provAccName: `${req.providerName}`,
+    //       firstName: `${req.patientFirstName}`,
+    //       middleName: `${req.patientMiddleName}`,
+    //       lastName: `${req.patientLastName}`,
+    //       streetAddress: `${req.patientStreetAddress}`,
+    //       city: `${req.patientCity}`,
+    //       state: `${req.patientState}`,
+    //       zipCode: `${req.patientZipCode}`,
+    //       dob: `${req.patientDateOfBirth}`,
+    //       sex: `${req.patientSex}`,
+    //       race: `${req.patientRace}`,
+    //       ethnicity: `${req.patientEthnicity}`,
+    //       primBillTo: `${req.billTo}`,
+    //       primGroupNum: `${req.primInsGroupNumber}`,
+    //       primRTI: `${req.primInsRelationshipToInsured}`,
+    //       primInsurId: `${req.primInsIDNumber}`,
+    //       primInsurName: `${req.primInsInsuranceProviderName}`,
+    //     })
+    //   );
+    //
+    //   console.log(rejectedReqs);
+    //   setReqs([]);
+    //   setReqs([...svrUpdatesToWantedReqs, ...rejectedReqs]);
+    //
+    //   // serverUpdatedReqs.forEach((req) => {
+    //   //   setReqs((prev) => [
+    //   //     ...prev,
+    //   //     {
+    //   //       identifier: `${req.identifier}`,
+    //   //       lab_notes: `${req.lab_notes}`,
+    //   //       reqTemplate: `${req.template}`,
+    //   //       sampCollDate: new Date(req.sampleCollectionDate),
+    //   //       provAccId: `${req.providerID}`,
+    //   //       provAccName: `${req.providerName}`,
+    //   //       firstName: `${req.patientFirstName}`,
+    //   //       middleName: `${req.patientMiddleName}`,
+    //   //       lastName: `${req.patientLastName}`,
+    //   //       streetAddress: `${req.patientStreetAddress}`,
+    //   //       city: `${req.patientCity}`,
+    //   //       state: `${req.patientState}`,
+    //   //       zipCode: `${req.patientZipCode}`,
+    //   //       dob: `${req.patientDateOfBirth}`,
+    //   //       sex: `${req.patientSex}`,
+    //   //       race: `${req.patientRace}`,
+    //   //       ethnicity: `${req.patientEthnicity}`,
+    //   //       primBillTo: `${req.billTo}`,
+    //   //       primGroupNum: `${req.primInsGroupNumber}`,
+    //   //       primRTI: `${req.primInsRelationshipToInsured}`,
+    //   //       primInsurId: `${req.primInsIDNumber}`,
+    //   //       primInsurName: `${req.primInsInsuranceProviderName}`,
+    //   //     },
+    //   //   ]);
+    //   // });
+    // }
   };
 
+  // new search button handler
   const handleNewSearchClick = () => {
     toast.closeAll();
 
-    // set hasSearched to false to show the search bar after user selects new search
+    // set hasSearched to false to show the search button
     props.parentHasSearchedState(false);
 
-    // clear previous search results
+    // clear any previous search results
     props.parentSetReturnReqs([]);
   };
+
+  // // show failed button handler
+  // const handleShowFailed = () => {
+  //   // add reqs in rejectedReqs state to the successfully
+  //   // updated reqs that are already showing
+  //   rejectedReqs.forEach((req) => {
+  //     setReqs((prevReqs) => [...prevReqs, req]);
+  //   });
+  //
+  //   // deny further use of button, otherwise the same failed
+  //   // req will continuously be added
+  //   setAllowShowRejected(false);
+  // };
 
   return (
     <>
@@ -744,16 +899,32 @@ const AllInOne = (props: {
           onCellsChanged={handleChanges}
           stickyTopRows={1}
           stickyLeftColumns={1}
-          // moveRightOnEnter={true}
           enableFillHandle
           enableRangeSelection
         />
       </Flex>
-      <Flex direction={"column"}>
-        <VStack>
+      <Flex
+        mt={3}
+        direction={"row"}
+        w={"80vw"}
+        grow={"1"}
+        basis={"0"}
+        justifyContent={"space-between"}
+        alignItems={"start"}
+      >
+        <Box w={"120px"}>
+          <Center h={"30px"} w={"30px"} bg={"gray.100"} boxShadow={"md"}>
+            <Text color={"gray.600"}>{rows.length - 1}</Text>
+          </Center>
+        </Box>
+        <VStack w={"120px"} maxH={"100%"}>
+          {/*{updateReqs.length > 0 && !allowShowRejected ? (*/}
           {updateReqs.length > 0 ? (
             <UpdateModel
-              updateAmount={updateReqs.length}
+              parentUpdateReqs={updateReqs}
+              parentSetUpdateReqs={setUpdateReqs}
+              parentCellChanges={cellChanges}
+              parentCellChangesIndex={cellChangesIndex}
               parentClickHandler={handleUpdateClick}
             />
           ) : (
@@ -771,7 +942,7 @@ const AllInOne = (props: {
           </Button>
           <HStack>
             {cellChangesIndex < 0 ? (
-              <Button size={"sm"} isActive={false} isDisabled={true}>
+              <Button size={"sm"} isDisabled={true}>
                 undo
               </Button>
             ) : (
@@ -780,7 +951,7 @@ const AllInOne = (props: {
               </Button>
             )}
             {cellChangesIndex >= cellChanges.length - 1 ? (
-              <Button size={"sm"} isActive={false} isDisabled={true}>
+              <Button size={"sm"} isDisabled={true}>
                 redo
               </Button>
             ) : (
@@ -788,20 +959,34 @@ const AllInOne = (props: {
                 redo
               </Button>
             )}
-            {/*
-          <Button
-            size={"sm"}
-            onClick={() => {
-              console.log(cellChangesIndex);
-              console.log(updateReqs.length);
-              console.log(updateReqs);
-            }}
-          >
-            show
-          </Button>
-          */}
+            <Button
+              size={"sm"}
+              onClick={() => {
+                console.log(cellChangesIndex);
+                console.log(cellChanges);
+                console.log(updateReqs.length);
+                console.log(updateReqs);
+                console.log(rejectedReqs.length);
+                console.log(rejectedReqs);
+                console.log(reqs.length);
+                console.log(reqs);
+                console.log(props.parentReturnReqs.length);
+                console.log(props.parentReturnReqs);
+              }}
+            >
+              show
+            </Button>
           </HStack>
         </VStack>
+        <Button
+          w={"120px"}
+          size={"sm"}
+          // isDisabled={allowShowRejected ? false : true}
+          // onClick={handleShowFailed}
+          isDisabled={true}
+        >
+          show failed
+        </Button>
       </Flex>
     </>
   );

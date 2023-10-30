@@ -8,9 +8,9 @@
 import { Cell } from "@silevis/reactgrid";
 
 interface requisition extends Record<string, any> {
-  id: number;
+  // id: number;
   identifier: string;
-  projectTemplateId: number;
+  // projectTemplateId: number;
   // customAttribues: {
   //   labNotes: string
   // }
@@ -25,40 +25,30 @@ export interface UpdateReqFormat {
   markAsSigned: boolean;
 }
 
-export interface WantedReq {
-  // requisition
-  id: string;
+export interface WantedReq extends Record<string, any> {
   identifier: string;
-  // labNotes: string;
+  sampCollDate: Date;
+  reqTemplate: string;
+  provAccId: string;
+  provAccName: string;
+  lastName: string;
+  firstName: string;
+  middleName: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  dob: string;
+  sex: string;
+  race: string;
+  ethnicity: string;
+  primBillTo: string;
+  primInsurId: string;
+  primGroupNum: string;
+  primRTI: string;
+  primInsurName: string;
   lab_notes: string;
-  projectTemplateId: string;
-  reqTemplate?: string;
-  sampCollDate?: string;
-  // requisition.providerAccount
-  provAccId?: string;
-  provAccName?: string;
-  // //requisition.samples
-  // sampId?: string;
-  // requisition.patient
-  firstName?: string;
-  lastName?: string;
-  middleName?: string;
-  streetAddress?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  dob?: string;
-  gender?: string;
-  race?: string;
-  ethnicity?: string;
-  // requisition.billingInformation
-  primBillTo?: string;
-  primGroupNum?: string;
-  primRTI?: string;
-  // requisition.billingInformation.insuranceInformations [{}]
-  primInsurId?: string;
-  primInsurType?: string;
-  primInsurName?: string;
+  failed?: boolean;
 }
 
 export interface TypeToSearch {

@@ -109,7 +109,8 @@ func UpdateReq(
 
 	prodSubUrl := fmt.Sprintf(
 		"https://lab-services.ovation.io/api/v3/project_templates/%d/requisitions/%s",
-		updatedReq.Requisition.ProjectTemplateID,
+		// updatedReq.Requisition.ProjectTemplateID,
+		1166,
 		updatedReq.Requisition.Identifier,
 	)
 
