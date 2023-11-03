@@ -15,8 +15,6 @@ import (
 )
 
 func (s *Server) handleGetReqsCSV() http.HandlerFunc {
-	// Read the CSV file into a slice of Record structs
-
 	log.Println("pleaseHandleGetProjectReqsCSV invoked")
 
 	// var templates models.ProjectTemps
@@ -66,7 +64,8 @@ func (s *Server) handleGetReqsCSV() http.HandlerFunc {
 		reqs := []*models.CsvReq{}
 
 		// GOCSV version
-		file, err := os.Open("req_reports/01.csv")
+		file, err := os.Open("prod_req_reports/reqs_5k.csv")
+		// file, err := os.Open("req_reports/01.csv")
 		// file, err := os.Open("req_reports/02.csv")
 		// file, err := os.Open("req_reports/03.csv")
 		if err != nil {

@@ -34,10 +34,6 @@ func (s *Server) handleSearchCSV() http.HandlerFunc {
 
 			if r.Form.Has("identifier") {
 				identifier := r.Form["identifier"][0]
-				// log.Println(identifier)
-				// if _, err := fmt.Fprintf(&b, "%v*", identifier); err != nil {
-				// 	log.Println("string builder error for identifier", err)
-				// }
 
 				if _, err := fmt.Fprintf(&b, "@identifier:{%v*}", escaper(identifier)); err != nil {
 					log.Println("string builder error for identifier", err)
@@ -46,7 +42,6 @@ func (s *Server) handleSearchCSV() http.HandlerFunc {
 
 			if r.Form.Has("firstName") {
 				firstName := r.Form["firstName"][0]
-				// log.Println("first", firstName)
 				if _, err := fmt.Fprintf(&b, " @firstName:{%v*}", escaper(firstName)); err != nil {
 					log.Println("string builder error for firstName", err)
 				}
@@ -54,7 +49,6 @@ func (s *Server) handleSearchCSV() http.HandlerFunc {
 
 			if r.Form.Has("lastName") {
 				lastName := r.Form["lastName"][0]
-				// log.Println("last", lastName)
 				if _, err := fmt.Fprintf(&b, " @lastName:{%v*}", escaper(lastName)); err != nil {
 					log.Println("string builder error for lastName", err)
 				}
@@ -62,7 +56,6 @@ func (s *Server) handleSearchCSV() http.HandlerFunc {
 
 			if r.Form.Has("middleName") {
 				middleName := r.Form["middleName"][0]
-				// log.Println("last", lastName)
 				if _, err := fmt.Fprintf(&b, " @middleName:{%v*}", escaper(middleName)); err != nil {
 					log.Println("string builder error for middleName", err)
 				}
@@ -70,7 +63,6 @@ func (s *Server) handleSearchCSV() http.HandlerFunc {
 
 			if r.Form.Has("dob") {
 				dob := r.Form["dob"][0]
-				// log.Println("last", lastName)
 				if _, err := fmt.Fprintf(&b, " @dob:{%v*}", escaper(dob)); err != nil {
 					log.Println("string builder error for dob", err)
 				}
@@ -78,7 +70,6 @@ func (s *Server) handleSearchCSV() http.HandlerFunc {
 
 			if r.Form.Has("provAcc") {
 				provAcc := r.Form["provAcc"][0]
-				// log.Println("last", lastName)
 				if _, err := fmt.Fprintf(&b, " @provAcc:{%v*}", escaper(provAcc)); err != nil {
 					log.Println("string builder error for provAcc", err)
 				}
@@ -92,8 +83,6 @@ func (s *Server) handleSearchCSV() http.HandlerFunc {
 			FtSearch().
 			Index("searchTags").
 			Query(checkQueryFieldsTags()).
-			// Query(fmt.Sprintf("@firstName:(%v*)", queryString)).
-			// Query("@lastName:(alor*)").
 			Limit().
 			OffsetNum(0, 300).
 			Build()
@@ -121,7 +110,6 @@ func (s *Server) handleSearchCSV() http.HandlerFunc {
 			}
 
 			tempReqList.Reqs = append(tempReqList.Reqs, tempReq)
-
 			tempReq = models.CsvReq{}
 		}
 

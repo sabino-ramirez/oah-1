@@ -10,13 +10,13 @@ import (
 
 	// "strings"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"github.com/sabino-ramirez/oah-api/server"
 )
 
 func main() {
-	_ = godotenv.Load()
+	// _ = godotenv.Load()
 	// for _, e := range os.Environ() {
 	// 	pair := strings.SplitN(e, "=", 2)
 	// 	fmt.Printf("%s\n", pair[0])
@@ -24,8 +24,10 @@ func main() {
 
 	// fmt.Println(os.LookupEnv("SERVER_ADDRESS"))
 	// fmt.Println(os.LookupEnv("CLIENT_LOCATION"))
-	fmt.Println(os.LookupEnv("REDIS_HOST"))
-	fmt.Println(os.LookupEnv("REDIS_PASSWORD"))
+
+	// fmt.Println(os.LookupEnv("REDISCLOUD_URL"))
+	// fmt.Println(os.LookupEnv("REDIS_HOST"))
+	// fmt.Println(os.LookupEnv("REDIS_PASSWORD"))
 
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err)

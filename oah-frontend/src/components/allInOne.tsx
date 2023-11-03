@@ -655,7 +655,9 @@ const AllInOne = (props: {
           city: `${req.patientCity}`,
           state: `${req.patientState}`,
           zipCode: `${req.patientZipCode}`,
-          dob: `${req.patientDateOfBirth}`,
+          dob: new Date(req.patientDateOfBirth)
+            .toLocaleDateString("en-us")
+            .replace(/\//g, "."),
           sex: `${req.patientSex}`,
           race: `${req.patientRace}`,
           ethnicity: `${req.patientEthnicity}`,
@@ -733,7 +735,9 @@ const AllInOne = (props: {
             city: `${req.patientCity}`,
             state: `${req.patientState}`,
             zipCode: `${req.patientZipCode}`,
-            dob: `${req.patientDateOfBirth}`,
+            dob: new Date(req.patientDateOfBirth)
+              .toLocaleDateString("en-us")
+              .replace(/\//g, "."),
             sex: `${req.patientSex}`,
             race: `${req.patientRace}`,
             ethnicity: `${req.patientEthnicity}`,
