@@ -99,11 +99,12 @@ const Search = () => {
       const searchResultReqs: WantedReq[] = Array.from(
         result.Reqs,
         (req: any) => {
+          const d = new Date(req.sampleCollectionDate);
           return {
             identifier: `${req.identifier}`,
             lab_notes: `${req.lab_notes}`,
             reqTemplate: `${req.template}`,
-            sampCollDate: new Date(req.sampleCollectionDate),
+            sampCollDate: new Date(d.getTime() + d.getTimezoneOffset() * 60000),
             provAccId: `${req.providerID}`,
             provAccName: `${req.providerName}`,
             firstName: `${req.patientFirstName}`,
