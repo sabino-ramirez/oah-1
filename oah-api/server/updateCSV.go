@@ -14,7 +14,6 @@ func (s *Server) handleUpdateReqCSV() http.HandlerFunc {
 	log.Println("pleaseHandleUpdateReq invoked")
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("called")
 		var payload models.BetterIndividualReq
 		// var final models.BetterIndividualReq
 		var jsonToCsv models.JsonToCsvReq
@@ -57,7 +56,7 @@ func (s *Server) handleUpdateReqCSV() http.HandlerFunc {
 		if err != nil {
 			log.Println("marshalling error:", err)
 		}
-		// log.Println("jsonToCSVJson", string(jsonToCsvJson))
+		log.Println("jsonToCSVJson:\n", string(jsonToCsvJson))
 
 		if err := addRowToRedis(s.cache, jsonToCsv.Identifier, jsonToCsvJson); err != nil {
 			log.Printf("setting new key in /updated error: %v", err)

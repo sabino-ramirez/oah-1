@@ -425,7 +425,13 @@ const AllInOne = (props: {
           city: reqs[changeRow].city,
           state: reqs[changeRow].state,
           zipCode: reqs[changeRow].zipCode,
-          dateOfBirth: reqs[changeRow].dob,
+          // dateOfBirth: reqs[changeRow].dob,
+          dateOfBirth: new Date(reqs[changeRow].dob).toLocaleDateString(
+            "ko-KR"
+          ),
+          // dob: new Date(req.patientDateOfBirth)
+          //   .toLocaleDateString("en-us")
+          //   .replace(/\//g, "."),
           gender: reqs[changeRow].sex,
           race: reqs[changeRow].race,
           ethnicity: reqs[changeRow].ethnicity,
@@ -655,9 +661,7 @@ const AllInOne = (props: {
           city: `${req.patientCity}`,
           state: `${req.patientState}`,
           zipCode: `${req.patientZipCode}`,
-          dob: new Date(req.patientDateOfBirth)
-            .toLocaleDateString("en-us")
-            .replace(/\//g, "."),
+          dob: `${req.patientDateOfBirth}`,
           sex: `${req.patientSex}`,
           race: `${req.patientRace}`,
           ethnicity: `${req.patientEthnicity}`,
@@ -735,9 +739,7 @@ const AllInOne = (props: {
             city: `${req.patientCity}`,
             state: `${req.patientState}`,
             zipCode: `${req.patientZipCode}`,
-            dob: new Date(req.patientDateOfBirth)
-              .toLocaleDateString("en-us")
-              .replace(/\//g, "."),
+            dob: `${req.patientDateOfBirth}`,
             sex: `${req.patientSex}`,
             race: `${req.patientRace}`,
             ethnicity: `${req.patientEthnicity}`,

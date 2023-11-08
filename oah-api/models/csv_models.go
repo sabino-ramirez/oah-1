@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"strconv"
+	"strings"
+	"time"
 )
 
 func fixBillTo(old string) string {
@@ -90,7 +92,7 @@ type JsonToCsvReq struct {
 }
 
 func (c *JsonToCsvReq) UnmarshalJSON(data []byte) error {
-	log.Println("whatthe")
+	log.Println("nestedJson req to csvReq unmarshaller called")
 
 	var betterReq BetterIndividualReq
 
@@ -110,7 +112,17 @@ func (c *JsonToCsvReq) UnmarshalJSON(data []byte) error {
 		}
 	}
 
-	// log.Printf("after empty check: %+v\n", betterReq)
+	// log.Println("ovation return dob before conversion:", betterReq.Requisition.Patient.DateOfBirth)
+
+	d, err := time.Parse("2006-01-02", betterReq.Requisition.Patient.DateOfBirth)
+	if err != nil {
+		log.Println("time parse err:", err)
+	} else {
+		betterReq.Requisition.Patient.DateOfBirth = strings.ReplaceAll(d.Format("01-02-2006"), "-", ".")
+	}
+
+	// log.Println("ovation return dob after conversion:", betterReq.Requisition.Patient.DateOfBirth)
+	log.Printf("after empty check & dob conversion: %+v\n", betterReq)
 
 	tmp := &JsonToCsvReq{
 		Identifier:                   betterReq.Requisition.Identifier,
