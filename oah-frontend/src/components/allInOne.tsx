@@ -150,7 +150,8 @@ const getRows = (reqs: WantedReq[]): Row[] => [
         type: "date",
         date: req.sampCollDate,
         style: {
-          paddingLeft: "15px",
+          paddingLeft: "10px",
+          // overflow: "auto",
           border: {
             left: {
               color: req.failed ? "red" : "",
@@ -647,30 +648,33 @@ const AllInOne = (props: {
         setCellChanges(() => []);
 
         // convert server response json reqs to grid-usable format
-        const svrUpdatesToWantedReqs = serverUpdatedReqs.map((req) => ({
-          identifier: `${req.identifier}`,
-          lab_notes: `${req.lab_notes}`,
-          reqTemplate: `${req.template}`,
-          sampCollDate: new Date(req.sampleCollectionDate),
-          provAccId: `${req.providerID}`,
-          provAccName: `${req.providerName}`,
-          firstName: `${req.patientFirstName}`,
-          middleName: `${req.patientMiddleName}`,
-          lastName: `${req.patientLastName}`,
-          streetAddress: `${req.patientStreetAddress}`,
-          city: `${req.patientCity}`,
-          state: `${req.patientState}`,
-          zipCode: `${req.patientZipCode}`,
-          dob: `${req.patientDateOfBirth}`,
-          sex: `${req.patientSex}`,
-          race: `${req.patientRace}`,
-          ethnicity: `${req.patientEthnicity}`,
-          primBillTo: `${req.billTo}`,
-          primGroupNum: `${req.primInsGroupNumber}`,
-          primRTI: `${req.primInsRelationshipToInsured}`,
-          primInsurId: `${req.primInsIDNumber}`,
-          primInsurName: `${req.primInsInsuranceProviderName}`,
-        }));
+        const svrUpdatesToWantedReqs = serverUpdatedReqs.map(function (req) {
+          const d = new Date(req.sampleCollectionDate);
+          return {
+            identifier: `${req.identifier}`,
+            lab_notes: `${req.lab_notes}`,
+            reqTemplate: `${req.template}`,
+            sampCollDate: new Date(d.getTime() + d.getTimezoneOffset() * 60000),
+            provAccId: `${req.providerID}`,
+            provAccName: `${req.providerName}`,
+            firstName: `${req.patientFirstName}`,
+            middleName: `${req.patientMiddleName}`,
+            lastName: `${req.patientLastName}`,
+            streetAddress: `${req.patientStreetAddress}`,
+            city: `${req.patientCity}`,
+            state: `${req.patientState}`,
+            zipCode: `${req.patientZipCode}`,
+            dob: `${req.patientDateOfBirth}`,
+            sex: `${req.patientSex}`,
+            race: `${req.patientRace}`,
+            ethnicity: `${req.patientEthnicity}`,
+            primBillTo: `${req.billTo}`,
+            primGroupNum: `${req.primInsGroupNumber}`,
+            primRTI: `${req.primInsRelationshipToInsured}`,
+            primInsurId: `${req.primInsIDNumber}`,
+            primInsurName: `${req.primInsInsuranceProviderName}`,
+          };
+        });
 
         /*
          * return reqs whose identifier's are found in rejectedReasons array
@@ -723,13 +727,14 @@ const AllInOne = (props: {
       // reset grid with successfully updated reqs
       setReqs([]);
       serverUpdatedReqs.forEach((req) => {
+        const d = new Date(req.sampleCollectionDate);
         setReqs((prev) => [
           ...prev,
           {
             identifier: `${req.identifier}`,
             lab_notes: `${req.lab_notes}`,
             reqTemplate: `${req.template}`,
-            sampCollDate: new Date(req.sampleCollectionDate),
+            sampCollDate: new Date(d.getTime() + d.getTimezoneOffset() * 60000),
             provAccId: `${req.providerID}`,
             provAccName: `${req.providerName}`,
             firstName: `${req.patientFirstName}`,
