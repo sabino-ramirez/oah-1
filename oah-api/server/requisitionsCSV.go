@@ -64,7 +64,7 @@ func (s *Server) handleGetReqsCSV() http.HandlerFunc {
 		reqs := []*models.CsvReq{}
 
 		// GOCSV version
-		file, err := os.Open("prod_req_reports/reqs_5k.csv")
+		file, err := os.Open("sandbox_req_reports/req_report03.csv")
 		// file, err := os.Open("req_reports/01.csv")
 		// file, err := os.Open("req_reports/02.csv")
 		// file, err := os.Open("req_reports/03.csv")

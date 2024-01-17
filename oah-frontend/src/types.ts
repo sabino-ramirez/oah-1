@@ -29,7 +29,7 @@ export interface WantedReq extends Record<string, any> {
   identifier: string;
   sampCollDate: Date;
   reqTemplate: string;
-  provAccId: string;
+  // provAccId: string;
   provAccName: string;
   lastName: string;
   firstName: string;

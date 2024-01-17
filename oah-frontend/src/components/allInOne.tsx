@@ -38,10 +38,10 @@ const headerRow: Row = {
       type: "header",
       text: "Req Template",
     },
-    {
-      type: "header",
-      text: "Prov. ID",
-    },
+    // {
+    //   type: "header",
+    //   text: "Prov. ID",
+    // },
     {
       type: "header",
       text: "Provider Name",
@@ -119,7 +119,7 @@ const getColumns = (): Column[] => [
   { columnId: "samepleCollDate", width: 100 },
   { columnId: "identifier", width: 180 },
   { columnId: "reqTemplate", width: 300, resizable: true },
-  { columnId: "provAccId", width: 120 },
+  // { columnId: "provAccId", width: 120 },
   { columnId: "provAccName", width: 300, resizable: true },
   { columnId: "lab_notes", width: 200, resizable: true },
   { columnId: "firstName", width: 110, resizable: true },
@@ -193,12 +193,12 @@ const getRows = (reqs: WantedReq[]): Row[] => [
         },
         nonEditable: true,
       },
-      {
-        type: "text",
-        text: req.provAccId,
-        style: { paddingLeft: "10px" },
-        nonEditable: true,
-      },
+      // {
+      //   type: "text",
+      //   text: req.provAccId,
+      //   style: { paddingLeft: "10px" },
+      //   nonEditable: true,
+      // },
       {
         type: "text",
         text: req.provAccName,
@@ -307,7 +307,7 @@ const getRows = (reqs: WantedReq[]): Row[] => [
 const applyNewValue = (
   changes: CellChange<TextCell | any>[],
   prevReqs: WantedReq[],
-  usePrevValue: boolean = false
+  usePrevValue: boolean = false,
 ): WantedReq[] => {
   changes.forEach((change) => {
     const reqIndex = change.rowId as number;
@@ -332,7 +332,7 @@ const AllInOne = (props: {
   const [updateReqs, setUpdateReqs] = useState<UpdateReqFormat[]>([]);
   const [cellChangesIndex, setCellChangesIndex] = useState(() => -1);
   const [cellChanges, setCellChanges] = useState<CellChange<TextCell>[][]>(
-    () => []
+    () => [],
   );
   const [columns, setColumns] = useState<Column[]>(getColumns());
   const rows = getRows(reqs);
@@ -352,20 +352,20 @@ const AllInOne = (props: {
   const organizeReqUpdates = (
     reqs: WantedReq[],
     changes: CellChange<TextCell>[],
-    prevUpdates: UpdateReqFormat[]
+    prevUpdates: UpdateReqFormat[],
   ): any => {
     // function for checking if this row has been previously modified
     const hasReqBeenUpdated = (reqIdentifier: string): [boolean, number] => {
       if (
         prevUpdates.length &&
         prevUpdates.some(
-          (update) => update.requisition.identifier === reqIdentifier
+          (update) => update.requisition.identifier === reqIdentifier,
         )
       ) {
         return [
           true,
           prevUpdates.findIndex(
-            (update) => update.requisition.identifier === reqIdentifier
+            (update) => update.requisition.identifier === reqIdentifier,
           ),
         ];
       } else {
@@ -376,14 +376,14 @@ const AllInOne = (props: {
     // formats appropriate json data based on updated fields
     const fieldNameAndStructure = (
       changeRow: number,
-      changeColumn: any
+      changeColumn: any,
     ): [string, Object] => {
       let fieldName = "";
       let structure = {};
       if (changeColumn.includes("prov")) {
         fieldName = "providerAccount";
         structure = {
-          id: reqs[changeRow].provAccId,
+          // id: reqs[changeRow].provAccId,
           name: reqs[changeRow].provAccName,
         };
       } else if (changeColumn.includes("prim")) {
@@ -428,7 +428,7 @@ const AllInOne = (props: {
           zipCode: reqs[changeRow].zipCode,
           // dateOfBirth: reqs[changeRow].dob,
           dateOfBirth: new Date(reqs[changeRow].dob).toLocaleDateString(
-            "ko-KR"
+            "ko-KR",
           ),
           // dob: new Date(req.patientDateOfBirth)
           //   .toLocaleDateString("en-us")
@@ -446,12 +446,12 @@ const AllInOne = (props: {
       let balogni: UpdateReqFormat;
       const [fieldName, structure] = fieldNameAndStructure(
         change.rowId as number,
-        change.columnId as keyof WantedReq
+        change.columnId as keyof WantedReq,
       );
 
       const currChangeRow = change.rowId as number;
       const [hasBeenUpdatedResult, rowNumOfPrevUpdate] = hasReqBeenUpdated(
-        reqs[currChangeRow].identifier
+        reqs[currChangeRow].identifier,
       );
 
       /*
@@ -490,7 +490,7 @@ const AllInOne = (props: {
    * */
   const applyChangesToReqs = (
     changes: CellChange<TextCell>[],
-    prevReqs: WantedReq[]
+    prevReqs: WantedReq[],
   ): WantedReq[] => {
     const updated = applyNewValue(changes, prevReqs);
     setCellChanges([...cellChanges.slice(0, cellChangesIndex + 1), changes]);
@@ -503,14 +503,14 @@ const AllInOne = (props: {
   const handleChanges = (changes: CellChange<any>[]) => {
     setReqs((prevReqs) => applyChangesToReqs(changes, prevReqs));
     setUpdateReqs((prevUpdates) =>
-      organizeReqUpdates(reqs, changes, prevUpdates)
+      organizeReqUpdates(reqs, changes, prevUpdates),
     );
   };
 
   // base helper for undoing changes
   const undoChanges = (
     changes: CellChange<TextCell>[],
-    prevReqs: WantedReq[]
+    prevReqs: WantedReq[],
   ): WantedReq[] => {
     const updated = applyNewValue(changes, prevReqs, true);
     setCellChangesIndex(cellChangesIndex - 1);
@@ -521,15 +521,15 @@ const AllInOne = (props: {
   const handleUndoChanges = () => {
     if (cellChangesIndex > 0) {
       setReqs((prevReqs) =>
-        undoChanges(cellChanges[cellChangesIndex], prevReqs)
+        undoChanges(cellChanges[cellChangesIndex], prevReqs),
       );
 
       setUpdateReqs((prevUpdates) =>
-        organizeReqUpdates(reqs, cellChanges[cellChangesIndex], prevUpdates)
+        organizeReqUpdates(reqs, cellChanges[cellChangesIndex], prevUpdates),
       );
     } else if (cellChangesIndex === 0) {
       setReqs((prevReqs) =>
-        undoChanges(cellChanges[cellChangesIndex], prevReqs)
+        undoChanges(cellChanges[cellChangesIndex], prevReqs),
       );
       setUpdateReqs([]);
     }
@@ -538,7 +538,7 @@ const AllInOne = (props: {
   // base redo helper
   const redoChanges = (
     changes: CellChange<TextCell>[],
-    prevReqs: WantedReq[]
+    prevReqs: WantedReq[],
   ): WantedReq[] => {
     const updated = applyNewValue(changes, prevReqs);
     setCellChangesIndex(cellChangesIndex + 1);
@@ -549,10 +549,14 @@ const AllInOne = (props: {
   const handleRedoChanges = () => {
     if (cellChangesIndex + 1 <= cellChanges.length - 1) {
       setReqs((prevReqs) =>
-        redoChanges(cellChanges[cellChangesIndex + 1], prevReqs)
+        redoChanges(cellChanges[cellChangesIndex + 1], prevReqs),
       );
       setUpdateReqs((prevUpdates) =>
-        organizeReqUpdates(reqs, cellChanges[cellChangesIndex + 1], prevUpdates)
+        organizeReqUpdates(
+          reqs,
+          cellChanges[cellChangesIndex + 1],
+          prevUpdates,
+        ),
       );
     }
   };
@@ -567,7 +571,7 @@ const AllInOne = (props: {
      * */
     const uniqueUpdates = updateReqs.filter((uu) => {
       return uniqueUpdateRows.some(
-        (urow) => reqs[urow].identifier === uu.requisition.identifier
+        (urow) => reqs[urow].identifier === uu.requisition.identifier,
       );
     });
     // console.log(uniqueUpdates);
@@ -592,7 +596,7 @@ const AllInOne = (props: {
         }
 
         return Promise.resolve(res.json());
-      })
+      }),
     );
 
     // make arrays for rejected and fulfilled promises info
@@ -655,7 +659,7 @@ const AllInOne = (props: {
             lab_notes: `${req.lab_notes}`,
             reqTemplate: `${req.template}`,
             sampCollDate: new Date(d.getTime() + d.getTimezoneOffset() * 60000),
-            provAccId: `${req.providerID}`,
+            // provAccId: `${req.providerID}`,
             provAccName: `${req.providerName}`,
             firstName: `${req.patientFirstName}`,
             middleName: `${req.patientMiddleName}`,
@@ -684,7 +688,7 @@ const AllInOne = (props: {
         const rjReqs = reqs
           .filter((req) => {
             return rejectionReasons.some(
-              (reason) => reason.identifier === req.identifier
+              (reason) => reason.identifier === req.identifier,
             );
           })
           .map((rr) => ({
@@ -700,9 +704,9 @@ const AllInOne = (props: {
         setUpdateReqs(
           updateReqs.filter((ur) => {
             return rejectionReasons.some(
-              (reason) => reason.identifier === ur.requisition.identifier
+              (reason) => reason.identifier === ur.requisition.identifier,
             );
-          })
+          }),
         );
 
         // reset the grid with a mixture of successful and rejected reqs
@@ -735,7 +739,7 @@ const AllInOne = (props: {
             lab_notes: `${req.lab_notes}`,
             reqTemplate: `${req.template}`,
             sampCollDate: new Date(d.getTime() + d.getTimezoneOffset() * 60000),
-            provAccId: `${req.providerID}`,
+            // provAccId: `${req.providerID}`,
             provAccName: `${req.providerName}`,
             firstName: `${req.patientFirstName}`,
             middleName: `${req.patientMiddleName}`,

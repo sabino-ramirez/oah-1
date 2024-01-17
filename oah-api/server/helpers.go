@@ -77,31 +77,31 @@ func getIndividualReq(url string, apiClient *models.PleaseClient, target interfa
 	return nil
 }
 
-func setNewRedisKey(r rueidis.Client, id int, reqJson []byte) error {
-
-	// log.Println(string(reqJson))
-	setReqCmd := r.B().
-		JsonSet().
-		Key(fmt.Sprintf("req:%v", id)).
-		Path("$").
-		Value(fmt.Sprintf("%v", string(reqJson))).
-		Build()
-
-	if err := r.Do(context.Background(), setReqCmd).Error(); err != nil {
-		return err
-	}
-
-	setTimeCmd := r.B().
-		Set().
-		Key(fmt.Sprintf("req:%v:time", id)).
-		Value(fmt.Sprintf("%v", time.Now().Format(time.RFC1123))).Build()
-
-	if err := r.Do(context.Background(), setTimeCmd).Error(); err != nil {
-		return err
-	}
-
-	return nil
-}
+// func setNewRedisKey(r rueidis.Client, id int, reqJson []byte) error {
+//
+// 	// log.Println(string(reqJson))
+// 	setReqCmd := r.B().
+// 		JsonSet().
+// 		Key(fmt.Sprintf("req:%v", id)).
+// 		Path("$").
+// 		Value(fmt.Sprintf("%v", string(reqJson))).
+// 		Build()
+//
+// 	if err := r.Do(context.Background(), setReqCmd).Error(); err != nil {
+// 		return err
+// 	}
+//
+// 	setTimeCmd := r.B().
+// 		Set().
+// 		Key(fmt.Sprintf("req:%v:time", id)).
+// 		Value(fmt.Sprintf("%v", time.Now().Format(time.RFC1123))).Build()
+//
+// 	if err := r.Do(context.Background(), setTimeCmd).Error(); err != nil {
+// 		return err
+// 	}
+//
+// 	return nil
+// }
 
 // 5 params??? this is my life now
 func ProcessReqs(
@@ -109,17 +109,19 @@ func ProcessReqs(
 	currentTemplate models.ProjectTemp,
 	apiClient *models.PleaseClient,
 	projReq models.ProjectReq,
-	tempReq models.BetterIndividualReq,
+	// tempReq models.BetterIndividualReq,
+	tempReq models.JsonToCsvReq,
 ) {
 
 	getLastRedisUpdateCmd := redis.B().
 		Get().
-		Key(fmt.Sprintf("req:%v:time", projReq.ID)).
+		// Key(fmt.Sprintf("req:%v:time", projReq.ID)).
+		Key(fmt.Sprintf("req:%v:time", projReq.Identifier)).
 		Build()
 	lastRedisUpdate, err := redis.Do(context.Background(), getLastRedisUpdateCmd).ToAny()
 
 	if rueidis.IsRedisNil(err) {
-		// log.Printf("dont have this one. getting %v..", projReq.ID)
+		log.Printf("dont have this one. getting %v..", projReq.ID)
 		// url := fmt.Sprintf(
 		// 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions/%v",
 		// 	currentTemplate.Id,
@@ -137,14 +139,18 @@ func ProcessReqs(
 			log.Printf("get individ req err: %#v", err)
 		}
 
-		tempReqJson, err := json.Marshal(tempReq.Requisition)
+		// tempReqJson, err := json.Marshal(tempReq.Requisition)
+		tempReqJson, err := json.Marshal(tempReq)
 		if err != nil {
 			log.Println("marshalling error:", err)
 		}
 		// log.Println(string(tempReqJson))
 
-		if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
-			log.Printf("set redis key err: %v", err)
+		// if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
+		// 	log.Printf("set redis key err: %v", err)
+		// }
+		if err := addRowToRedis(redis, projReq.Identifier, tempReqJson); err != nil {
+			log.Printf("updating key in scan err: %v", err)
 		}
 
 	} else if err != nil {
@@ -184,15 +190,20 @@ func ProcessReqs(
 				log.Printf("get individ req err: %v", err)
 			}
 
-			tempReqJson, err := json.Marshal(tempReq.Requisition)
+			// tempReqJson, err := json.Marshal(tempReq.Requisition)
+			tempReqJson, err := json.Marshal(tempReq)
 			if err != nil {
 				log.Println("marshalling error:", err)
 			}
 
 			// log.Println(string(tempReqJson))
 
-			if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
-				log.Printf("set key in scan err: %v", err)
+			// if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
+			// if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
+			// 	log.Printf("set key in scan err: %v", err)
+			// }
+			if err := addRowToRedis(redis, projReq.Identifier, tempReqJson); err != nil {
+				log.Printf("updating key in scan err: %v", err)
 			}
 
 			log.Println("updated in redis")
@@ -206,7 +217,8 @@ func scanForUpdates(
 	apiClient *models.PleaseClient,
 ) {
 	var projReqs models.ProjectReqs
-	var tempReq models.BetterIndividualReq
+	// var tempReq models.BetterIndividualReq
+	var tempReq models.JsonToCsvReq
 
 	var totalPages int
 
@@ -220,6 +232,8 @@ func scanForUpdates(
 		totalPages = (projReqs.Meta.TotalEntries / projReqs.Meta.PerPage) + 1
 	}
 
+	// log.Printf("%v pages: %v", currentTemplate.TemplateName, totalPages)
+
 	if totalPages <= 1 {
 		// log.Printf(
 		// 	"scanning page %v of %v for %v\n",
@@ -232,7 +246,8 @@ func scanForUpdates(
 		for _, projReq := range projReqs.Requisitions {
 			ProcessReqs(redis, currentTemplate, apiClient, projReq, tempReq)
 			// projReqs = models.ProjectReqs{}
-			tempReq = models.BetterIndividualReq{}
+			// tempReq = models.BetterIndividualReq{}
+			tempReq = models.JsonToCsvReq{}
 		}
 
 		log.Printf(
@@ -246,7 +261,8 @@ func scanForUpdates(
 		for _, projReq := range projReqs.Requisitions {
 			ProcessReqs(redis, currentTemplate, apiClient, projReq, tempReq)
 			// projReqs = models.ProjectReqs{}
-			tempReq = models.BetterIndividualReq{}
+			// tempReq = models.BetterIndividualReq{}
+			tempReq = models.JsonToCsvReq{}
 		}
 
 		// repeat the process for all remaining pages starting w page 2
@@ -267,7 +283,8 @@ func scanForUpdates(
 			for _, projReq := range projReqs.Requisitions {
 				ProcessReqs(redis, currentTemplate, apiClient, projReq, tempReq)
 				// projReqs = models.ProjectReqs{}
-				tempReq = models.BetterIndividualReq{}
+				// tempReq = models.BetterIndividualReq{}
+				tempReq = models.JsonToCsvReq{}
 			}
 
 			log.Printf(

@@ -12,6 +12,11 @@ import (
 	"github.com/sabino-ramirez/oah-api/models"
 )
 
+func escaper(val string) string {
+	// return strings.ReplaceAll(strings.ReplaceAll(val, "[", "\\["), "-", "\\-")
+	return strings.ReplaceAll(strings.ReplaceAll(val, ".", "\\."), " ", "\\\\\\ ")
+}
+
 func (s *Server) handleSearchCSV() http.HandlerFunc {
 	log.Println("pleaseHandleSearchCSV invoked")
 

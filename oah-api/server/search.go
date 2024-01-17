@@ -12,10 +12,6 @@ import (
 	"github.com/sabino-ramirez/oah-api/models"
 )
 
-func escaper(val string) string {
-	return strings.ReplaceAll(strings.ReplaceAll(val, "[", "\\["), "-", "\\-")
-}
-
 func (s *Server) handleSearch() http.HandlerFunc {
 	log.Println("pleaseHandleSearch invoked")
 

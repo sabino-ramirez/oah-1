@@ -126,10 +126,10 @@ func (s *Server) routes() {
 
 	s.router.HandleFunc("/auth", s.handleAuthorizeToken())
 	// s.router.HandleFunc("/reqs", s.handleGetReqs())
-	s.router.HandleFunc("/reqs", s.handleGetReqsCSV())
+	// s.router.HandleFunc("/reqs", s.handleGetReqsCSV())
 	// s.router.HandleFunc("/search", s.handleSearch())
 	s.router.HandleFunc("/search", s.handleSearchCSV())
 	s.router.HandleFunc("/update", s.handleUpdateReqCSV()).Methods("POST")
-	// s.router.HandleFunc("/scan", s.handleScan())
+	s.router.HandleFunc("/scan", s.handleScanCSV())
 	s.router.PathPrefix("/").Handler(http.StripPrefix("/", fs))
 }
