@@ -10,7 +10,7 @@ import (
 
 	"github.com/sabino-ramirez/oah-api/models"
 	"github.com/sabino-ramirez/oah-api/services"
-	"golang.org/x/time/rate"
+	// "golang.org/x/time/rate"
 )
 
 func (s *Server) handleGetReqs() http.HandlerFunc {
@@ -21,9 +21,9 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 
 	return func(_ http.ResponseWriter, r *http.Request) {
 		// rl := rate.NewLimiter(rate.Every(10*time.Second), 1)
-		rl := rate.NewLimiter(4, 1) // x calls per y second
+		// rl := rate.NewLimiter(3, 1) // x calls per y second
 		// ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
-		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"), rl)
+		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"))
 
 		// _, err := services.GetProjectTemplates(ovationAPI, &templates)
 		_, err := services.GetProjectTemplates(ovationProdSubAPI, &templates)
@@ -106,6 +106,7 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 			OnJson().Prefix(1).Prefix("req:").Schema().
 			FieldName("$.patient.identifier").As("identifier").Tag().Separator(";").
 			FieldName("$.patient.firstName").As("firstName").Tag().Separator(";").
+			FieldName("$.patient.middleName").As("middleName").Tag().Separator(";").
 			FieldName("$.patient.lastName").As("lastName").Tag().Separator(";").
 			FieldName("$.patient.dateOfBirth").As("dob").Tag().Separator(";").
 			FieldName("$.providerAccount.name").As("provAcc").Tag().Separator(";").
@@ -132,19 +133,19 @@ func (s *Server) handleGetReqs() http.HandlerFunc {
 		// }
 
 		maxJobs := make(chan struct{}, len(templates.Project_templates))
-		// comment next 2 lines and their closures for 1 time loop
-		go func() {
-			for {
-				for ix := range templates.Project_templates {
-					maxJobs <- struct{}{}
-					go func(projTemp models.ProjectTemp) {
-						// scanForUpdates(s.cache, projTemp, ovationAPI)
-						scanForUpdates(s.cache, projTemp, ovationProdSubAPI)
-						<-maxJobs
-					}(templates.Project_templates[ix])
-				}
-				log.Println(runtime.NumGoroutine())
-			}
-		}()
+		// comment next 2 lines for 1 time loop
+		// go func() {
+		// 	for {
+		for ix := range templates.Project_templates {
+			maxJobs <- struct{}{}
+			go func(projTemp models.ProjectTemp) {
+				// scanForUpdates(s.cache, projTemp, ovationAPI)
+				scanForUpdates(s.cache, projTemp, ovationProdSubAPI)
+				<-maxJobs
+			}(templates.Project_templates[ix])
+		}
+		log.Println(runtime.NumGoroutine())
+		// 	}
+		// }()
 	}
 }

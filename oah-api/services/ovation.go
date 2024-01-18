@@ -96,7 +96,7 @@ func UpdateReq(
 	client *models.PleaseClient,
 	updatedReq models.BetterIndividualReq,
 	target interface{},
-) (int, error) {
+) (int, map[string]any, error) {
 	// log.Printf("%v, %v\n", updatedReq.Requisition.ProjectTemplateID, updatedReq.Requisition.Identifier)
 	// url := fmt.Sprintf(
 	// 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%d/requisitions/%s",
@@ -104,9 +104,13 @@ func UpdateReq(
 	// 	updatedReq.Requisition.Identifier,
 	// )
 
+	// var message string
+	var errorResponse models.ErrorResponse
+
 	prodSubUrl := fmt.Sprintf(
 		"https://lab-services.ovation.io/api/v3/project_templates/%d/requisitions/%s",
-		updatedReq.Requisition.ProjectTemplateID,
+		// updatedReq.Requisition.ProjectTemplateID,
+		1166,
 		updatedReq.Requisition.Identifier,
 	)
 
@@ -128,6 +132,13 @@ func UpdateReq(
 	response, err := client.Http.Do(request)
 	if err != nil {
 		log.Println("response error:", err)
+	} else if response.StatusCode != 200 {
+		if err := json.NewDecoder(response.Body).Decode(&errorResponse); err != nil {
+			log.Println("couldn't decode into errorResponse:", err)
+			return 0, nil, err
+		}
+		// message = fmt.Sprintf("ovation error msg: %v", errorResponse)
+		return response.StatusCode, errorResponse.Errors, nil
 	}
 
 	// show response from ovation endpoint
@@ -135,7 +146,8 @@ func UpdateReq(
 
 	defer response.Body.Close()
 
-	// json.NewDecoder returning error because we're getting 404 page html which is invalid
-	return response.StatusCode, json.NewDecoder(response.Body).Decode(target)
+	// json.NewDecoder returning error because we're getting 404 page html which is
+	// not valid json
+	return response.StatusCode, nil, json.NewDecoder(response.Body).Decode(target)
 	// return 0, nil
 }

@@ -2,29 +2,28 @@ import React, { useState } from "react";
 import { WantedReq, TypeToSearch } from "../types";
 import AllInOne from "./allInOne";
 import {
-  Box,
-  Container,
   Button,
+  Container,
   IconButton,
-  InputAdornment,
-  Stack,
-  TextField,
-} from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import MySnackbar from "./snackbar";
+  Input,
+  InputGroup,
+  InputRightElement,
+  useToast,
+  VStack,
+  Text,
+  Flex,
+} from "@chakra-ui/react";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 const Search = () => {
   const [showPassword, setShowPassword] = useState(false);
-  // useId is react hook to generate unique id
-  // const identifier = useId();
-  // const firstName = useId();
-  // const lastName = useId();
 
   // holds value of input field
   // const [input, setinput] = useState(props?.value ?? "");
   const [input, setinput] = useState<TypeToSearch>({
     identifier: "",
     firstName: "",
+    middleName: "",
     lastName: "",
     dob: "",
     provAcc: "",
@@ -36,8 +35,7 @@ const Search = () => {
   // when false show search bar etc
   const [hasSearched, setHasSearched] = useState(false);
 
-  // for snackbar
-  const [snackBarOpen, setSnackbarOpen] = useState(false);
+  const toast = useToast();
 
   // has user been cleared
   const [apiKey, setApiKey] = useState<string>();
@@ -75,8 +73,8 @@ const Search = () => {
   const handleSearchClick = async () => {
     // console.log(input);
     // console.log(getSearchQueryString());
+    // console.log(stateReqs.length);
 
-    console.log(stateReqs.length);
     try {
       const response = await fetch(
         // `http://localhost:8000/search/${input.firstName}`,
@@ -98,64 +96,197 @@ const Search = () => {
       const result = await response.json();
       // console.log(JSON.stringify(result.Requisitions[0].requisition, null, 2));
 
-      // for every requistion in the repsonse, make a types/Requisition object
-      // from it and add it to stateReqs.
-      result.Requisitions.forEach((req: any, _: number) => {
-        setStateReqs((previous) => [
-          ...previous,
-          {
-            // requisition
-            id: `${req.requisition.id}`,
-            identifier: `${req.requisition.identifier}`,
-            // labNotes: `${req.requisition.customAttributes.labNotes
-            //     ? req.requisition.customAttributes.labNotes
-            //     : null
-            //   }`,
-            lab_notes: `${req.requisition.customAttributes.lab_notes
-                ? req.requisition.customAttributes.lab_notes
-                : null
-              }`,
-            projectTemplateId: `${req.requisition.projectTemplateId}`,
-            reqTemplate: `${req.requisition.template}`,
-            sampCollDate: `${req.requisition.sampleCollectionDate}`,
-            // requisition.providerAccount
-            provAccId: `${req.requisition.providerAccount.id}`,
-            provAccName: `${req.requisition.providerAccount.name}`,
-            //requisition.samples
-            // sampId: `${req.requisition.samples[0].id}`,
-            // requisition.patient
-            firstName: `${req.requisition.patient.firstName}`,
-            lastName: `${req.requisition.patient.lastName}`,
-            streetAddress: `${req.requisition.patient.streetAddress}`,
-            city: `${req.requisition.patient.city}`,
-            state: `${req.requisition.patient.state}`,
-            zipCode: `${req.requisition.patient.zipCode}`,
-            dob: `${req.requisition.patient.dateOfBirth}`,
-            gender: `${req.requisition.patient.gender}`,
-            race: `${req.requisition.patient.race}`,
-            ethnicity: `${req.requisition.patient.ethnicity}`,
-            // requisition.billingInformation.
-            billTo: `${req.requisition.billingInformation.billTo}`,
-            // requisition.billingInformation.insuranceInformations [{}]
-            primInsurId: `${req.requisition.billingInformation.insuranceInformations
-                ? req.requisition.billingInformation.insuranceInformations[0]
-                  .idNumber
-                : null
-              }`,
-            // primInsurType: `${
-            //   req.requisition.billingInformation.insuranceInformations
-            //     ? req.requisition.billingInformation.insuranceInformations[0]
-            //         .insuranceType
-            //     : null
-            // }`,
-            primInsurName: `${req.requisition.billingInformation.insuranceInformations
-                ? req.requisition.billingInformation.insuranceInformations[0]
-                  .insuranceProviderName
-                : null
-              }`,
-          },
-        ]);
-      });
+      const searchResultReqs: WantedReq[] = Array.from(
+        result.Reqs,
+        (req: any) => {
+          const d = new Date(req.sampleCollectionDate);
+          return {
+            identifier: `${req.identifier}`,
+            lab_notes: `${req.lab_notes}`,
+            reqTemplate: `${req.template}`,
+            sampCollDate: new Date(d.getTime() + d.getTimezoneOffset() * 60000),
+            provAccId: `${req.providerID}`,
+            provAccName: `${req.providerName}`,
+            firstName: `${req.patientFirstName}`,
+            middleName: `${req.patientMiddleName}`,
+            lastName: `${req.patientLastName}`,
+            streetAddress: `${req.patientStreetAddress}`,
+            city: `${req.patientCity}`,
+            state: `${req.patientState}`,
+            zipCode: `${req.patientZipCode}`,
+            dob: `${req.patientDateOfBirth}`,
+            sex: `${req.patientSex}`,
+            race: `${req.patientRace}`,
+            ethnicity: `${req.patientEthnicity}`,
+            primBillTo: `${req.billTo}`,
+            primGroupNum: `${req.primInsGroupNumber}`,
+            primRTI: `${req.primInsRelationshipToInsured}`,
+            primInsurId: `${req.primInsIDNumber}`,
+            primInsurName: `${req.primInsInsuranceProviderName}`,
+          };
+        }
+      );
+      // const searchResultReqs: WantedReq[] = Array.from(
+      //   result.Requisitions,
+      //   (req: any) => {
+      //     return {
+      //       id: `${req.requisition.id}`,
+      //       identifier: `${req.requisition.identifier}`,
+      //       lab_notes: `${
+      //         req.requisition.customAttributes.lab_notes
+      //           ? req.requisition.customAttributes.lab_notes
+      //           : ""
+      //       }`,
+      //       projectTemplateId: `${req.requisition.projectTemplateId}`,
+      //       reqTemplate: `${req.requisition.template}`,
+      //       // sampCollDate: `${req.requisition.sampleCollectionDate}`,
+      //       sampCollDate: new Date(req.requisition.sampleCollectionDate),
+      //       provAccId: `${req.requisition.providerAccount.id}`,
+      //       provAccName: `${req.requisition.providerAccount.name}`,
+      //       firstName: `${req.requisition.patient.firstName}`,
+      //       middleName: `${
+      //         req.requisition.patient.middleName
+      //           ? req.requisition.patient.middleName
+      //           : ""
+      //       }`,
+      //       lastName: `${req.requisition.patient.lastName}`,
+      //       streetAddress: `${req.requisition.patient.streetAddress}`,
+      //       city: `${req.requisition.patient.city}`,
+      //       state: `${req.requisition.patient.state}`,
+      //       zipCode: `${req.requisition.patient.zipCode}`,
+      //       dob: `${req.requisition.patient.dateOfBirth}`,
+      //       gender: `${req.requisition.patient.gender}`,
+      //       race: `${req.requisition.patient.race}`,
+      //       ethnicity: `${req.requisition.patient.ethnicity}`,
+      //       primBillTo: `${
+      //         req.requisition.billingInformation.billTo
+      //           ? req.requisition.billingInformation.billTo
+      //           : ""
+      //       }`,
+      //       primGroupNum: `${
+      //         req.requisition.billingInformation.insuranceInformations
+      //           ? req.requisition.billingInformation.insuranceInformations[0]
+      //               .groupNumber
+      //             ? req.requisition.billingInformation.insuranceInformations[0]
+      //                 .groupNumber
+      //             : ""
+      //           : ""
+      //       }`,
+      //       primRTI: `${
+      //         req.requisition.billingInformation.insuranceInformations
+      //           ? req.requisition.billingInformation.insuranceInformations[0]
+      //               .relationshipToInsured
+      //             ? req.requisition.billingInformation.insuranceInformations[0]
+      //                 .relationshipToInsured
+      //             : ""
+      //           : ""
+      //       }`,
+      //       primInsurId: `${
+      //         req.requisition.billingInformation.insuranceInformations
+      //           ? req.requisition.billingInformation.insuranceInformations[0]
+      //               .idNumber
+      //             ? req.requisition.billingInformation.insuranceInformations[0]
+      //                 .idNumber
+      //             : ""
+      //           : ""
+      //       }`,
+      //       primInsurName: `${
+      //         req.requisition.billingInformation.insuranceInformations
+      //           ? req.requisition.billingInformation.insuranceInformations[0]
+      //               .insuranceProviderName
+      //             ? req.requisition.billingInformation.insuranceInformations[0]
+      //                 .insuranceProviderName
+      //             : ""
+      //           : ""
+      //       }`,
+      //     };
+      //   }
+      // );
+
+      setStateReqs(
+        searchResultReqs.sort(
+          (a, b) => Number(a.sampCollDate) - Number(b.sampCollDate)
+        )
+      );
+
+      // // for every requistion in the repsonse, make a types/Requisition object
+      // // from it and add it to stateReqs.
+      // result.Requisitions.forEach((req: any, _: number) => {
+      //   setStateReqs((previous) => [
+      //     ...previous,
+      //     {
+      //       id: `${req.requisition.id}`,
+      //       identifier: `${req.requisition.identifier}`,
+      //       lab_notes: `${
+      //         req.requisition.customAttributes.lab_notes
+      //           ? req.requisition.customAttributes.lab_notes
+      //           : ""
+      //       }`,
+      //       projectTemplateId: `${req.requisition.projectTemplateId}`,
+      //       reqTemplate: `${req.requisition.template}`,
+      //       // sampCollDate: `${req.requisition.sampleCollectionDate}`,
+      //       sampCollDate: new Date(req.requisition.sampleCollectionDate),
+      //       provAccId: `${req.requisition.providerAccount.id}`,
+      //       provAccName: `${req.requisition.providerAccount.name}`,
+      //       firstName: `${req.requisition.patient.firstName}`,
+      //       middleName: `${
+      //         req.requisition.patient.middleName
+      //           ? req.requisition.patient.middleName
+      //           : ""
+      //       }`,
+      //       lastName: `${req.requisition.patient.lastName}`,
+      //       streetAddress: `${req.requisition.patient.streetAddress}`,
+      //       city: `${req.requisition.patient.city}`,
+      //       state: `${req.requisition.patient.state}`,
+      //       zipCode: `${req.requisition.patient.zipCode}`,
+      //       dob: `${req.requisition.patient.dateOfBirth}`,
+      //       gender: `${req.requisition.patient.gender}`,
+      //       race: `${req.requisition.patient.race}`,
+      //       ethnicity: `${req.requisition.patient.ethnicity}`,
+      //       primBillTo: `${
+      //         req.requisition.billingInformation.billTo
+      //           ? req.requisition.billingInformation.billTo
+      //           : ""
+      //       }`,
+      //       primGroupNum: `${
+      //         req.requisition.billingInformation.insuranceInformations
+      //           ? req.requisition.billingInformation.insuranceInformations[0]
+      //               .groupNumber
+      //             ? req.requisition.billingInformation.insuranceInformations[0]
+      //                 .groupNumber
+      //             : ""
+      //           : ""
+      //       }`,
+      //       primRTI: `${
+      //         req.requisition.billingInformation.insuranceInformations
+      //           ? req.requisition.billingInformation.insuranceInformations[0]
+      //               .relationshipToInsured
+      //             ? req.requisition.billingInformation.insuranceInformations[0]
+      //                 .relationshipToInsured
+      //             : ""
+      //           : ""
+      //       }`,
+      //       primInsurId: `${
+      //         req.requisition.billingInformation.insuranceInformations
+      //           ? req.requisition.billingInformation.insuranceInformations[0]
+      //               .idNumber
+      //             ? req.requisition.billingInformation.insuranceInformations[0]
+      //                 .idNumber
+      //             : ""
+      //           : ""
+      //       }`,
+      //       primInsurName: `${
+      //         req.requisition.billingInformation.insuranceInformations
+      //           ? req.requisition.billingInformation.insuranceInformations[0]
+      //               .insuranceProviderName
+      //             ? req.requisition.billingInformation.insuranceInformations[0]
+      //                 .insuranceProviderName
+      //             : ""
+      //           : ""
+      //       }`,
+      //     },
+      //   ]);
+      // });
 
       // console.log(JSON.stringify(result.Requisitions, null, 2));
     } catch (err: any) {
@@ -164,11 +295,13 @@ const Search = () => {
       console.log("finally clause");
     }
 
-    // after fetch, set search state to true to trigger showing main component with grid and all
+    // after fetch, set search state to true to trigger showing
+    // main component with grid and all
     setHasSearched(true);
     setinput({
       identifier: "",
       firstName: "",
+      middleName: "",
       lastName: "",
       dob: "",
       provAcc: "",
@@ -190,11 +323,17 @@ const Search = () => {
       }
 
       const result = await response.json();
-      if (result.code == 200) {
+      if (result.code === 200) {
         setIsLoggedIn(true);
       } else {
         console.log("status code: ", result.code);
-        setSnackbarOpen(true);
+        toast({
+          title: "Invalide Token",
+          status: "warning",
+          position: "bottom-left",
+          duration: 3000,
+          isClosable: true,
+        });
       }
     } catch (err: any) {
       console.log("error submitting", err.message);
@@ -225,9 +364,20 @@ const Search = () => {
 
   return (
     <React.Fragment>
-      <Container maxWidth={"lg"}>
+      <VStack>
+        <Flex minH={"6vh"} maxW={"container.sm"} alignItems={"flex-end"}>
+          <Text
+            // bgGradient="linear(to-l, #7928CA, #FF0080)"
+            bgGradient="linear(to-b, gray.400, gray.700)"
+            bgClip="text"
+            fontSize="md"
+            fontWeight="extrabold"
+          >
+            oah
+          </Text>
+        </Flex>
         {isLoggedIn ? (
-          <Box maxWidth="lg">
+          <Container maxW={"container.md"} maxH={"80vh"} centerContent>
             {hasSearched ? (
               <AllInOne
                 parentReturnReqs={stateReqs}
@@ -236,93 +386,82 @@ const Search = () => {
                 apiKey={apiKey}
               />
             ) : (
-              <Stack
-                spacing={1}
-                paddingTop={"9%"}
-                alignItems={"center"}
-                justifyContent={"center"}
-              >
-                <TextField
-                  type="search"
-                  size="small"
-                  label="identifier.."
-                  // name={identifier}
+              <VStack spacing={2}>
+                <Input
+                  size="md"
+                  variant="outline"
                   name="identifier"
-                  onInput={handleInput}
+                  placeholder="identifier.."
+                  onChange={handleInput}
                 />
-                <TextField
-                  type="search"
-                  size="small"
-                  label="first name.."
-                  // name={firstName}
+                <Input
+                  size="md"
+                  variant="outline"
                   name="firstName"
+                  placeholder="first name.."
                   onInput={handleInput}
                 />
-                <TextField
-                  type="search"
-                  size="small"
-                  label="last name.."
-                  // name={lastName}
+                <Input
+                  size="md"
+                  variant="outline"
+                  name="middleName"
+                  placeholder="middle name.."
+                  onInput={handleInput}
+                />
+                <Input
+                  size="md"
+                  variant="outline"
                   name="lastName"
+                  placeholder="last name.."
                   onInput={handleInput}
                 />
-                <TextField
-                  type="search"
-                  size="small"
-                  label="yyyy-mm-dd.."
-                  // name={lastName}
+                <Input
+                  size="md"
+                  variant="outline"
                   name="dob"
+                  placeholder="mm.dd.yyyy"
                   onInput={handleInput}
                 />
-                <TextField
-                  type="search"
-                  size="small"
-                  label="provider acc. name.."
-                  // name={lastName}
+                <Input
+                  size="md"
+                  variant="outline"
                   name="provAcc"
+                  placeholder="provider acc. name.."
                   onInput={handleInput}
                 />
-                <Button variant="contained" onClick={handleSearchClick}>
-                  Search
+                <Button variant="solid" onClick={handleSearchClick}>
+                  search
                 </Button>
-              </Stack>
+              </VStack>
             )}
-          </Box>
+          </Container>
         ) : (
-          <Stack
-            paddingTop={"9%"}
-            alignItems={"center"}
-            justifyContent={"center"}
-          >
-            <TextField
-              type={showPassword ? "text" : "password"}
-              label="enter api key.."
-              variant="outlined"
-              size="small"
-              margin="dense"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleShowPassword} edge="end">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              onInput={handleAPIKeyEntry}
-            />
-            <Button variant="contained" onClick={handleSubmitClick}>
-              submit
-            </Button>
-          </Stack>
+          <Container maxW={"30vw"}>
+            <VStack>
+              <InputGroup size="md">
+                <Input
+                  pr="4.5rem"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="enter api key.."
+                  onInput={handleAPIKeyEntry}
+                />
+                <InputRightElement width="4.5rem">
+                  <IconButton
+                    aria-label="show password"
+                    icon={showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                    h="1.75rem"
+                    size="sm"
+                    onClick={handleShowPassword}
+                  />
+                </InputRightElement>
+              </InputGroup>
+              <Button variant="solid" onClick={handleSubmitClick}>
+                submit
+              </Button>
+            </VStack>
+          </Container>
         )}
-        <MySnackbar
-          parentIsOpen={snackBarOpen}
-          parentSetIsOpen={setSnackbarOpen}
-          message="Invalid Token"
-          severity="warning"
-        />
-      </Container>
+      </VStack>
     </React.Fragment>
   );
 };
