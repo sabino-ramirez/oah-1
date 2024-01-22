@@ -2,16 +2,16 @@ package server
 
 import (
 	"context"
-	"encoding/json"
+	// "encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
+	// "os"
 	"time"
 
-	"github.com/gocarina/gocsv"
+	// "github.com/gocarina/gocsv"
 	"github.com/rueian/rueidis"
-	"github.com/sabino-ramirez/oah-api/models"
+	// "github.com/sabino-ramirez/oah-api/models"
 )
 
 func (s *Server) handleGetReqsCSV() http.HandlerFunc {
@@ -38,67 +38,67 @@ func (s *Server) handleGetReqsCSV() http.HandlerFunc {
 			log.Println("ft create error:", err)
 		}
 
-		// filepath.WalkDir("./lab note reqs/", func(path string, d fs.DirEntry, err error) error {
-		// 	if err != nil {
-		// 		return err
-		// 	}
+		// // filepath.WalkDir("./lab note reqs/", func(path string, d fs.DirEntry, err error) error {
+		// // 	if err != nil {
+		// // 		return err
+		// // 	}
+		// //
+		// // 	if !d.IsDir() {
+		// // 		p := fmt.Sprintf("./%v", path)
+		// // 		f, err := os.Open(p)
+		// // 		if err != nil {
+		// // 			log.Println(err)
+		// // 		}
+		// //
+		// // 		defer f.Close()
+		// //
+		// // 		if err := gocsv.UnmarshalFile(f, &reqs); err != nil {
+		// // 			panic(err)
+		// // 		}
+		// // 	}
+		// //
+		// // 	return nil
+		// // })
 		//
-		// 	if !d.IsDir() {
-		// 		p := fmt.Sprintf("./%v", path)
-		// 		f, err := os.Open(p)
-		// 		if err != nil {
-		// 			log.Println(err)
-		// 		}
+		// // var reqs []models.CsvReq
+		// reqs := []*models.CsvReq{}
 		//
-		// 		defer f.Close()
-		//
-		// 		if err := gocsv.UnmarshalFile(f, &reqs); err != nil {
-		// 			panic(err)
-		// 		}
-		// 	}
-		//
-		// 	return nil
-		// })
-
-		// var reqs []models.CsvReq
-		reqs := []*models.CsvReq{}
-
-		// GOCSV version
-		file, err := os.Open("sandbox_req_reports/req_report03.csv")
-		// file, err := os.Open("req_reports/01.csv")
-		// file, err := os.Open("req_reports/02.csv")
-		// file, err := os.Open("req_reports/03.csv")
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-
-		if err := gocsv.UnmarshalFile(file, &reqs); err != nil {
-			log.Panic(err)
-		}
-
-		// // csvutil version
-
-		// i, _ := json.MarshalIndent(reqs[46], "", "\t")
-		// log.Println(string(i))
-
-		println(len(reqs))
-
-		for _, req := range reqs {
-			reqJson, err := json.Marshal(req)
-			if err != nil {
-				log.Println("marshalling error:", err)
-			}
-
-			if err := addRowToRedis(s.cache, req.Identifier, reqJson); err != nil {
-				log.Printf("set redis key err: %v", err)
-			}
-		}
-
-		// // Print the records
-		// for _, req := range reqs {
-		// 	log.Printf("Identifier: %s\n", req.Identifier)
+		// // GOCSV version
+		// file, err := os.Open("sandbox_req_reports/req_report03.csv")
+		// // file, err := os.Open("req_reports/01.csv")
+		// // file, err := os.Open("req_reports/02.csv")
+		// // file, err := os.Open("req_reports/03.csv")
+		// if err != nil {
+		// 	log.Fatal(err)
 		// }
+		// defer file.Close()
+		//
+		// if err := gocsv.UnmarshalFile(file, &reqs); err != nil {
+		// 	log.Panic(err)
+		// }
+		//
+		// // // csvutil version
+		//
+		// // i, _ := json.MarshalIndent(reqs[46], "", "\t")
+		// // log.Println(string(i))
+		//
+		// println(len(reqs))
+		//
+		// for _, req := range reqs {
+		// 	reqJson, err := json.Marshal(req)
+		// 	if err != nil {
+		// 		log.Println("marshalling error:", err)
+		// 	}
+		//
+		// 	if err := addRowToRedis(s.cache, req.Identifier, reqJson); err != nil {
+		// 		log.Printf("set redis key err: %v", err)
+		// 	}
+		// }
+		//
+		// // // Print the records
+		// // for _, req := range reqs {
+		// // 	log.Printf("Identifier: %s\n", req.Identifier)
+		// // }
 	}
 }
 

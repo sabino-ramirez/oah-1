@@ -126,7 +126,7 @@ func (s *Server) routes() {
 
 	s.router.HandleFunc("/auth", s.handleAuthorizeToken())
 	// s.router.HandleFunc("/reqs", s.handleGetReqs())
-	// s.router.HandleFunc("/reqs", s.handleGetReqsCSV())
+	s.router.HandleFunc("/reqs", s.handleGetReqsCSV()) // to make ft.search index
 	// s.router.HandleFunc("/search", s.handleSearch())
 	s.router.HandleFunc("/search", s.handleSearchCSV())
 	s.router.HandleFunc("/update", s.handleUpdateReqCSV()).Methods("POST")
