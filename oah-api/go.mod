@@ -11,5 +11,7 @@ require (
 require (
 	github.com/gocarina/gocsv v0.0.0-20230616125104-99d496ca653d // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
+	github.com/redis/rueidis v1.0.27 // indirect
+	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 )

@@ -36,6 +36,8 @@ func (s *Server) handleGetReqsCSV() http.HandlerFunc {
 		err := s.cache.Do(r.Context(), ftCreateCmd2).Error()
 		if err != nil {
 			log.Println("ft create error:", err)
+		} else {
+			log.Println("searchTags index created in redis")
 		}
 
 		// // filepath.WalkDir("./lab note reqs/", func(path string, d fs.DirEntry, err error) error {

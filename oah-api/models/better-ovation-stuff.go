@@ -1,7 +1,43 @@
 package models
 
+import "time"
+
 type ErrorResponse struct {
 	Errors map[string]interface{} `json:"errors"`
+}
+
+type ProjectReq struct {
+	ID                    int       `json:"id"`
+	Identifier            string    `json:"identifier"`
+	CreatedAt             time.Time `json:"created_at"`
+	UpdatedAt             time.Time `json:"updated_at"`
+	Status                string    `json:"status"`
+	RequisitionTemplateID int       `json:"requisition_template_id"`
+	CustomAttributes      struct {
+	} `json:"custom_attributes"`
+	AccessionStatus  string `json:"accession_status"`
+	ProcessingStatus string `json:"processing_status"`
+	BillingStatus    string `json:"billing_status"`
+	ReportingStatus  string `json:"reporting_status"`
+}
+
+type ProjectReqs struct {
+	Requisitions []ProjectReq
+	Meta         struct {
+		CurrentPage  int
+		PerPage      int
+		TotalEntries int
+	}
+}
+
+type ProjectTemp struct {
+	Id           int
+	ProjectName  string
+	TemplateName string
+}
+
+type ProjectTemps struct {
+	Project_templates []ProjectTemp
 }
 
 type InsuranceInfoEntry struct {

@@ -21,9 +21,6 @@ func (s *Server) handleSearchCSV() http.HandlerFunc {
 	log.Println("pleaseHandleSearchCSV invoked")
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		// pathParams := mux.Vars(r)
-		// queryParams := r.URL.Query()
-
 		var tempReq models.CsvReq
 		var tempReqList models.CsvReqs
 
@@ -89,35 +86,84 @@ func (s *Server) handleSearchCSV() http.HandlerFunc {
 			Index("searchTags").
 			Query(checkQueryFieldsTags()).
 			Limit().
-			OffsetNum(0, 300).
+			OffsetNum(0, 1000).
 			Build()
 
-		result, err := s.cache.Do(r.Context(), ftSearchCmd).ToAny()
+		ftSearchResult, err := s.cache.Do(r.Context(), ftSearchCmd).ToAny()
 		if err != nil {
 			log.Println("ft search error:", err)
 		}
 
-		iterator, err := strconv.Atoi(fmt.Sprintf("%v", result.([]interface{})[0]))
+		log.Printf("search result type: %T\n", ftSearchResult)
+		// redis 6.2.10: []interface {}
+		// redis 7.2.0: map[string]interface {}
+		// redis 7.2.0: map[attributes:[] error:[] format:STRING results:[] total_results:0]
+
+		// log.Printf("results:\n %v", result)
+
+		total_results, err := strconv.Atoi(
+			fmt.Sprintf("%v", ftSearchResult.(map[string]interface{})["total_results"]),
+		)
 		if err != nil {
-			log.Printf("error converting amount to int")
+			log.Printf("error converting total results to int")
 		}
+		log.Printf("results amount %v\n\n", total_results)
 
-		log.Printf("results amount %v\n\n", iterator)
+		resultsArray := ftSearchResult.(map[string]interface{})["results"].([]interface{})
 
-		for i := 2; i <= iterator*2; i += 2 {
-			searchResultJson := fmt.Sprintf(
-				`%v`,
-				result.([]interface{})[i].([]interface{})[1],
-			)
+		// log.Printf(
+		// 	"results field type: %T\nresults field:\n%v\n", // []interface{}
+		// 	result.(map[string]interface{})["results"],
+		// 	result.(map[string]interface{})["results"],
+		// )
 
-			if err := json.Unmarshal([]byte(searchResultJson), &tempReq); err != nil {
-				log.Println("unmarshal error", err)
+		// log.Printf(
+		// 	"first result type and value: %T\n%v\n",
+		// 	result.(map[string]interface{})["results"].([]interface{})[0], // map[string]interface{}
+		// 	result.(map[string]interface{})["results"].([]interface{})[0],
+		// )
+
+		// // map[string]interface{}
+		// log.Printf(
+		// 	"first result first key: %T\n%v\n",
+		// 	result.(map[string]interface{})["results"].([]interface{})[0].(map[string]interface{})["extra_attributes"].(map[string]interface{})["$"],
+		// 	result.(map[string]interface{})["results"].([]interface{})[0].(map[string]interface{})["extra_attributes"].(map[string]interface{})["$"],
+		// )
+
+		if total_results > 0 {
+			for _, resultReq := range resultsArray {
+				resultReqJson := fmt.Sprintf(
+					`%v`,
+					resultReq.(map[string]interface{})["extra_attributes"].(map[string]interface{})["$"],
+				)
+
+				if err := json.Unmarshal([]byte(resultReqJson), &tempReq); err != nil {
+					log.Println("unmarshal error", err)
+				}
+
+				tempReqList.Reqs = append(tempReqList.Reqs, tempReq)
+				tempReq = models.CsvReq{}
 			}
-
-			tempReqList.Reqs = append(tempReqList.Reqs, tempReq)
-			tempReq = models.CsvReq{}
 		}
 
+		// for _, req := range tempReqList.Reqs {
+		// 	log.Println(req.Identifier)
+		// }
+
+		// for i := 2; i <= iterator*2; i += 2 {
+		// 	searchResultJson := fmt.Sprintf(
+		// 		`%v`,
+		// 		result.([]interface{})[i].([]interface{})[1],
+		// 	)
+		//
+		// 	if err := json.Unmarshal([]byte(searchResultJson), &tempReq); err != nil {
+		// 		log.Println("unmarshal error", err)
+		// 	}
+		//
+		// 	tempReqList.Reqs = append(tempReqList.Reqs, tempReq)
+		// 	tempReq = models.CsvReq{}
+		// }
+		//
 		w.Header().Set("Content-Type", "application/json")
 
 		if err := json.NewEncoder(w).Encode(tempReqList); err != nil {
