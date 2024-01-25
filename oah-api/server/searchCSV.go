@@ -14,7 +14,12 @@ import (
 
 func escaper(val string) string {
 	// return strings.ReplaceAll(strings.ReplaceAll(val, "[", "\\["), "-", "\\-")
-	return strings.ReplaceAll(strings.ReplaceAll(val, ".", "\\."), " ", "\\\\\\ ")
+	// return strings.ReplaceAll(strings.ReplaceAll(val, ".", "\\."), " ", "\\\\\\ ")
+	return strings.ReplaceAll(
+		strings.ReplaceAll(strings.ReplaceAll(val, ".", "\\."), "-", "\\-"),
+		" ",
+		"\\\\\\ ",
+	)
 }
 
 func (s *Server) handleSearchCSV() http.HandlerFunc {
