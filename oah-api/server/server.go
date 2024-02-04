@@ -44,13 +44,13 @@ type Server struct {
 
 var netTransport = &http.Transport{
 	Dial: (&net.Dialer{
-		Timeout: 20 * time.Second,
+		Timeout: 30 * time.Second,
 	}).Dial,
-	TLSHandshakeTimeout: 20 * time.Second,
+	TLSHandshakeTimeout: 30 * time.Second,
 }
 
 var ovationClient = &http.Client{
-	Timeout:   time.Second * 20,
+	Timeout:   time.Second * 30,
 	Transport: netTransport,
 }
 

@@ -119,6 +119,7 @@ func ProcessReqs(
 		Key(fmt.Sprintf("req:%v:time", projReq.Identifier)).
 		Build()
 	lastRedisUpdate, err := redis.Do(context.Background(), getLastRedisUpdateCmd).ToAny()
+	// log.Println("last update: ", lastRedisUpdate)
 
 	if rueidis.IsRedisNil(err) {
 		log.Printf("dont have this one. getting %v..", projReq.ID)
@@ -128,30 +129,30 @@ func ProcessReqs(
 		// 	projReq.Identifier,
 		// )
 
-		prodSubUrl := fmt.Sprintf(
-			"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions/%v",
-			currentTemplate.Id,
-			projReq.Identifier,
-		)
-
-		// if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
-		if err := getIndividualReq(prodSubUrl, apiClient, &tempReq); err != nil {
-			log.Printf("get individ req err: %#v", err)
-		}
-
-		// tempReqJson, err := json.Marshal(tempReq.Requisition)
-		tempReqJson, err := json.Marshal(tempReq)
-		if err != nil {
-			log.Println("marshalling error:", err)
-		}
-		// log.Println(string(tempReqJson))
-
-		// if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
-		// 	log.Printf("set redis key err: %v", err)
+		// prodSubUrl := fmt.Sprintf(
+		// 	"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions/%v",
+		// 	currentTemplate.Id,
+		// 	projReq.Identifier,
+		// )
+		//
+		// // if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
+		// if err := getIndividualReq(prodSubUrl, apiClient, &tempReq); err != nil {
+		// 	log.Printf("get individ req err: %#v", err)
 		// }
-		if err := addRowToRedis(redis, projReq.Identifier, tempReqJson); err != nil {
-			log.Printf("updating key in scan err: %v", err)
-		}
+		//
+		// // tempReqJson, err := json.Marshal(tempReq.Requisition)
+		// tempReqJson, err := json.Marshal(tempReq)
+		// if err != nil {
+		// 	log.Println("marshalling error:", err)
+		// }
+		// // log.Println(string(tempReqJson))
+		//
+		// // if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
+		// // 	log.Printf("set redis key err: %v", err)
+		// // }
+		// if err := addRowToRedis(redis, projReq.Identifier, tempReqJson); err != nil {
+		// 	log.Printf("updating key in scan err: %v", err)
+		// }
 
 	} else if err != nil {
 		log.Printf("getting last update time err: %v", err)
@@ -163,50 +164,51 @@ func ProcessReqs(
 		// log.Println("ovation time: ", projReq.UpdatedAt)
 
 		if projReq.UpdatedAt.After(lastRedisUpdateTimeObj) {
-			log.Printf(
-				"%v reqUpdatedAt: %v \n redisUpdatedAt: %v",
-				projReq.Identifier,
-				projReq.UpdatedAt,
-				lastRedisUpdateTimeObj,
-			)
-
-			// url := fmt.Sprintf(
-			// 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions/%v",
+			log.Println("needs updating")
+			// log.Printf(
+			// 	"%v reqUpdatedAt: %v \n redisUpdatedAt: %v",
+			// 	projReq.Identifier,
+			// 	projReq.UpdatedAt,
+			// 	lastRedisUpdateTimeObj,
+			// )
+			//
+			// // url := fmt.Sprintf(
+			// // 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions/%v",
+			// // 	currentTemplate.Id,
+			// // 	projReq.Identifier,
+			// // )
+			//
+			// prodSubUrl := fmt.Sprintf(
+			// 	"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions/%v",
 			// 	currentTemplate.Id,
 			// 	projReq.Identifier,
 			// )
-
-			prodSubUrl := fmt.Sprintf(
-				"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions/%v",
-				currentTemplate.Id,
-				projReq.Identifier,
-			)
-
-			// if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
+			//
+			// // if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
+			// // 	log.Printf("get individ req err: %v", err)
+			// // }
+			//
+			// if err := getIndividualReq(prodSubUrl, apiClient, &tempReq); err != nil {
 			// 	log.Printf("get individ req err: %v", err)
 			// }
-
-			if err := getIndividualReq(prodSubUrl, apiClient, &tempReq); err != nil {
-				log.Printf("get individ req err: %v", err)
-			}
-
-			// tempReqJson, err := json.Marshal(tempReq.Requisition)
-			tempReqJson, err := json.Marshal(tempReq)
-			if err != nil {
-				log.Println("marshalling error:", err)
-			}
-
-			// log.Println(string(tempReqJson))
-
-			// if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
-			// if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
-			// 	log.Printf("set key in scan err: %v", err)
+			//
+			// // tempReqJson, err := json.Marshal(tempReq.Requisition)
+			// tempReqJson, err := json.Marshal(tempReq)
+			// if err != nil {
+			// 	log.Println("marshalling error:", err)
 			// }
-			if err := addRowToRedis(redis, projReq.Identifier, tempReqJson); err != nil {
-				log.Printf("updating key in scan err: %v", err)
-			}
-
-			log.Println("updated in redis")
+			//
+			// // log.Println(string(tempReqJson))
+			//
+			// // if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
+			// // if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
+			// // 	log.Printf("set key in scan err: %v", err)
+			// // }
+			// if err := addRowToRedis(redis, projReq.Identifier, tempReqJson); err != nil {
+			// 	log.Printf("updating key in scan err: %v", err)
+			// }
+			//
+			// log.Println("updated in redis")
 		}
 	}
 }
@@ -232,7 +234,7 @@ func scanForUpdates(
 		totalPages = (projReqs.Meta.TotalEntries / projReqs.Meta.PerPage) + 1
 	}
 
-	// log.Printf("%v pages: %v", currentTemplate.TemplateName, totalPages)
+	log.Printf("%v pages: %v", currentTemplate.TemplateName, totalPages)
 
 	if totalPages <= 1 {
 		// log.Printf(
@@ -265,33 +267,33 @@ func scanForUpdates(
 			tempReq = models.JsonToCsvReq{}
 		}
 
-		// repeat the process for all remaining pages starting w page 2
-		for pageNumber := 2; pageNumber <= totalPages; pageNumber++ {
-			_, err := services.GetProjectReqs(apiClient, currentTemplate.Id, &projReqs, pageNumber)
-			if err != nil {
-				fmt.Println("error getting proj reqs in scan(1): ", err)
-			}
-
-			// log.Printf(
-			// 	"scanning page %v of %v for %v\n",
-			// 	projReqs.Meta.CurrentPage,
-			// 	totalPages,
-			// 	currentTemplate.TemplateName,
-			// )
-
-			// loop through reqs for current page
-			for _, projReq := range projReqs.Requisitions {
-				ProcessReqs(redis, currentTemplate, apiClient, projReq, tempReq)
-				// projReqs = models.ProjectReqs{}
-				// tempReq = models.BetterIndividualReq{}
-				tempReq = models.JsonToCsvReq{}
-			}
-
-			log.Printf(
-				"scan done for page %v of template: %v\n",
-				projReqs.Meta.CurrentPage,
-				currentTemplate.TemplateName,
-			)
-		} // end of for loop for pages
+		// // repeat the process for all remaining pages starting w page 2
+		// for pageNumber := 2; pageNumber <= totalPages; pageNumber++ {
+		// 	_, err := services.GetProjectReqs(apiClient, currentTemplate.Id, &projReqs, pageNumber)
+		// 	if err != nil {
+		// 		fmt.Println("error getting proj reqs in scan(1): ", err)
+		// 	}
+		//
+		// 	// log.Printf(
+		// 	// 	"scanning page %v of %v for %v\n",
+		// 	// 	projReqs.Meta.CurrentPage,
+		// 	// 	totalPages,
+		// 	// 	currentTemplate.TemplateName,
+		// 	// )
+		//
+		// 	// loop through reqs for current page
+		// 	for _, projReq := range projReqs.Requisitions {
+		// 		ProcessReqs(redis, currentTemplate, apiClient, projReq, tempReq)
+		// 		// projReqs = models.ProjectReqs{}
+		// 		// tempReq = models.BetterIndividualReq{}
+		// 		tempReq = models.JsonToCsvReq{}
+		// 	}
+		//
+		// 	log.Printf(
+		// 		"scan done for page %v of template: %v\n",
+		// 		projReqs.Meta.CurrentPage,
+		// 		currentTemplate.TemplateName,
+		// 	)
+		// } // end of for loop for pages
 	} // end of else statement
 }

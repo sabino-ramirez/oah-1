@@ -32,13 +32,14 @@ func (s *Server) handleScanCSV() http.HandlerFunc {
 			fmt.Println("error getting proj templates", err)
 		}
 
-		// figure out how to run this in the background
-		// by interval (every hour)
+		// figure out how to run this automatically
+		// by interval (once per hour/day)
 		// by interval with conditions (every hour from when each scan finishes)
-		// constantly (as soon as each complete scan finishes, go again)
 		maxJobs := make(chan struct{}, len(templates.Project_templates))
 		for ix, proj_template := range templates.Project_templates {
 			if strings.Contains(proj_template.TemplateName, "Validation") {
+				// if !strings.Contains(proj_template.ProjectName, "Validation") &&
+				// 	strings.Contains(proj_template.TemplateName, "Pre-Barcoded CV-19") {
 				maxJobs <- struct{}{}
 				go func(projTemp models.ProjectTemp) {
 					// scanForUpdates(s.cache, projTemp, ovationAPI)
@@ -48,6 +49,7 @@ func (s *Server) handleScanCSV() http.HandlerFunc {
 				}(templates.Project_templates[ix])
 			} else {
 				log.Printf("not validation %v, %v", proj_template.TemplateName, proj_template.Id)
+				// log.Printf("not Pre-Barcoded CV-19: %v %v", proj_template.TemplateName, proj_template.Id)
 			}
 		}
 

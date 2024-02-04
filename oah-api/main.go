@@ -26,7 +26,7 @@ func main() {
 	// fmt.Println(os.LookupEnv("CLIENT_LOCATION"))
 
 	// fmt.Println(os.LookupEnv("REDISCLOUD_URL"))
-	// fmt.Println(os.LookupEnv("REDIS_HOST"))
+	fmt.Println(os.LookupEnv("REDIS_HOST"))
 	// fmt.Println(os.LookupEnv("REDIS_PASSWORD"))
 
 	if err := run(); err != nil {
