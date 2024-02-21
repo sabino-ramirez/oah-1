@@ -32,8 +32,8 @@ func GetProjectTemplates(client *models.PleaseClient, target interface{}) (int, 
 
 	req.Header.Add("Authorization", client.Bearer)
 
-	// res, err := client.Http.Do(req)
-	res, err := client.Do(req)
+	res, err := client.Http.Do(req)
+	// res, err := client.Do(req)
 	if err != nil {
 		log.Println("response error:", err)
 	}
@@ -74,8 +74,8 @@ func GetProjectReqs(
 
 	req.Header.Add("Authorization", client.Bearer)
 
-	// res, err := client.Http.Do(req)
-	res, err := client.Do(req)
+	res, err := client.Http.Do(req)
+	// res, err := client.Do(req)
 	if err != nil {
 		log.Println("response error:", err)
 		// log.Println(res.Header.Get("Retry-After"))
