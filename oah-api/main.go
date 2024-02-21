@@ -10,13 +10,13 @@ import (
 
 	// "strings"
 
-	// "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"github.com/sabino-ramirez/oah-api/server"
 )
 
 func main() {
-	// _ = godotenv.Load()
+	_ = godotenv.Load()
 	// for _, e := range os.Environ() {
 	// 	pair := strings.SplitN(e, "=", 2)
 	// 	fmt.Printf("%s\n", pair[0])

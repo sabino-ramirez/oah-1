@@ -4,16 +4,35 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 
 	"log"
 	"time"
 
 	"net/http"
 
-	"github.com/rueian/rueidis"
+	// "github.com/rueian/rueidis"
+	"github.com/redis/rueidis"
 	"github.com/sabino-ramirez/oah-api/models"
 	"github.com/sabino-ramirez/oah-api/services"
 )
+
+type reqSummary struct {
+	identifier       string
+	ovationCreatedAt time.Time
+	ovationUpdatedAt time.Time
+}
+
+type updates struct {
+	counter      int
+	redisKeys    []string
+	reqSummaries []reqSummary
+}
+
+type filteredUpdates struct {
+	keys     []string
+	jsonReqs []string
+}
 
 func getIndividualReq(url string, apiClient *models.PleaseClient, target interface{}) error {
 
@@ -25,8 +44,8 @@ func getIndividualReq(url string, apiClient *models.PleaseClient, target interfa
 
 	request.Header.Add("Authorization", apiClient.Bearer)
 
-	// response, err := apiClient.Http.Do(request)
-	response, err := apiClient.Do(request)
+	response, err := apiClient.Http.Do(request)
+	// response, err := apiClient.Do(request)
 	if err != nil {
 		log.Println("request.Do error: ", err)
 		return err
@@ -77,138 +96,69 @@ func getIndividualReq(url string, apiClient *models.PleaseClient, target interfa
 	return nil
 }
 
-// func setNewRedisKey(r rueidis.Client, id int, reqJson []byte) error {
-//
-// 	// log.Println(string(reqJson))
-// 	setReqCmd := r.B().
-// 		JsonSet().
-// 		Key(fmt.Sprintf("req:%v", id)).
-// 		Path("$").
-// 		Value(fmt.Sprintf("%v", string(reqJson))).
-// 		Build()
-//
-// 	if err := r.Do(context.Background(), setReqCmd).Error(); err != nil {
-// 		return err
-// 	}
-//
-// 	setTimeCmd := r.B().
-// 		Set().
-// 		Key(fmt.Sprintf("req:%v:time", id)).
-// 		Value(fmt.Sprintf("%v", time.Now().Format(time.RFC1123))).Build()
-//
-// 	if err := r.Do(context.Background(), setTimeCmd).Error(); err != nil {
-// 		return err
-// 	}
-//
-// 	return nil
-// }
-
-// 5 params??? this is my life now
-func ProcessReqs(
+func filterUpdates(
 	redis rueidis.Client,
+	a updates,
 	currentTemplate models.ProjectTemp,
 	apiClient *models.PleaseClient,
-	projReq models.ProjectReq,
-	// tempReq models.BetterIndividualReq,
-	tempReq models.JsonToCsvReq,
+	msetReqs *filteredUpdates,
 ) {
 
-	getLastRedisUpdateCmd := redis.B().
-		Get().
-		// Key(fmt.Sprintf("req:%v:time", projReq.ID)).
-		Key(fmt.Sprintf("req:%v:time", projReq.Identifier)).
-		Build()
-	lastRedisUpdate, err := redis.Do(context.Background(), getLastRedisUpdateCmd).ToAny()
-	// log.Println("last update: ", lastRedisUpdate)
+	var tempReq models.JsonToCsvReq
 
-	if rueidis.IsRedisNil(err) {
-		log.Printf("dont have this one. getting %v..", projReq.ID)
-		// url := fmt.Sprintf(
-		// 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions/%v",
-		// 	currentTemplate.Id,
-		// 	projReq.Identifier,
-		// )
-
-		// prodSubUrl := fmt.Sprintf(
-		// 	"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions/%v",
-		// 	currentTemplate.Id,
-		// 	projReq.Identifier,
-		// )
-		//
-		// // if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
-		// if err := getIndividualReq(prodSubUrl, apiClient, &tempReq); err != nil {
-		// 	log.Printf("get individ req err: %#v", err)
-		// }
-		//
-		// // tempReqJson, err := json.Marshal(tempReq.Requisition)
-		// tempReqJson, err := json.Marshal(tempReq)
-		// if err != nil {
-		// 	log.Println("marshalling error:", err)
-		// }
-		// // log.Println(string(tempReqJson))
-		//
-		// // if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
-		// // 	log.Printf("set redis key err: %v", err)
-		// // }
-		// if err := addRowToRedis(redis, projReq.Identifier, tempReqJson); err != nil {
-		// 	log.Printf("updating key in scan err: %v", err)
-		// }
-
-	} else if err != nil {
-		log.Printf("getting last update time err: %v", err)
-
+	resultsCmd := redis.B().Mget().Key(a.redisKeys...).Build()
+	results, err := redis.Do(context.Background(), resultsCmd).ToAny()
+	if err != nil {
+		log.Println("mget error:", err)
 	} else {
-		// log.Println("we have this one already")
-		lastRedisUpdateTimeObj, _ := time.Parse(time.RFC1123, fmt.Sprintf("%v", lastRedisUpdate))
-		// log.Println("redis time: ", lastRedisUpdateTimeObj)
-		// log.Println("ovation time: ", projReq.UpdatedAt)
+		for ix, res := range results.([]interface{}) {
+			if !reflect.ValueOf(res).IsValid() {
+				log.Printf("getting %v", a.reqSummaries[ix].identifier)
+				url := fmt.Sprintf(
+					"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions/%v",
+					currentTemplate.Id, a.reqSummaries[ix].identifier,
+				)
 
-		if projReq.UpdatedAt.After(lastRedisUpdateTimeObj) {
-			log.Println("needs updating")
-			// log.Printf(
-			// 	"%v reqUpdatedAt: %v \n redisUpdatedAt: %v",
-			// 	projReq.Identifier,
-			// 	projReq.UpdatedAt,
-			// 	lastRedisUpdateTimeObj,
-			// )
-			//
-			// // url := fmt.Sprintf(
-			// // 	"https://lab-services-sandbox.ovation.io/api/v3/project_templates/%v/requisitions/%v",
-			// // 	currentTemplate.Id,
-			// // 	projReq.Identifier,
-			// // )
-			//
-			// prodSubUrl := fmt.Sprintf(
-			// 	"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions/%v",
-			// 	currentTemplate.Id,
-			// 	projReq.Identifier,
-			// )
-			//
-			// // if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
-			// // 	log.Printf("get individ req err: %v", err)
-			// // }
-			//
-			// if err := getIndividualReq(prodSubUrl, apiClient, &tempReq); err != nil {
-			// 	log.Printf("get individ req err: %v", err)
-			// }
-			//
-			// // tempReqJson, err := json.Marshal(tempReq.Requisition)
-			// tempReqJson, err := json.Marshal(tempReq)
-			// if err != nil {
-			// 	log.Println("marshalling error:", err)
-			// }
-			//
-			// // log.Println(string(tempReqJson))
-			//
-			// // if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
-			// // if err := setNewRedisKey(redis, projReq.ID, tempReqJson); err != nil {
-			// // 	log.Printf("set key in scan err: %v", err)
-			// // }
-			// if err := addRowToRedis(redis, projReq.Identifier, tempReqJson); err != nil {
-			// 	log.Printf("updating key in scan err: %v", err)
-			// }
-			//
-			// log.Println("updated in redis")
+				if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
+					log.Println("get individual req error:", err)
+				} else {
+					tempReqJson, err := json.Marshal(tempReq)
+					if err != nil {
+						log.Println("temp req marshalling error:", err)
+					} else {
+						msetReqs.keys = append(msetReqs.keys, fmt.Sprintf("req:%v", a.reqSummaries[ix].identifier))
+						msetReqs.jsonReqs = append(msetReqs.jsonReqs, string(tempReqJson))
+					}
+				}
+			} else {
+				// logic to check for updated outside of OAH
+				t, err := time.Parse(time.RFC1123, res.(string))
+				if err != nil {
+					log.Println("converting redis time string to date error", err)
+				} else {
+					if a.reqSummaries[ix].ovationUpdatedAt.After(t) {
+						log.Printf("updated outside redis: %v", a.reqSummaries[ix].identifier)
+						// log.Printf("\nupdated_at: %v\nredis timestamp: %v", a.reqs[ix].ovationUpdatedAt, t)
+						// logic to pull req
+						url := fmt.Sprintf(
+							"https://lab-services.ovation.io/api/v3/project_templates/%v/requisitions/%v",
+							currentTemplate.Id, a.reqSummaries[ix].identifier,
+						)
+
+						if err := getIndividualReq(url, apiClient, &tempReq); err != nil {
+							log.Println("get individual req error:", err)
+						} else {
+							tempReqJson, err := json.Marshal(tempReq)
+							if err != nil {
+								log.Println("temp req marshalling error:", err)
+							} else {
+								msetReqs.keys = append(msetReqs.keys, fmt.Sprintf("req:%v", a.reqSummaries[ix].identifier))
+								msetReqs.jsonReqs = append(msetReqs.jsonReqs, string(tempReqJson))
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -218,82 +168,162 @@ func scanForUpdates(
 	currentTemplate models.ProjectTemp,
 	apiClient *models.PleaseClient,
 ) {
+
+	// update_at after yesterday
+	var a updates
+
+	// updates/additions to get
+	var msetReqs filteredUpdates
+
 	var projReqs models.ProjectReqs
-	// var tempReq models.BetterIndividualReq
-	var tempReq models.JsonToCsvReq
+	// var tempReq models.JsonToCsvReq
 
 	var totalPages int
+
+	yesterday := time.Now().AddDate(0, 0, -2)
 
 	statusCode, err := services.GetProjectReqs(apiClient, currentTemplate.Id, &projReqs, 1)
 	if err != nil {
 		log.Println("error getting proj reqs in scan: ", err)
 		log.Println("status code:", statusCode)
 		// log.Println(res.Header.Get("Retry-After"))
-		// totalPages = 1
 	} else {
 		totalPages = (projReqs.Meta.TotalEntries / projReqs.Meta.PerPage) + 1
 	}
 
-	log.Printf("%v pages: %v", currentTemplate.TemplateName, totalPages)
+	log.Printf("%v: %v", currentTemplate.TemplateName, len(projReqs.Requisitions))
+	// log.Printf("%v pages: %v", currentTemplate.TemplateName, totalPages)
 
 	if totalPages <= 1 {
-		// log.Printf(
-		// 	"scanning page %v of %v for %v\n",
-		// 	projReqs.Meta.CurrentPage,
-		// 	totalPages,
-		// 	currentTemplate.TemplateName,
-		// )
+		if totalPages == 0 {
+			log.Println("0 pages. maybe error")
+		} else {
+			// loop through reqs for page 1
+			log.Printf("%v: scanning only page", currentTemplate.TemplateName)
+			for _, projReq := range projReqs.Requisitions {
+				if projReq.UpdatedAt.After(yesterday) {
+					a.counter = a.counter + 1
+					a.redisKeys = append(a.redisKeys, fmt.Sprintf("req:%v:time", projReq.Identifier))
+					a.reqSummaries = append(
+						a.reqSummaries,
+						reqSummary{projReq.Identifier, projReq.CreatedAt, projReq.UpdatedAt},
+					)
+				}
+			}
 
-		// loop through reqs for page 1
+			log.Printf("%v page %v: updated since %v: %v", currentTemplate.TemplateName, 1, yesterday, len(a.redisKeys))
+
+			if len(a.redisKeys) < 1 {
+				// log.Println("no updates")
+			} else {
+				filterUpdates(redis, a, currentTemplate, apiClient, &msetReqs)
+			}
+
+			projReqs = models.ProjectReqs{}
+			a.redisKeys = nil
+			a.reqSummaries = nil
+			// log.Printf("length of a keys and reqs after page scan: %v, %v", len(a.redisKeys), len(a.reqSummaries))
+		}
+	} else {
+		log.Printf("%v: scanning page 1 of %v", currentTemplate.TemplateName, totalPages)
 		for _, projReq := range projReqs.Requisitions {
-			ProcessReqs(redis, currentTemplate, apiClient, projReq, tempReq)
-			// projReqs = models.ProjectReqs{}
-			// tempReq = models.BetterIndividualReq{}
-			tempReq = models.JsonToCsvReq{}
+			if projReq.UpdatedAt.After(yesterday) {
+				a.counter = a.counter + 1
+				a.redisKeys = append(a.redisKeys, fmt.Sprintf("req:%v:time", projReq.Identifier))
+				a.reqSummaries = append(
+					a.reqSummaries,
+					reqSummary{projReq.Identifier, projReq.CreatedAt, projReq.UpdatedAt},
+				)
+			}
 		}
 
-		log.Printf(
-			"scan done for page %v of %v for %v\n",
-			projReqs.Meta.CurrentPage,
-			totalPages,
-			currentTemplate.TemplateName,
-		)
-	} else { // end of if pages <= 1
-		// loop through reqs for page 1
-		for _, projReq := range projReqs.Requisitions {
-			ProcessReqs(redis, currentTemplate, apiClient, projReq, tempReq)
-			// projReqs = models.ProjectReqs{}
-			// tempReq = models.BetterIndividualReq{}
-			tempReq = models.JsonToCsvReq{}
+		projReqs = models.ProjectReqs{}
+		// log.Println("struct length after first page", len(projReqs.Requisitions))
+
+		for pageNumber := 2; pageNumber <= totalPages; pageNumber++ {
+			log.Printf("%v: scanning page %v of %v", currentTemplate.TemplateName, pageNumber, totalPages)
+			_, err := services.GetProjectReqs(apiClient, currentTemplate.Id, &projReqs, pageNumber)
+			if err != nil {
+				fmt.Println("error getting proj reqs in scan(1): ", err)
+			}
+			// log.Printf("struct length during %v page: %v", pageNumber, len(projReqs.Requisitions))
+
+			for _, projReq := range projReqs.Requisitions {
+				if projReq.UpdatedAt.After(yesterday) {
+					a.counter = a.counter + 1
+					a.redisKeys = append(a.redisKeys, fmt.Sprintf("req:%v:time", projReq.Identifier))
+					a.reqSummaries = append(
+						a.reqSummaries,
+						reqSummary{projReq.Identifier, projReq.CreatedAt, projReq.UpdatedAt},
+					)
+				}
+			}
+
+			log.Printf("%v page %v: updated since %v: %v", currentTemplate.TemplateName, pageNumber, yesterday, len(a.redisKeys))
+
+			if len(a.redisKeys) < 1 {
+				log.Println("no updates on this page")
+			} else {
+				filterUpdates(redis, a, currentTemplate, apiClient, &msetReqs)
+			}
+			projReqs = models.ProjectReqs{}
+			a.redisKeys = nil
+			a.reqSummaries = nil
+			// log.Printf("length of a keys and reqs after page scan: %v, %v", len(a.redisKeys), len(a.reqSummaries))
+		}
+	}
+
+	log.Printf("%v: total updates in template: %v", currentTemplate.TemplateName, a.counter)
+	log.Printf("%v: updates needed: %v", currentTemplate.TemplateName, len(msetReqs.keys))
+
+	// pipleine json.set commands to redis
+	if len(msetReqs.keys) < 1 {
+		// log.Printf("%v: no updates needed", currentTemplate.TemplateName)
+	} else {
+		// make a slice to store redis commands
+		jsonSetCmds := make(rueidis.Commands, 0, len(msetReqs.keys))
+		timeSetCmds := make(rueidis.Commands, 0, len(msetReqs.keys))
+		for i := 0; i < len(msetReqs.keys); i++ {
+			jsonSetCmds = append(jsonSetCmds, redis.B().JsonSet().Key(msetReqs.keys[i]).Path("$").Value(msetReqs.jsonReqs[i]).Build())
+			timeSetCmds = append(timeSetCmds, redis.B().Set().Key(fmt.Sprintf("%v:time", msetReqs.keys[i])).Value(time.Now().Format(time.RFC1123)).Build())
 		}
 
-		// // repeat the process for all remaining pages starting w page 2
-		// for pageNumber := 2; pageNumber <= totalPages; pageNumber++ {
-		// 	_, err := services.GetProjectReqs(apiClient, currentTemplate.Id, &projReqs, pageNumber)
-		// 	if err != nil {
-		// 		fmt.Println("error getting proj reqs in scan(1): ", err)
-		// 	}
-		//
-		// 	// log.Printf(
-		// 	// 	"scanning page %v of %v for %v\n",
-		// 	// 	projReqs.Meta.CurrentPage,
-		// 	// 	totalPages,
-		// 	// 	currentTemplate.TemplateName,
-		// 	// )
-		//
-		// 	// loop through reqs for current page
-		// 	for _, projReq := range projReqs.Requisitions {
-		// 		ProcessReqs(redis, currentTemplate, apiClient, projReq, tempReq)
-		// 		// projReqs = models.ProjectReqs{}
-		// 		// tempReq = models.BetterIndividualReq{}
-		// 		tempReq = models.JsonToCsvReq{}
-		// 	}
-		//
-		// 	log.Printf(
-		// 		"scan done for page %v of template: %v\n",
-		// 		projReqs.Meta.CurrentPage,
-		// 		currentTemplate.TemplateName,
-		// 	)
-		// } // end of for loop for pages
-	} // end of else statement
+		// call DoMulti on stored commands to pipeline them
+		jsonSetOkCounter := 0
+		for ix, jsonSetResult := range redis.DoMulti(context.Background(), jsonSetCmds...) {
+			jsr, err := jsonSetResult.ToAny()
+			if err != nil {
+				log.Println("pipelineResult toAny() error:", err)
+			} else {
+				if reflect.TypeOf(jsr).Kind() != reflect.String {
+					log.Printf("json.set command didn't work: %v, %T", msetReqs.keys[ix], jsr)
+					// log.Printf("type and value of response: %T: %v", pres, pres)
+				} else {
+					jsonSetOkCounter = jsonSetOkCounter + 1
+				}
+			}
+		}
+
+		timeSetOkCounter := 0
+		for ix, timeSetResult := range redis.DoMulti(context.Background(), timeSetCmds...) {
+			tsr, err := timeSetResult.ToAny()
+			if err != nil {
+				log.Println("pipelineResult toAny() error:", err)
+			} else {
+				if reflect.TypeOf(tsr).Kind() != reflect.String {
+					log.Printf("time set command didn't work: %v, %T", msetReqs.keys[ix], tsr)
+					// log.Printf("type and value of response: %T: %v", pres, pres)
+				} else {
+					timeSetOkCounter = timeSetOkCounter + 1
+				}
+			}
+		}
+
+		if jsonSetOkCounter == len(msetReqs.keys) && timeSetOkCounter == len(msetReqs.keys) {
+			log.Printf("%v: all json.set and time set commands passed", currentTemplate.TemplateName)
+		}
+	}
+
+	msetReqs = filteredUpdates{}
+	a = updates{}
 }

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	// "github.com/gocarina/gocsv"
-	"github.com/rueian/rueidis"
+	"github.com/redis/rueidis"
 	// "github.com/sabino-ramirez/oah-api/models"
 )
 

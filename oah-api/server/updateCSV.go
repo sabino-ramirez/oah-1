@@ -5,12 +5,14 @@ import (
 
 	"log"
 	"net/http"
+	// "time"
 
 	"github.com/sabino-ramirez/oah-api/models"
 	"github.com/sabino-ramirez/oah-api/services"
+	"golang.org/x/time/rate"
 )
 
-func (s *Server) handleUpdateReqCSV() http.HandlerFunc {
+func (s *Server) handleUpdateReqCSV(limiter *rate.Limiter) http.HandlerFunc {
 	log.Println("pleaseHandleUpdateReq invoked")
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +21,12 @@ func (s *Server) handleUpdateReqCSV() http.HandlerFunc {
 		var jsonToCsv models.JsonToCsvReq
 
 		// ovationAPI := models.NewPleaseClient(ovationClient, 4023, r.Header.Get("babyboi"))
-		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"))
+		ovationProdSubAPI := models.NewPleaseClient(
+			ovationClient,
+			749,
+			r.Header.Get("babyboi"),
+			limiter,
+		)
 
 		// io.Copy(os.Stdout, r.Body)
 
@@ -49,21 +56,21 @@ func (s *Server) handleUpdateReqCSV() http.HandlerFunc {
 			}
 
 			return
-		}
+		} else {
+			// back to json for entering into redis
+			jsonToCsvJson, err := json.Marshal(jsonToCsv)
+			if err != nil {
+				log.Println("marshalling error:", err)
+			}
+			// log.Println("jsonToCSVJson:\n", string(jsonToCsvJson))
 
-		// back to json for entering into redis
-		jsonToCsvJson, err := json.Marshal(jsonToCsv)
-		if err != nil {
-			log.Println("marshalling error:", err)
-		}
-		log.Println("jsonToCSVJson:\n", string(jsonToCsvJson))
+			if err := addRowToRedis(s.cache, jsonToCsv.Identifier, jsonToCsvJson); err != nil {
+				log.Printf("setting new key in /updated error: %v", err)
+			}
 
-		if err := addRowToRedis(s.cache, jsonToCsv.Identifier, jsonToCsvJson); err != nil {
-			log.Printf("setting new key in /updated error: %v", err)
-		}
-
-		if err := json.NewEncoder(w).Encode(jsonToCsv); err != nil {
-			log.Println("error encoding updated req json: ", err)
+			if err := json.NewEncoder(w).Encode(jsonToCsv); err != nil {
+				log.Println("error encoding updated req json: ", err)
+			}
 		}
 
 		payload = models.BetterIndividualReq{}

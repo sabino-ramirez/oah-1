@@ -9,7 +9,9 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/rueian/rueidis"
+	"golang.org/x/time/rate"
+	// "github.com/rueian/rueidis"
+	"github.com/redis/rueidis"
 )
 
 type Server struct {
@@ -44,13 +46,13 @@ type Server struct {
 
 var netTransport = &http.Transport{
 	Dial: (&net.Dialer{
-		Timeout: 30 * time.Second,
+		Timeout: 60 * time.Second,
 	}).Dial,
-	TLSHandshakeTimeout: 30 * time.Second,
+	TLSHandshakeTimeout: 60 * time.Second,
 }
 
 var ovationClient = &http.Client{
-	Timeout:   time.Second * 30,
+	Timeout:   time.Second * 60,
 	Transport: netTransport,
 }
 
@@ -71,6 +73,7 @@ func NewServer() *Server {
 		InitAddress:  []string{redisHost},
 		DisableCache: true,
 		ClientName:   "newServerClient",
+		// Dialer:       net.Dialer{Timeout: time.Second * 20},
 	})
 
 	if err != nil {
@@ -124,12 +127,19 @@ func (s *Server) routes() {
 	// 	}
 	// })
 
-	s.router.HandleFunc("/auth", s.handleAuthorizeToken())
+	// newLimiter(r, n)
+	// starts with burst of n
+	// throttles to r/second
+	putsLimiter := rate.NewLimiter(1, 50)
+	// putsLimiter := rate.NewLimiter(rate.Every(1*time.Second), 50)
+	getsLimiter := rate.NewLimiter(rate.Every(60*time.Second), 300)
+
+	s.router.HandleFunc("/auth", s.handleAuthorizeToken(getsLimiter))
 	// s.router.HandleFunc("/reqs", s.handleGetReqs())
 	s.router.HandleFunc("/reqs", s.handleGetReqsCSV()) // to make ft.search index
 	// s.router.HandleFunc("/search", s.handleSearch())
 	s.router.HandleFunc("/search", s.handleSearchCSV())
-	s.router.HandleFunc("/update", s.handleUpdateReqCSV()).Methods("POST")
-	s.router.HandleFunc("/scan", s.handleScanCSV())
+	s.router.HandleFunc("/update", s.handleUpdateReqCSV(putsLimiter)).Methods("POST")
+	s.router.HandleFunc("/scan", s.handleScanCSV(getsLimiter))
 	s.router.PathPrefix("/").Handler(http.StripPrefix("/", fs))
 }
