@@ -92,7 +92,7 @@ type JsonToCsvReq struct {
 }
 
 func (c *JsonToCsvReq) UnmarshalJSON(data []byte) error {
-	log.Println("nestedJson req to csvReq unmarshaller called")
+	// log.Println("nestedJson req to csvReq unmarshaller called")
 
 	var betterReq BetterIndividualReq
 
@@ -122,7 +122,7 @@ func (c *JsonToCsvReq) UnmarshalJSON(data []byte) error {
 	}
 
 	// log.Println("ovation return dob after conversion:", betterReq.Requisition.Patient.DateOfBirth)
-	log.Printf("after empty check & dob conversion: %+v\n", betterReq)
+	// log.Printf("after empty check & dob conversion: %+v\n", betterReq)
 
 	tmp := &JsonToCsvReq{
 		Identifier:                   betterReq.Requisition.Identifier,

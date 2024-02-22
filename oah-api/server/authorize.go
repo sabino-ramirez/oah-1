@@ -5,19 +5,26 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
 	// "time"
 
 	"github.com/sabino-ramirez/oah-api/models"
 	"github.com/sabino-ramirez/oah-api/services"
+	"golang.org/x/time/rate"
 	// "golang.org/x/time/rate"
 )
 
-func (s *Server) handleAuthorizeToken() http.HandlerFunc {
+func (s *Server) handleAuthorizeToken(limiter *rate.Limiter) http.HandlerFunc {
 	log.Println("handleAuthorizeToken invoked")
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		// rl := rate.NewLimiter(rate.Every(10*time.Second), 50)
-		ovationProdSubAPI := models.NewPleaseClient(ovationClient, 749, r.Header.Get("babyboi"))
+		ovationProdSubAPI := models.NewPleaseClient(
+			ovationClient,
+			749,
+			r.Header.Get("babyboi"),
+			limiter,
+		)
 
 		status_code, _ := services.GetProjectTemplates(ovationProdSubAPI, nil)
 		if status_code != 200 {

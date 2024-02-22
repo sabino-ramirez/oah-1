@@ -1,3 +1,4 @@
 .env
 csv_to_redis.go
 req_reports
+pp.txt

@@ -129,7 +129,8 @@ func UpdateReqCSV(
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Add("Authorization", client.Bearer)
 
-	response, err := client.Http.Do(request)
+	// response, err := client.Http.Do(request)
+	response, err := client.Do(request)
 	if err != nil {
 		log.Println("response error:", err)
 	} else if response.StatusCode != 200 {
