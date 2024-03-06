@@ -45,7 +45,9 @@ export interface WantedReq extends Record<string, any> {
   primBillTo: string;
   primInsurId: string;
   primGroupNum: string;
+  primNameOfInsured: string;
   primRTI: string;
+  primDobOfInsured: string;
   primInsurName: string;
   lab_notes: string;
   failed?: boolean;

@@ -118,7 +118,7 @@ func UpdateReqCSV(
 	if err != nil {
 		log.Println("marshal error in update req:", err)
 	}
-	// log.Printf("updatedReqJson: \n%v", string(updatedReqJson))
+	log.Printf("updatedReqJson: \n%v", string(updatedReqJson))
 
 	// request, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(updatedReqJson))
 	request, err := http.NewRequest(http.MethodPut, prodSubUrl, bytes.NewBuffer(updatedReqJson))
@@ -149,6 +149,7 @@ func UpdateReqCSV(
 
 	// json.NewDecoder returning error because we're getting 404 page html which is
 	// not valid json
+	// this is where dob mismatch is happening
 	return response.StatusCode, nil, json.NewDecoder(response.Body).Decode(target)
 	// return 0, nil
 }

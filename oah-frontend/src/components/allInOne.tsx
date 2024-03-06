@@ -85,7 +85,15 @@ const headerRow: Row = {
     },
     {
       type: "header",
+      text: "Prim. Name of Insured",
+    },
+    {
+      type: "header",
       text: "Relat. To Insured",
+    },
+    {
+      type: "header",
+      text: "Prim. DOB of Insured",
     },
     {
       type: "header",
@@ -131,7 +139,9 @@ const getColumns = (): Column[] => [
   { columnId: "primInsurName", width: 210, resizable: true },
   { columnId: "primInsurId", width: 215, resizable: true },
   { columnId: "primGroupNum", width: 150 },
+  { columnId: "primNameOfInsured", width: 150 },
   { columnId: "primRTI", width: 130 },
+  { columnId: "primDobOfInsured", width: 150 },
   { columnId: "race", width: 120 },
   { columnId: "ethnicity", width: 120 },
   { columnId: "streetAddress", width: 215, resizable: true },
@@ -265,7 +275,17 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       },
       {
         type: "text",
+        text: req.primNameOfInsured,
+        style: { paddingLeft: "10px" },
+      },
+      {
+        type: "text",
         text: req.primRTI,
+        style: { paddingLeft: "10px" },
+      },
+      {
+        type: "text",
+        text: req.primDobOfInsured,
         style: { paddingLeft: "10px" },
       },
       {
@@ -401,8 +421,18 @@ const AllInOne = (props: {
                 reqs[changeRow].primGroupNum !== ""
                   ? reqs[changeRow].primGroupNum
                   : "",
+              nameOfPersonInsured:
+                reqs[changeRow].primNameOfInsured !== ""
+                  ? reqs[changeRow].primNameOfInsured
+                  : "",
               relationshipToInsured:
                 reqs[changeRow].primRTI !== "" ? reqs[changeRow].primRTI : "",
+              dobOfInsured:
+                reqs[changeRow].primDobOfInsured !== ""
+                  ? new Date(
+                      reqs[changeRow].primDobOfInsured,
+                    ).toLocaleDateString("ko-KR")
+                  : "",
               insuranceType: "Primary",
               insuranceProviderName:
                 reqs[changeRow].primInsurName !== ""
@@ -674,7 +704,9 @@ const AllInOne = (props: {
             ethnicity: `${req.patientEthnicity}`,
             primBillTo: `${req.billTo}`,
             primGroupNum: `${req.primInsGroupNumber}`,
+            primNameOfInsured: `${req.primNameOfPersonInsured}`,
             primRTI: `${req.primInsRelationshipToInsured}`,
+            primDobOfInsured: `${req.primDobOfInsured}`,
             primInsurId: `${req.primInsIDNumber}`,
             primInsurName: `${req.primInsInsuranceProviderName}`,
           };
@@ -754,7 +786,9 @@ const AllInOne = (props: {
             ethnicity: `${req.patientEthnicity}`,
             primBillTo: `${req.billTo}`,
             primGroupNum: `${req.primInsGroupNumber}`,
+            primNameOfInsured: `${req.primNameOfPersonInsured}`,
             primRTI: `${req.primInsRelationshipToInsured}`,
+            primDobOfInsured: `${req.primDobOfInsured}`,
             primInsurId: `${req.primInsIDNumber}`,
             primInsurName: `${req.primInsInsuranceProviderName}`,
           },

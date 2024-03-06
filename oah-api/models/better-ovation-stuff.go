@@ -43,7 +43,9 @@ type ProjectTemps struct {
 type InsuranceInfoEntry struct {
 	IDNumber              string `json:"idNumber,omitempty"`
 	GroupNumber           string `json:"groupNumber,omitempty"`
+	NameOfPersonInsured   string `json:"nameOfPersonInsured,omitempty"`
 	RelationshipToInsured string `json:"relationshipToInsured,omitempty"`
+	DobOfInsured          string `json:"dobOfInsured,omitempty"`
 	InsuranceType         string `json:"insuranceType,omitempty"`
 	InsuranceProviderName string `json:"insuranceProviderName,omitempty"`
 }

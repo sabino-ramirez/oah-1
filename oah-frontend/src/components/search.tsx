@@ -86,7 +86,7 @@ const Search = () => {
           headers: {
             babyboi: `Bearer ${apiKey}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -120,11 +120,13 @@ const Search = () => {
             ethnicity: `${req.patientEthnicity}`,
             primBillTo: `${req.billTo}`,
             primGroupNum: `${req.primInsGroupNumber}`,
+            primNameOfInsured: `${req.primNameOfPersonInsured}`,
             primRTI: `${req.primInsRelationshipToInsured}`,
+            primDobOfInsured: `${req.primDobOfInsured}`,
             primInsurId: `${req.primInsIDNumber}`,
             primInsurName: `${req.primInsInsuranceProviderName}`,
           };
-        }
+        },
       );
       // const searchResultReqs: WantedReq[] = Array.from(
       //   result.Requisitions,
@@ -205,8 +207,8 @@ const Search = () => {
 
       setStateReqs(
         searchResultReqs.sort(
-          (a, b) => Number(a.sampCollDate) - Number(b.sampCollDate)
-        )
+          (a, b) => Number(a.sampCollDate) - Number(b.sampCollDate),
+        ),
       );
 
       // // for every requistion in the repsonse, make a types/Requisition object
