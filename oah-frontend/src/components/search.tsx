@@ -125,6 +125,12 @@ const Search = () => {
             primDobOfInsured: `${req.primDobOfInsured}`,
             primInsurId: `${req.primInsIDNumber}`,
             primInsurName: `${req.primInsInsuranceProviderName}`,
+            secGroupNum: `${req.secInsGroupNumber}`,
+            secNameOfInsured: `${req.secNameOfPersonInsured}`,
+            secRTI: `${req.secInsRelationshipToInsured}`,
+            secDobOfInsured: `${req.secDobOfInsured}`,
+            secInsurId: `${req.secInsIDNumber}`,
+            secInsurName: `${req.secInsInsuranceProviderName}`,
           };
         },
       );
