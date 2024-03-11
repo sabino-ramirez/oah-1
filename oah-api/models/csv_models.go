@@ -192,6 +192,16 @@ func (c *JsonToCsvReq) UnmarshalJSON(data []byte) error {
 				InsuranceProviderName: "",
 			},
 		}
+	} else if len(betterReq.Requisition.BillingInformation.InsuranceInformations) == 1 {
+		betterReq.Requisition.BillingInformation.InsuranceInformations = append(betterReq.Requisition.BillingInformation.InsuranceInformations, InsuranceInfoEntry{
+			IDNumber:              "",
+			GroupNumber:           "",
+			NameOfPersonInsured:   "",
+			RelationshipToInsured: "",
+			DobOfInsured:          "",
+			InsuranceType:         "Secondary",
+			InsuranceProviderName: "",
+		})
 	}
 
 	// log.Println("ovation return dob before conversion:", betterReq.Requisition.Patient.DateOfBirth)
