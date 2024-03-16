@@ -85,11 +85,11 @@ const headerRow: Row = {
     },
     {
       type: "header",
-      text: "Prim Insured Name",
+      text: "Prim RTI",
     },
     {
       type: "header",
-      text: "Prim RTI",
+      text: "Prim Insured Name",
     },
     {
       type: "header",
@@ -106,11 +106,11 @@ const headerRow: Row = {
     },
     {
       type: "header",
-      text: "Sec Insured Name",
+      text: "Sec RTI",
     },
     {
       type: "header",
-      text: "Sec RTI",
+      text: "Sec Insured Name",
     },
     {
       type: "header",
@@ -160,14 +160,14 @@ const getColumns = (): Column[] => [
   { columnId: "primInsurName", width: 210, resizable: true },
   { columnId: "primInsurId", width: 200, resizable: true },
   { columnId: "primGroupNum", width: 120 },
-  { columnId: "primNameOfInsured", width: 180, resizable: true },
   { columnId: "primRTI", width: 100 },
+  { columnId: "primNameOfInsured", width: 180, resizable: true },
   { columnId: "primDobOfInsured", width: 120 },
   { columnId: "secInsurName", width: 210, resizable: true },
   { columnId: "secInsurId", width: 200, resizable: true },
   { columnId: "secGroupNum", width: 120 },
-  { columnId: "secNameOfInsured", width: 180, resizable: true },
   { columnId: "secRTI", width: 100 },
+  { columnId: "secNameOfInsured", width: 180, resizable: true },
   { columnId: "secDobOfInsured", width: 120 },
   { columnId: "race", width: 120 },
   { columnId: "ethnicity", width: 120 },
@@ -302,12 +302,12 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       },
       {
         type: "text",
-        text: req.primNameOfInsured,
+        text: req.primRTI,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.primRTI,
+        text: req.primNameOfInsured,
         style: { paddingLeft: "10px" },
       },
       {
@@ -332,12 +332,12 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       },
       {
         type: "text",
-        text: req.secNameOfInsured,
+        text: req.secRTI,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
-        text: req.secRTI,
+        text: req.secNameOfInsured,
         style: { paddingLeft: "10px" },
       },
       {

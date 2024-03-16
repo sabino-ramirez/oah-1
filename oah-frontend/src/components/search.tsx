@@ -336,7 +336,7 @@ const Search = () => {
       } else {
         console.log("status code: ", result.code);
         toast({
-          title: "Invalide Token",
+          title: "Invalid Token",
           status: "warning",
           position: "bottom-left",
           duration: 3000,
