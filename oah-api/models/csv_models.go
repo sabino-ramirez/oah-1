@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"log"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -29,7 +30,7 @@ func reformatDateOfBirthOneShot(dob string) string {
 	if dob != "" {
 		d, err := time.Parse("2006-01-02", dob)
 		if err != nil {
-			log.Println("time parse err in marshall:", err)
+			log.Println("time parse err in custom marshall:", err)
 		} else {
 			return strings.ReplaceAll(d.Format("01-02-2006"), "-", ".")
 			// betterReq.Requisition.Patient.DateOfBirth = strings.ReplaceAll(d.Format("01-02-2006"), "-", ".")
@@ -39,26 +40,26 @@ func reformatDateOfBirthOneShot(dob string) string {
 	return dob
 }
 
-func reformatDateOfBirth(dobs ...string) ([]string, error) {
-	log.Println("input dobs:", dobs)
-	var fixedDobs []string
-	for _, dob := range dobs {
-		if dob != "" {
-			d, err := time.Parse("2006-01-02", dob)
-			if err != nil {
-				log.Println("time parse err:", err)
-				// return nil, err
-			} else {
-				fixedDobs = append(fixedDobs, strings.ReplaceAll(d.Format("01-02-2006"), "-", "."))
-				// betterReq.Requisition.Patient.DateOfBirth = strings.ReplaceAll(d.Format("01-02-2006"), "-", ".")
-			}
-		} else {
-			fixedDobs = append(fixedDobs, "")
-		}
-	}
-
-	return fixedDobs, nil
-}
+// func reformatDateOfBirth(dobs ...string) ([]string, error) {
+// 	log.Println("input dobs:", dobs)
+// 	var fixedDobs []string
+// 	for _, dob := range dobs {
+// 		if dob != "" {
+// 			d, err := time.Parse("2006-01-02", dob)
+// 			if err != nil {
+// 				log.Println("time parse err:", err)
+// 				// return nil, err
+// 			} else {
+// 				fixedDobs = append(fixedDobs, strings.ReplaceAll(d.Format("01-02-2006"), "-", "."))
+// 				// betterReq.Requisition.Patient.DateOfBirth = strings.ReplaceAll(d.Format("01-02-2006"), "-", ".")
+// 			}
+// 		} else {
+// 			fixedDobs = append(fixedDobs, "")
+// 		}
+// 	}
+//
+// 	return fixedDobs, nil
+// }
 
 type CsvReq struct {
 	Identifier                   string `csv:"Identifier"                        json:"identifier"`
@@ -202,6 +203,11 @@ func (c *JsonToCsvReq) UnmarshalJSON(data []byte) error {
 			InsuranceType:         "Secondary",
 			InsuranceProviderName: "",
 		})
+	} else if len(betterReq.Requisition.BillingInformation.InsuranceInformations) == 2 {
+		if betterReq.Requisition.BillingInformation.InsuranceInformations[0].InsuranceType != "Primary" {
+			swap := reflect.Swapper(betterReq.Requisition.BillingInformation.InsuranceInformations)
+			swap(0, 1)
+		}
 	}
 
 	// log.Println("ovation return dob before conversion:", betterReq.Requisition.Patient.DateOfBirth)
