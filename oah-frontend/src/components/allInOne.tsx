@@ -77,23 +77,44 @@ const headerRow: Row = {
     { type: "header", text: "Primary Ins Name" },
     {
       type: "header",
-      text: "Primary Ins ID",
+      text: "Prim Ins ID",
     },
     {
       type: "header",
-      text: "Group Number",
+      text: "Prim Group #",
     },
     {
       type: "header",
-      text: "Prim. Name of Insured",
+      text: "Prim RTI",
     },
     {
       type: "header",
-      text: "Relat. To Insured",
+      text: "Prim Insured Name",
     },
     {
       type: "header",
-      text: "Prim. DOB of Insured",
+      text: "Prim Ins. DOB",
+    },
+    { type: "header", text: "Secondary Ins Name" },
+    {
+      type: "header",
+      text: "Sec Ins. ID",
+    },
+    {
+      type: "header",
+      text: "Sec Group #",
+    },
+    {
+      type: "header",
+      text: "Sec RTI",
+    },
+    {
+      type: "header",
+      text: "Sec Insured Name",
+    },
+    {
+      type: "header",
+      text: "Sec Ins DOB ",
     },
     {
       type: "header",
@@ -137,16 +158,22 @@ const getColumns = (): Column[] => [
   { columnId: "sex", width: 50 },
   { columnId: "primBillTo", width: 130 },
   { columnId: "primInsurName", width: 210, resizable: true },
-  { columnId: "primInsurId", width: 215, resizable: true },
-  { columnId: "primGroupNum", width: 150 },
-  { columnId: "primNameOfInsured", width: 150 },
-  { columnId: "primRTI", width: 130 },
-  { columnId: "primDobOfInsured", width: 150 },
+  { columnId: "primInsurId", width: 200, resizable: true },
+  { columnId: "primGroupNum", width: 120 },
+  { columnId: "primRTI", width: 100 },
+  { columnId: "primNameOfInsured", width: 180, resizable: true },
+  { columnId: "primDobOfInsured", width: 120 },
+  { columnId: "secInsurName", width: 210, resizable: true },
+  { columnId: "secInsurId", width: 200, resizable: true },
+  { columnId: "secGroupNum", width: 120 },
+  { columnId: "secRTI", width: 100 },
+  { columnId: "secNameOfInsured", width: 180, resizable: true },
+  { columnId: "secDobOfInsured", width: 120 },
   { columnId: "race", width: 120 },
   { columnId: "ethnicity", width: 120 },
   { columnId: "streetAddress", width: 215, resizable: true },
   { columnId: "city", width: 150, resizable: true },
-  { columnId: "state", width: 115 },
+  { columnId: "state", width: 115, resizable: true },
   { columnId: "zipCode", width: 75 },
 ];
 
@@ -275,17 +302,47 @@ const getRows = (reqs: WantedReq[]): Row[] => [
       },
       {
         type: "text",
-        text: req.primNameOfInsured,
-        style: { paddingLeft: "10px" },
-      },
-      {
-        type: "text",
         text: req.primRTI,
         style: { paddingLeft: "10px" },
       },
       {
         type: "text",
+        text: req.primNameOfInsured,
+        style: { paddingLeft: "10px" },
+      },
+      {
+        type: "text",
         text: req.primDobOfInsured,
+        style: { paddingLeft: "10px" },
+      },
+      {
+        type: "text",
+        text: req.secInsurName,
+        style: { paddingLeft: "10px", paddingRight: "8px" },
+      },
+      {
+        type: "text",
+        text: req.secInsurId,
+        style: { paddingLeft: "10px" },
+      },
+      {
+        type: "text",
+        text: req.secGroupNum,
+        style: { paddingLeft: "10px" },
+      },
+      {
+        type: "text",
+        text: req.secRTI,
+        style: { paddingLeft: "10px" },
+      },
+      {
+        type: "text",
+        text: req.secNameOfInsured,
+        style: { paddingLeft: "10px" },
+      },
+      {
+        type: "text",
+        text: req.secDobOfInsured,
         style: { paddingLeft: "10px" },
       },
       {
@@ -406,7 +463,10 @@ const AllInOne = (props: {
           // id: reqs[changeRow].provAccId,
           name: reqs[changeRow].provAccName,
         };
-      } else if (changeColumn.includes("prim")) {
+      } else if (
+        changeColumn.includes("prim") ||
+        changeColumn.includes("sec")
+      ) {
         fieldName = "billingInformation";
         structure = {
           billTo:
@@ -437,6 +497,33 @@ const AllInOne = (props: {
               insuranceProviderName:
                 reqs[changeRow].primInsurName !== ""
                   ? reqs[changeRow].primInsurName
+                  : "",
+            },
+            {
+              idNumber:
+                reqs[changeRow].secInsurId !== ""
+                  ? reqs[changeRow].secInsurId
+                  : "",
+              groupNumber:
+                reqs[changeRow].secGroupNum !== ""
+                  ? reqs[changeRow].secGroupNum
+                  : "",
+              nameOfPersonInsured:
+                reqs[changeRow].secNameOfInsured !== ""
+                  ? reqs[changeRow].secNameOfInsured
+                  : "",
+              relationshipToInsured:
+                reqs[changeRow].secRTI !== "" ? reqs[changeRow].secRTI : "",
+              dobOfInsured:
+                reqs[changeRow].secDobOfInsured !== ""
+                  ? new Date(
+                      reqs[changeRow].secDobOfInsured,
+                    ).toLocaleDateString("ko-KR")
+                  : "",
+              insuranceType: "Secondary",
+              insuranceProviderName:
+                reqs[changeRow].secInsurName !== ""
+                  ? reqs[changeRow].secInsurName
                   : "",
             },
           ],
@@ -704,11 +791,17 @@ const AllInOne = (props: {
             ethnicity: `${req.patientEthnicity}`,
             primBillTo: `${req.billTo}`,
             primGroupNum: `${req.primInsGroupNumber}`,
-            primNameOfInsured: `${req.primNameOfPersonInsured}`,
             primRTI: `${req.primInsRelationshipToInsured}`,
+            primNameOfInsured: `${req.primNameOfPersonInsured}`,
             primDobOfInsured: `${req.primDobOfInsured}`,
             primInsurId: `${req.primInsIDNumber}`,
             primInsurName: `${req.primInsInsuranceProviderName}`,
+            secGroupNum: `${req.secInsGroupNumber}`,
+            secRTI: `${req.secInsRelationshipToInsured}`,
+            secNameOfInsured: `${req.secNameOfPersonInsured}`,
+            secDobOfInsured: `${req.secDobOfInsured}`,
+            secInsurId: `${req.secInsIDNumber}`,
+            secInsurName: `${req.secInsInsuranceProviderName}`,
           };
         });
 
@@ -786,11 +879,17 @@ const AllInOne = (props: {
             ethnicity: `${req.patientEthnicity}`,
             primBillTo: `${req.billTo}`,
             primGroupNum: `${req.primInsGroupNumber}`,
-            primNameOfInsured: `${req.primNameOfPersonInsured}`,
             primRTI: `${req.primInsRelationshipToInsured}`,
+            primNameOfInsured: `${req.primNameOfPersonInsured}`,
             primDobOfInsured: `${req.primDobOfInsured}`,
             primInsurId: `${req.primInsIDNumber}`,
             primInsurName: `${req.primInsInsuranceProviderName}`,
+            secGroupNum: `${req.secInsGroupNumber}`,
+            secRTI: `${req.secInsRelationshipToInsured}`,
+            secNameOfInsured: `${req.secNameOfPersonInsured}`,
+            secDobOfInsured: `${req.secDobOfInsured}`,
+            secInsurId: `${req.secInsIDNumber}`,
+            secInsurName: `${req.secInsInsuranceProviderName}`,
           },
         ]);
       });

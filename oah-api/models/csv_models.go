@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"log"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -29,7 +30,7 @@ func reformatDateOfBirthOneShot(dob string) string {
 	if dob != "" {
 		d, err := time.Parse("2006-01-02", dob)
 		if err != nil {
-			log.Println("time parse err in marshall:", err)
+			log.Println("time parse err in custom marshall:", err)
 		} else {
 			return strings.ReplaceAll(d.Format("01-02-2006"), "-", ".")
 			// betterReq.Requisition.Patient.DateOfBirth = strings.ReplaceAll(d.Format("01-02-2006"), "-", ".")
@@ -39,52 +40,58 @@ func reformatDateOfBirthOneShot(dob string) string {
 	return dob
 }
 
-func reformatDateOfBirth(dobs ...string) ([]string, error) {
-	log.Println("input dobs:", dobs)
-	var fixedDobs []string
-	for _, dob := range dobs {
-		if dob != "" {
-			d, err := time.Parse("2006-01-02", dob)
-			if err != nil {
-				log.Println("time parse err:", err)
-				// return nil, err
-			} else {
-				fixedDobs = append(fixedDobs, strings.ReplaceAll(d.Format("01-02-2006"), "-", "."))
-				// betterReq.Requisition.Patient.DateOfBirth = strings.ReplaceAll(d.Format("01-02-2006"), "-", ".")
-			}
-		} else {
-			fixedDobs = append(fixedDobs, "")
-		}
-	}
-
-	return fixedDobs, nil
-}
+// func reformatDateOfBirth(dobs ...string) ([]string, error) {
+// 	log.Println("input dobs:", dobs)
+// 	var fixedDobs []string
+// 	for _, dob := range dobs {
+// 		if dob != "" {
+// 			d, err := time.Parse("2006-01-02", dob)
+// 			if err != nil {
+// 				log.Println("time parse err:", err)
+// 				// return nil, err
+// 			} else {
+// 				fixedDobs = append(fixedDobs, strings.ReplaceAll(d.Format("01-02-2006"), "-", "."))
+// 				// betterReq.Requisition.Patient.DateOfBirth = strings.ReplaceAll(d.Format("01-02-2006"), "-", ".")
+// 			}
+// 		} else {
+// 			fixedDobs = append(fixedDobs, "")
+// 		}
+// 	}
+//
+// 	return fixedDobs, nil
+// }
 
 type CsvReq struct {
-	Identifier                   string `csv:"Identifier"                      json:"identifier"`
-	SampleCollectionDate         string `csv:"Collection Date"                 json:"sampleCollectionDate"`
-	Template                     string `csv:"Template"                        json:"template"`
-	ProviderID                   string `csv:"Provider NPI,"                   json:"providerID"`
-	ProviderName                 string `csv:"Provider Account,"               json:"providerName"`
-	PatientLastName              string `csv:"Patient Last Name,"              json:"patientLastName"`
-	PatientFirstName             string `csv:"Patient First Name,"             json:"patientFirstName"`
-	PatientMiddleName            string `csv:"Patient Middle Name,"            json:"patientMiddleName"`
-	PatientStreetAddress         string `csv:"Patient Address 1,"              json:"patientStreetAddress"`
-	PatientCity                  string `csv:"Patient City,"                   json:"patientCity"`
-	PatientState                 string `csv:"Patient State/Region/Province,"  json:"patientState"`
-	PatientZipCode               string `csv:"Patient Zip/Postal Code,"        json:"patientZipCode"`
-	PatientDateOfBirth           string `csv:"Patient Date of Birth,"          json:"patientDateOfBirth"`
-	PatientSex                   string `csv:"Patient Sex,"                    json:"patientSex"`
-	PatientRace                  string `csv:"Patient Race,"                   json:"patientRace"`
-	PatientEthnicity             string `csv:"Patient Ethnicity,"              json:"patientEthnicity"`
-	BillTo                       string `csv:"Bill To"                         json:"billTo"`
-	PrimInsIDNumber              string `csv:"Primary Insurance ID #"          json:"primInsIDNumber"`
-	PrimInsGroupNumber           string `csv:"Primary Insurance Group #"       json:"primInsGroupNumber"`
-	PrimNameOfPersonInsured      string `csv:"Primary Name of Person Insured"  json:"primNameOfPersonInsured"`
-	PrimInsRelationshipToInsured string `csv:"Primary Relationship to Insured" json:"primInsRelationshipToInsured"`
-	PrimDobOfInsured             string `csv:"Primary Insured Date of Birth"   json:"primDobOfInsured"`
-	PrimInsInsuranceProviderName string `csv:"Primary Insurance"               json:"primInsInsuranceProviderName"`
-	LabNotes                     string `csv:"Requisition Lab Notes"           json:"lab_notes"`
+	Identifier                   string `csv:"Identifier"                        json:"identifier"`
+	SampleCollectionDate         string `csv:"Collection Date"                   json:"sampleCollectionDate"`
+	Template                     string `csv:"Template"                          json:"template"`
+	ProviderID                   string `csv:"Provider NPI,"                     json:"providerID"`
+	ProviderName                 string `csv:"Provider Account,"                 json:"providerName"`
+	PatientLastName              string `csv:"Patient Last Name,"                json:"patientLastName"`
+	PatientFirstName             string `csv:"Patient First Name,"               json:"patientFirstName"`
+	PatientMiddleName            string `csv:"Patient Middle Name,"              json:"patientMiddleName"`
+	PatientStreetAddress         string `csv:"Patient Address 1,"                json:"patientStreetAddress"`
+	PatientCity                  string `csv:"Patient City,"                     json:"patientCity"`
+	PatientState                 string `csv:"Patient State/Region/Province,"    json:"patientState"`
+	PatientZipCode               string `csv:"Patient Zip/Postal Code,"          json:"patientZipCode"`
+	PatientDateOfBirth           string `csv:"Patient Date of Birth,"            json:"patientDateOfBirth"`
+	PatientSex                   string `csv:"Patient Sex,"                      json:"patientSex"`
+	PatientRace                  string `csv:"Patient Race,"                     json:"patientRace"`
+	PatientEthnicity             string `csv:"Patient Ethnicity,"                json:"patientEthnicity"`
+	BillTo                       string `csv:"Bill To"                           json:"billTo"`
+	PrimInsIDNumber              string `csv:"Primary Insurance ID #"            json:"primInsIDNumber"`
+	PrimInsGroupNumber           string `csv:"Primary Insurance Group #"         json:"primInsGroupNumber"`
+	PrimNameOfPersonInsured      string `csv:"Primary Name of Person Insured"    json:"primNameOfPersonInsured"`
+	PrimInsRelationshipToInsured string `csv:"Primary Relationship to Insured"   json:"primInsRelationshipToInsured"`
+	PrimDobOfInsured             string `csv:"Primary Insured Date of Birth"     json:"primDobOfInsured"`
+	PrimInsInsuranceProviderName string `csv:"Primary Insurance"                 json:"primInsInsuranceProviderName"`
+	SecInsIDNumber               string `csv:"Secondary Insurance ID #"          json:"secInsIDNumber"`
+	SecInsGroupNumber            string `csv:"Secondary Insurance Group #"       json:"secInsGroupNumber"`
+	SecNameOfPersonInsured       string `csv:"Secondary Name of Person Insured"  json:"secNameOfPersonInsured"`
+	SecInsRelationshipToInsured  string `csv:"Secondary Relationship to Insured" json:"secInsRelationshipToInsured"`
+	SecDobOfInsured              string `csv:"Secondary Insured Date of Birth"   json:"secDobOfInsured"`
+	SecInsInsuranceProviderName  string `csv:"Secondary Insurance"               json:"secInsInsuranceProviderName"`
+	LabNotes                     string `csv:"Requisition Lab Notes"             json:"lab_notes"`
 }
 
 type CsvReqs struct {
@@ -107,30 +114,36 @@ type CsvReqs struct {
 // }
 
 type JsonToCsvReq struct {
-	Identifier                   string `csv:"Identifier"                      json:"identifier"`
-	SampleCollectionDate         string `csv:"Collection Date"                 json:"sampleCollectionDate"`
-	Template                     string `csv:"Template"                        json:"template"`
-	ProviderID                   string `csv:"Provider NPI,"                   json:"providerID"`
-	ProviderName                 string `csv:"Provider Account,"               json:"providerName"`
-	PatientLastName              string `csv:"Patient Last Name,"              json:"patientLastName"`
-	PatientFirstName             string `csv:"Patient First Name,"             json:"patientFirstName"`
-	PatientMiddleName            string `csv:"Patient Middle Name,"            json:"patientMiddleName"`
-	PatientStreetAddress         string `csv:"Patient Address 1,"              json:"patientStreetAddress"`
-	PatientCity                  string `csv:"Patient City,"                   json:"patientCity"`
-	PatientState                 string `csv:"Patient State/Region/Province,"  json:"patientState"`
-	PatientZipCode               string `csv:"Patient Zip/Postal Code,"        json:"patientZipCode"`
-	PatientDateOfBirth           string `csv:"Patient Date of Birth,"          json:"patientDateOfBirth"`
-	PatientSex                   string `csv:"Patient Sex,"                    json:"patientSex"`
-	PatientRace                  string `csv:"Patient Race,"                   json:"patientRace"`
-	PatientEthnicity             string `csv:"Patient Ethnicity,"              json:"patientEthnicity"`
-	BillTo                       string `csv:"Bill To"                         json:"billTo"`
-	PrimInsIDNumber              string `csv:"Primary Insurance ID #"          json:"primInsIDNumber"`
-	PrimInsGroupNumber           string `csv:"Primary Insurance Group #"       json:"primInsGroupNumber"`
-	PrimNameOfPersonInsured      string `csv:"Primary Name of Person Insured"  json:"primNameOfPersonInsured"`
-	PrimInsRelationshipToInsured string `csv:"Primary Relationship to Insured" json:"primInsRelationshipToInsured"`
-	PrimDobOfInsured             string `csv:"Primary Insured Date of Birth"   json:"primDobOfInsured"`
-	PrimInsInsuranceProviderName string `csv:"Primary Insurance"               json:"primInsInsuranceProviderName"`
-	LabNotes                     string `csv:"Requisition Lab Notes"           json:"lab_notes"`
+	Identifier                   string `csv:"Identifier"                        json:"identifier"`
+	SampleCollectionDate         string `csv:"Collection Date"                   json:"sampleCollectionDate"`
+	Template                     string `csv:"Template"                          json:"template"`
+	ProviderID                   string `csv:"Provider NPI,"                     json:"providerID"`
+	ProviderName                 string `csv:"Provider Account,"                 json:"providerName"`
+	PatientLastName              string `csv:"Patient Last Name,"                json:"patientLastName"`
+	PatientFirstName             string `csv:"Patient First Name,"               json:"patientFirstName"`
+	PatientMiddleName            string `csv:"Patient Middle Name,"              json:"patientMiddleName"`
+	PatientStreetAddress         string `csv:"Patient Address 1,"                json:"patientStreetAddress"`
+	PatientCity                  string `csv:"Patient City,"                     json:"patientCity"`
+	PatientState                 string `csv:"Patient State/Region/Province,"    json:"patientState"`
+	PatientZipCode               string `csv:"Patient Zip/Postal Code,"          json:"patientZipCode"`
+	PatientDateOfBirth           string `csv:"Patient Date of Birth,"            json:"patientDateOfBirth"`
+	PatientSex                   string `csv:"Patient Sex,"                      json:"patientSex"`
+	PatientRace                  string `csv:"Patient Race,"                     json:"patientRace"`
+	PatientEthnicity             string `csv:"Patient Ethnicity,"                json:"patientEthnicity"`
+	BillTo                       string `csv:"Bill To"                           json:"billTo"`
+	PrimInsIDNumber              string `csv:"Primary Insurance ID #"            json:"primInsIDNumber"`
+	PrimInsGroupNumber           string `csv:"Primary Insurance Group #"         json:"primInsGroupNumber"`
+	PrimNameOfPersonInsured      string `csv:"Primary Name of Person Insured"    json:"primNameOfPersonInsured"`
+	PrimInsRelationshipToInsured string `csv:"Primary Relationship to Insured"   json:"primInsRelationshipToInsured"`
+	PrimDobOfInsured             string `csv:"Primary Insured Date of Birth"     json:"primDobOfInsured"`
+	PrimInsInsuranceProviderName string `csv:"Primary Insurance"                 json:"primInsInsuranceProviderName"`
+	SecInsIDNumber               string `csv:"Secondary Insurance ID #"          json:"secInsIDNumber"`
+	SecInsGroupNumber            string `csv:"Secondary Insurance Group #"       json:"secInsGroupNumber"`
+	SecNameOfPersonInsured       string `csv:"Secondary Name of Person Insured"  json:"secNameOfPersonInsured"`
+	SecInsRelationshipToInsured  string `csv:"Secondary Relationship to Insured" json:"secInsRelationshipToInsured"`
+	SecDobOfInsured              string `csv:"Secondary Insured Date of Birth"   json:"secDobOfInsured"`
+	SecInsInsuranceProviderName  string `csv:"Secondary Insurance"               json:"secInsInsuranceProviderName"`
+	LabNotes                     string `csv:"Requisition Lab Notes"             json:"lab_notes"`
 }
 
 // func (c *JsonToCsvReq) MarshalJSON() ([]byte, error) {
@@ -170,6 +183,30 @@ func (c *JsonToCsvReq) UnmarshalJSON(data []byte) error {
 				InsuranceType:         "Primary",
 				InsuranceProviderName: "",
 			},
+			{
+				IDNumber:              "",
+				GroupNumber:           "",
+				NameOfPersonInsured:   "",
+				RelationshipToInsured: "",
+				DobOfInsured:          "",
+				InsuranceType:         "Secondary",
+				InsuranceProviderName: "",
+			},
+		}
+	} else if len(betterReq.Requisition.BillingInformation.InsuranceInformations) == 1 {
+		betterReq.Requisition.BillingInformation.InsuranceInformations = append(betterReq.Requisition.BillingInformation.InsuranceInformations, InsuranceInfoEntry{
+			IDNumber:              "",
+			GroupNumber:           "",
+			NameOfPersonInsured:   "",
+			RelationshipToInsured: "",
+			DobOfInsured:          "",
+			InsuranceType:         "Secondary",
+			InsuranceProviderName: "",
+		})
+	} else if len(betterReq.Requisition.BillingInformation.InsuranceInformations) == 2 {
+		if betterReq.Requisition.BillingInformation.InsuranceInformations[0].InsuranceType != "Primary" {
+			swap := reflect.Swapper(betterReq.Requisition.BillingInformation.InsuranceInformations)
+			swap(0, 1)
 		}
 	}
 
@@ -225,7 +262,15 @@ func (c *JsonToCsvReq) UnmarshalJSON(data []byte) error {
 			betterReq.Requisition.BillingInformation.InsuranceInformations[0].DobOfInsured,
 		),
 		PrimInsInsuranceProviderName: betterReq.Requisition.BillingInformation.InsuranceInformations[0].InsuranceProviderName,
-		LabNotes:                     betterReq.Requisition.CustomAttributes.LabNotes,
+		SecInsIDNumber:               betterReq.Requisition.BillingInformation.InsuranceInformations[1].IDNumber,
+		SecInsGroupNumber:            betterReq.Requisition.BillingInformation.InsuranceInformations[1].GroupNumber,
+		SecNameOfPersonInsured:       betterReq.Requisition.BillingInformation.InsuranceInformations[1].NameOfPersonInsured,
+		SecInsRelationshipToInsured:  betterReq.Requisition.BillingInformation.InsuranceInformations[1].RelationshipToInsured,
+		SecDobOfInsured: reformatDateOfBirthOneShot(
+			betterReq.Requisition.BillingInformation.InsuranceInformations[1].DobOfInsured,
+		),
+		SecInsInsuranceProviderName: betterReq.Requisition.BillingInformation.InsuranceInformations[1].InsuranceProviderName,
+		LabNotes:                    betterReq.Requisition.CustomAttributes.LabNotes,
 	}
 
 	*c = *tmp

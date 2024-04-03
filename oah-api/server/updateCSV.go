@@ -57,8 +57,8 @@ func (s *Server) handleUpdateReqCSV(limiter *rate.Limiter) http.HandlerFunc {
 
 			return
 		} else {
-			log.Println("primdob right before marshal", jsonToCsv.PrimDobOfInsured)
-			log.Println("dob right before marshal", jsonToCsv.PatientDateOfBirth)
+			// log.Println("primdob right before marshal", jsonToCsv.PrimDobOfInsured)
+			// log.Println("dob right before marshal", jsonToCsv.PatientDateOfBirth)
 			// back to json for entering into redis
 			jsonToCsvJson, err := json.Marshal(jsonToCsv)
 			if err != nil {

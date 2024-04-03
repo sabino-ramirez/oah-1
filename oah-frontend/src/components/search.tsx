@@ -125,6 +125,12 @@ const Search = () => {
             primDobOfInsured: `${req.primDobOfInsured}`,
             primInsurId: `${req.primInsIDNumber}`,
             primInsurName: `${req.primInsInsuranceProviderName}`,
+            secGroupNum: `${req.secInsGroupNumber}`,
+            secNameOfInsured: `${req.secNameOfPersonInsured}`,
+            secRTI: `${req.secInsRelationshipToInsured}`,
+            secDobOfInsured: `${req.secDobOfInsured}`,
+            secInsurId: `${req.secInsIDNumber}`,
+            secInsurName: `${req.secInsInsuranceProviderName}`,
           };
         },
       );
@@ -330,7 +336,7 @@ const Search = () => {
       } else {
         console.log("status code: ", result.code);
         toast({
-          title: "Invalide Token",
+          title: "Invalid Token",
           status: "warning",
           position: "bottom-left",
           duration: 3000,
