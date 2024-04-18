@@ -99,7 +99,10 @@ const Search = () => {
       const searchResultReqs: WantedReq[] = Array.from(
         result.Reqs,
         (req: any) => {
-          const d = new Date(req.sampleCollectionDate);
+          // const d = new Date(req.sampleCollectionDate);
+          const d = !Date.parse(req.sampleCollectionDate)
+            ? new Date(0)
+            : new Date(req.sampleCollectionDate);
           return {
             identifier: `${req.identifier}`,
             lab_notes: `${req.lab_notes}`,
@@ -134,167 +137,18 @@ const Search = () => {
           };
         },
       );
-      // const searchResultReqs: WantedReq[] = Array.from(
-      //   result.Requisitions,
-      //   (req: any) => {
-      //     return {
-      //       id: `${req.requisition.id}`,
-      //       identifier: `${req.requisition.identifier}`,
-      //       lab_notes: `${
-      //         req.requisition.customAttributes.lab_notes
-      //           ? req.requisition.customAttributes.lab_notes
-      //           : ""
-      //       }`,
-      //       projectTemplateId: `${req.requisition.projectTemplateId}`,
-      //       reqTemplate: `${req.requisition.template}`,
-      //       // sampCollDate: `${req.requisition.sampleCollectionDate}`,
-      //       sampCollDate: new Date(req.requisition.sampleCollectionDate),
-      //       provAccId: `${req.requisition.providerAccount.id}`,
-      //       provAccName: `${req.requisition.providerAccount.name}`,
-      //       firstName: `${req.requisition.patient.firstName}`,
-      //       middleName: `${
-      //         req.requisition.patient.middleName
-      //           ? req.requisition.patient.middleName
-      //           : ""
-      //       }`,
-      //       lastName: `${req.requisition.patient.lastName}`,
-      //       streetAddress: `${req.requisition.patient.streetAddress}`,
-      //       city: `${req.requisition.patient.city}`,
-      //       state: `${req.requisition.patient.state}`,
-      //       zipCode: `${req.requisition.patient.zipCode}`,
-      //       dob: `${req.requisition.patient.dateOfBirth}`,
-      //       gender: `${req.requisition.patient.gender}`,
-      //       race: `${req.requisition.patient.race}`,
-      //       ethnicity: `${req.requisition.patient.ethnicity}`,
-      //       primBillTo: `${
-      //         req.requisition.billingInformation.billTo
-      //           ? req.requisition.billingInformation.billTo
-      //           : ""
-      //       }`,
-      //       primGroupNum: `${
-      //         req.requisition.billingInformation.insuranceInformations
-      //           ? req.requisition.billingInformation.insuranceInformations[0]
-      //               .groupNumber
-      //             ? req.requisition.billingInformation.insuranceInformations[0]
-      //                 .groupNumber
-      //             : ""
-      //           : ""
-      //       }`,
-      //       primRTI: `${
-      //         req.requisition.billingInformation.insuranceInformations
-      //           ? req.requisition.billingInformation.insuranceInformations[0]
-      //               .relationshipToInsured
-      //             ? req.requisition.billingInformation.insuranceInformations[0]
-      //                 .relationshipToInsured
-      //             : ""
-      //           : ""
-      //       }`,
-      //       primInsurId: `${
-      //         req.requisition.billingInformation.insuranceInformations
-      //           ? req.requisition.billingInformation.insuranceInformations[0]
-      //               .idNumber
-      //             ? req.requisition.billingInformation.insuranceInformations[0]
-      //                 .idNumber
-      //             : ""
-      //           : ""
-      //       }`,
-      //       primInsurName: `${
-      //         req.requisition.billingInformation.insuranceInformations
-      //           ? req.requisition.billingInformation.insuranceInformations[0]
-      //               .insuranceProviderName
-      //             ? req.requisition.billingInformation.insuranceInformations[0]
-      //                 .insuranceProviderName
-      //             : ""
-      //           : ""
-      //       }`,
-      //     };
-      //   }
-      // );
 
       setStateReqs(
-        searchResultReqs.sort(
-          (a, b) => Number(a.sampCollDate) - Number(b.sampCollDate),
-        ),
+        searchResultReqs
+          .sort((a, b) => Number(a.sampCollDate) - Number(b.sampCollDate))
+          .map((res) => {
+            res.sampCollDate =
+              res.sampCollDate.getFullYear() == 1970
+                ? new Date("")
+                : res.sampCollDate;
+            return res;
+          }),
       );
-
-      // // for every requistion in the repsonse, make a types/Requisition object
-      // // from it and add it to stateReqs.
-      // result.Requisitions.forEach((req: any, _: number) => {
-      //   setStateReqs((previous) => [
-      //     ...previous,
-      //     {
-      //       id: `${req.requisition.id}`,
-      //       identifier: `${req.requisition.identifier}`,
-      //       lab_notes: `${
-      //         req.requisition.customAttributes.lab_notes
-      //           ? req.requisition.customAttributes.lab_notes
-      //           : ""
-      //       }`,
-      //       projectTemplateId: `${req.requisition.projectTemplateId}`,
-      //       reqTemplate: `${req.requisition.template}`,
-      //       // sampCollDate: `${req.requisition.sampleCollectionDate}`,
-      //       sampCollDate: new Date(req.requisition.sampleCollectionDate),
-      //       provAccId: `${req.requisition.providerAccount.id}`,
-      //       provAccName: `${req.requisition.providerAccount.name}`,
-      //       firstName: `${req.requisition.patient.firstName}`,
-      //       middleName: `${
-      //         req.requisition.patient.middleName
-      //           ? req.requisition.patient.middleName
-      //           : ""
-      //       }`,
-      //       lastName: `${req.requisition.patient.lastName}`,
-      //       streetAddress: `${req.requisition.patient.streetAddress}`,
-      //       city: `${req.requisition.patient.city}`,
-      //       state: `${req.requisition.patient.state}`,
-      //       zipCode: `${req.requisition.patient.zipCode}`,
-      //       dob: `${req.requisition.patient.dateOfBirth}`,
-      //       gender: `${req.requisition.patient.gender}`,
-      //       race: `${req.requisition.patient.race}`,
-      //       ethnicity: `${req.requisition.patient.ethnicity}`,
-      //       primBillTo: `${
-      //         req.requisition.billingInformation.billTo
-      //           ? req.requisition.billingInformation.billTo
-      //           : ""
-      //       }`,
-      //       primGroupNum: `${
-      //         req.requisition.billingInformation.insuranceInformations
-      //           ? req.requisition.billingInformation.insuranceInformations[0]
-      //               .groupNumber
-      //             ? req.requisition.billingInformation.insuranceInformations[0]
-      //                 .groupNumber
-      //             : ""
-      //           : ""
-      //       }`,
-      //       primRTI: `${
-      //         req.requisition.billingInformation.insuranceInformations
-      //           ? req.requisition.billingInformation.insuranceInformations[0]
-      //               .relationshipToInsured
-      //             ? req.requisition.billingInformation.insuranceInformations[0]
-      //                 .relationshipToInsured
-      //             : ""
-      //           : ""
-      //       }`,
-      //       primInsurId: `${
-      //         req.requisition.billingInformation.insuranceInformations
-      //           ? req.requisition.billingInformation.insuranceInformations[0]
-      //               .idNumber
-      //             ? req.requisition.billingInformation.insuranceInformations[0]
-      //                 .idNumber
-      //             : ""
-      //           : ""
-      //       }`,
-      //       primInsurName: `${
-      //         req.requisition.billingInformation.insuranceInformations
-      //           ? req.requisition.billingInformation.insuranceInformations[0]
-      //               .insuranceProviderName
-      //             ? req.requisition.billingInformation.insuranceInformations[0]
-      //                 .insuranceProviderName
-      //             : ""
-      //           : ""
-      //       }`,
-      //     },
-      //   ]);
-      // });
 
       // console.log(JSON.stringify(result.Requisitions, null, 2));
     } catch (err: any) {
